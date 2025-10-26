@@ -1,0 +1,14 @@
+<ul className="flex space-x-4 mb-4">
+        <li>
+          <a href="/Products" className="text-blue-600 hover:underline">All Products</a>
+        </li>
+        <li>
+          <a href="/Products/LowStock" className="text-blue-600 hover:underline">Low Stock</a>
+        </li>
+        <li>
+          <a href="/Products/OutOfStock" className="text-blue-600 hover:underline">Out of Stock</a>
+        </li>
+        <li>
+          <a href="/Products/Add" className="text-blue-600 hover:underline">Add Product</a>
+        </li>
+      </ul>
