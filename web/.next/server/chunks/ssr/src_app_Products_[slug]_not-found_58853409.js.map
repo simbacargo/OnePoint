@@ -1,0 +1,1 @@
+{"version":3,"sources":["turbopack:///[project]/src/app/Products/[slug]/not-found.js"],"sourcesContent":["\nexport default function NotFound() {\n  return (\n    <div>\n        <h1>Item Not Found</h1>\n    </div>\n  )\n}\n"],"names":[],"mappings":"8EACe,SAAS,IACtB,MACE,CAAA,EAAA,EAAA,GAAA,EAAC,MAAA,UACG,CAAA,EAAA,EAAA,GAAA,EAAC,KAAA,UAAG,oBAGZ"}

@@ -1,0 +1,3 @@
+module.exports=[61390,a=>{"use strict";a.s(["default",()=>c]);var b=a.i(7997);function c(){return(0,b.jsx)("div",{className:"flex justify-center items-center h-screen",children:(0,b.jsx)("div",{className:"h-16 w-16 border-4 border-solid border-gray-300 border-t-transparent rounded-full animate-spin",role:"status",children:(0,b.jsx)("span",{className:"sr-only",children:"Loading..."})})})}}];
+
+//# sourceMappingURL=src_app_Sell_loading_jsx_7edc2315._.js.map

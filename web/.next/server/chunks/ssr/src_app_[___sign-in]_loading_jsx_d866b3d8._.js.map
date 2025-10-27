@@ -1,0 +1,1 @@
+{"version":3,"sources":["turbopack:///[project]/src/app/[...sign-in]/loading.jsx"],"sourcesContent":["export default function Loading() {\n  // Define the Loading UI here\n  return <div>Loading...</div>\n}\n"],"names":[],"mappings":"8EAAe,SAAS,IAEtB,MAAO,CAAA,EAAA,EAAA,GAAA,EAAC,MAAA,UAAI,cACd"}

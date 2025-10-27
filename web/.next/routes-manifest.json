@@ -1,0 +1,130 @@
+{
+  "version": 3,
+  "pages404": true,
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/Products/[slug]",
+      "regex": "^/Products/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/Products/(?<nxtPslug>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/[...sign-in]",
+      "regex": "^/(.+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPsignin": "nxtPsign-in"
+      },
+      "namedRegex": "^/(?<nxtPsignin>.+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/Customers",
+      "regex": "^/Customers(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/Customers(?:/)?$"
+    },
+    {
+      "page": "/dash",
+      "regex": "^/dash(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dash(?:/)?$"
+    },
+    {
+      "page": "/Expenses",
+      "regex": "^/Expenses(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/Expenses(?:/)?$"
+    },
+    {
+      "page": "/favicon.ico",
+      "regex": "^/favicon\\.ico(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/favicon\\.ico(?:/)?$"
+    },
+    {
+      "page": "/Products",
+      "regex": "^/Products(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/Products(?:/)?$"
+    },
+    {
+      "page": "/Products/New",
+      "regex": "^/Products/New(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/Products/New(?:/)?$"
+    },
+    {
+      "page": "/profile",
+      "regex": "^/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/profile(?:/)?$"
+    },
+    {
+      "page": "/Report",
+      "regex": "^/Report(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/Report(?:/)?$"
+    },
+    {
+      "page": "/Sales",
+      "regex": "^/Sales(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/Sales(?:/)?$"
+    },
+    {
+      "page": "/Sell",
+      "regex": "^/Sell(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/Sell(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSuffix": ".prefetch.rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments"
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}
