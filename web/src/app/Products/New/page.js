@@ -11,7 +11,7 @@ const Card = ({ children, className = '' }) => (
 );
 
 // --- CONSTANTS ---
-const API_URL = process.env.NEXT_PUBLIC_API_ULR || 'http://127.0.0.1:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_ULR || 'https://msaidizi.nsaro.com';
 
 // --- API SIMULATION (Replace with your actual async function) ---
 const SubmitProduct = async (productData) => {
