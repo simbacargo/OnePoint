@@ -1,1 +1,6 @@
-{"version":3,"sources":["turbopack:///[project]/src/app/[...sign-in]/loading.jsx"],"sourcesContent":["export default function Loading() {\n  // Define the Loading UI here\n  return <div>Loading...</div>\n}\n"],"names":[],"mappings":"8EAAe,SAAS,IAEtB,MAAO,CAAA,EAAA,EAAA,GAAA,EAAC,MAAA,UAAI,cACd"}
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/david/Desktop/msaidizi/web/src/app/%5B...sign-in%5D/loading.jsx"],"sourcesContent":["export default function Loading() {\n  // Define the Loading UI here\n  return <div>Loading...</div>\n}\n"],"names":[],"mappings":";;;;;;AAAe,SAAS;IACtB,6BAA6B;IAC7B,qBAAO,8OAAC;kBAAI;;;;;;AACd","debugId":null}}]
+}

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 // import {list_of_products} from '@/data/products'
 export async function GET() {
 
-  const res = await fetch('http://localhost:8000/products/', {
+  const res = await fetch('https://msaidizi.nsaro.com/products/', {
     // next: { revalidate: 10 }
   })
   const data = await res.json()

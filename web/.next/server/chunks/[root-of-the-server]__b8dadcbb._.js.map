@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 3, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"","debugId":null}},
+    {"offset": {"line": 55, "column": 0}, "map": {"version":3,"sources":["file:///home/david/Desktop/msaidizi/web/src/app/api/products/route.js"],"sourcesContent":["import { NextResponse } from \"next/server\"\n// import {list_of_products} from '@/data/products'\nexport async function GET() {\n\n  const res = await fetch('https://msaidizi.nsaro.com/products/', {\n    // next: { revalidate: 10 }\n  })\n  const data = await res.json()\n  const products = data.results;\n  console.log(\"Fetched products data:\", data);\n\n  // Return the new, larger dataset with the same structure\n  return NextResponse.json({ products});\n}"],"names":[],"mappings":";;;;AAAA;;AAEO,eAAe;IAEpB,MAAM,MAAM,MAAM,MAAM,wCAAwC;IAEhE;IACA,MAAM,OAAO,MAAM,IAAI,IAAI;IAC3B,MAAM,WAAW,KAAK,OAAO;IAC7B,QAAQ,GAAG,CAAC,0BAA0B;IAEtC,yDAAyD;IACzD,OAAO,gJAAY,CAAC,IAAI,CAAC;QAAE;IAAQ;AACrC","debugId":null}}]
+}

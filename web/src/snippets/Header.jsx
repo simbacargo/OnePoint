@@ -22,8 +22,8 @@ const Header = (props) => {
   // const dp = user?.imageUrl;
 
   const isLoggedIn = true; // Determine login status
-  const username = 'John Doe'; // Placeholder for demo purposes
-  const dp = '/assets/img/profile-img.jpg'; // Placeholder for demo purposes
+  const username = 'Nsaro Auto Parts'; // Placeholder for demo purposes
+  const dp = '/assets/img/profile-imsg.jpg'; // Placeholder for demo purposes
   const {showNavbar, setShowNavbar} = useGlobalContext();
   const {showSidebar, setShowSidebar} = useGlobalContext();
 
@@ -61,7 +61,7 @@ const Header = (props) => {
           {isLoggedIn && (
             <li className="nav-item dropdown pe-3">
               <a className="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown" onClick={() => setShowNavbar(!showNavbar)}>
-                <img src={dp || '/assets/img/profile-img.jpg'} alt={username} className="rounded-circle" />
+                <img src={dp || '/assets/img/profile-img.jpg'} altx={username} className="rounded-circle" />
                 <span className="d-none d-md-block dropdown-toggle ps-2">{username}</span>
               </a>
               {/* End Profile Image Icon */}

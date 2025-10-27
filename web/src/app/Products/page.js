@@ -6,7 +6,7 @@ import {
 
 // --- DJANGO API CONFIGURATION ---
 // IMPORTANT: Update this URL to match where your Django application is running.
-const DJANGO_API_BASE_URL = 'http://localhost:8000/api/products/'; 
+const DJANGO_API_BASE_URL = 'https://msaidizi.nsaro.com/api/products/'; 
 
 // --- REACT UTILITIES & COMPONENTS ---
 
@@ -695,7 +695,7 @@ export default function ProductsPage() {
     if (loading) {
         content = <div className="text-center p-12 text-gray-500 flex flex-col items-center">
             <Loader2 className="w-10 h-10 animate-spin text-blue-500 mb-4" />
-            <p className="text-lg font-medium">Connecting to Django API at: {DJANGO_API_BASE_URL}</p>
+            <p className="text-lg font-medium">Loading </p>
         </div>;
         title = "Loading...";
     } else {
@@ -733,7 +733,7 @@ export default function ProductsPage() {
         <div className="container mx-auto p-4 sm:p-6 lg:p-8 font-sans bg-gray-50 min-h-screen">
             <h1 className="text-3xl font-bold text-gray-900 mb-6 flex items-center">
                 {currentView === 'list' ? (
-                    'Inventory Dashboard (Django Powered)'
+                    'Inventory Dashboard'
                 ) : (
                     <>
                         <button onClick={() => handleNavigate('list')} className="text-blue-500 hover:text-blue-700 mr-3 text-xl font-medium">&larr; Back to List</button> 

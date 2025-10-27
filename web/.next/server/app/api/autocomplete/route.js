@@ -1,6 +1,6 @@
 var R=require("../../../chunks/[turbopack]_runtime.js")("server/app/api/autocomplete/route.js")
-R.c("server/chunks/[root-of-the-server]__cb765ca0._.js")
-R.c("server/chunks/[root-of-the-server]__90bd7cc2._.js")
-R.m(30420)
-R.m(2918)
-module.exports=R.m(2918).exports
+R.c("server/chunks/node_modules_next_9c185690._.js")
+R.c("server/chunks/[root-of-the-server]__9830901b._.js")
+R.m("[project]/.next-internal/server/app/api/autocomplete/route/actions.js [app-rsc] (server actions loader, ecmascript)")
+R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/src/app/api/autocomplete/route.js [app-route] (ecmascript)\" } [app-route] (ecmascript)")
+module.exports=R.m("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/src/app/api/autocomplete/route.js [app-route] (ecmascript)\" } [app-route] (ecmascript)").exports

@@ -1,21 +1,7 @@
 {
-  "/Customers/page": "app/Customers/page.js",
-  "/Expenses/page": "app/Expenses/page.js",
-  "/Products/New/page": "app/Products/New/page.js",
-  "/Products/[slug]/page": "app/Products/[slug]/page.js",
   "/Products/page": "app/Products/page.js",
-  "/Report/page": "app/Report/page.js",
-  "/Sales/page": "app/Sales/page.js",
-  "/Sell/page": "app/Sell/page.js",
   "/[...sign-in]/page": "app/[...sign-in]/page.js",
-  "/_not-found/page": "app/_not-found/page.js",
-  "/api/auth/google/callback/route": "app/api/auth/google/callback/route.js",
-  "/api/auth/google/login/route": "app/api/auth/google/login/route.js",
   "/api/autocomplete/route": "app/api/autocomplete/route.js",
   "/api/products/route": "app/api/products/route.js",
-  "/api/route": "app/api/route.js",
-  "/dash/page": "app/dash/page.js",
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/page": "app/page.js",
-  "/profile/page": "app/profile/page.js"
+  "/favicon.ico/route": "app/favicon.ico/route.js"
 }

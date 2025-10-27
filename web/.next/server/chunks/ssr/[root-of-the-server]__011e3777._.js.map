@@ -1,1 +1,0 @@
-{"version":3,"sources":["turbopack:///[project]/src/app/[...sign-in]/page.jsx"],"sourcesContent":["import React from 'react'\n\nexport default function page() {\n  return (\n    <div>\n   a   \n    </div>\n  )\n}\n"],"names":[],"mappings":"iRAEe,SAAS,IACtB,MACE,CAAA,EAAA,EAAA,GAAA,EAAC,MAAA,UAAI,KAIT,CARA,EAAA,CAAA,CAAA"}
