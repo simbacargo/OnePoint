@@ -42,10 +42,8 @@ urlpatterns += [
     path('index/index/product_create', views.product_create, name='product_create'),
     path('index/index/product_create', views.product_create, name='product_create'),
     path('index/index/product_create', views.product_create, name='product_create'),
-    
 ]
-
-
+#
 urlpatterns += [
     path('index/sales/', views.list_sales, name='list_sales'),
     path('index/sales/add/', views.create_sale, name='create_sale'),
