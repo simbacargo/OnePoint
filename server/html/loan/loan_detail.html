@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Loan #{{ loan.id }} Details</h1>
+    <p><strong>Loan Amount:</strong> {{ loan.amount }}</p>
+    <p><strong>Repayment Frequency:</strong> {{ loan.repayment_frequency }}</p>
+    <p><strong>Status:</strong> {{ loan.status }}</p>
+    <p><strong>Due Date:</strong> {{ loan.due_date }}</p>
+    
+    <h2>Repayments</h2>
+    <ul>
+        {% for payment in loan.repayments.all %}
+            <li>
+                Payment of {{ payment.amount }} on {{ payment.payment_date }} (Status: {{ payment.status }})
+            </li>
+        {% endfor %}
+    </ul>
+
+    {% if loan.status == "PENDING" %}
+        <a href="{% url 'make_payment' loan.id %}">Make a Payment</a>
+    {% endif %}
+{% endblock %}

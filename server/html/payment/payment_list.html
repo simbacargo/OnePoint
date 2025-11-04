@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Payment List</h1>
+
+    <br>
+    <!-- Filter Controls -->
+    <div class="filter">
+        <h5>Filter by Payment Status:</h5>
+        <a href="{% url 'payment_list' %}?payment_status=PENDING" class="btn btn-info">Pending</a>
+        <a href="{% url 'payment_list' %}?payment_status=COMPLETED" class="btn btn-success">Completed</a>
+        <a href="{% url 'payment_list' %}?payment_status=FAILED" class="btn btn-danger">Failed</a>
+    </div>
+
+    <br>
+
+    <!-- Filter by Payment Method -->
+    <div class="filter">
+        <h5>Filter by Payment Method:</h5>
+        <a href="{% url 'payment_list' %}?payment_method=BANK_TRANSFER" class="btn btn-primary">Bank Transfer</a>
+        <a href="{% url 'payment_list' %}?payment_method=MOBILE_MONEY" class="btn btn-warning">Mobile Money</a>
+        <a href="{% url 'payment_list' %}?payment_method=CASH" class="btn btn-secondary">Cash</a>
+        <a href="{% url 'payment_list' %}?payment_method=CREDIT_CARD" class="btn btn-info">Credit Card</a>
+        <a href="{% url 'payment_list' %}" class="btn btn-dark">All Payments</a>
+    </div>
+
+    <br>
+
+    <!-- Filter by Payment Date Range -->
+    <div class="filter">
+        <h5>Filter by Payment Date:</h5>
+        <form method="get" action="{% url 'payment_list' %}">
+            <label for="min_payment_date">From:</label>
+            <input type="date" name="min_payment_date" id="min_payment_date" value="{{ request.GET.min_payment_date }}" class="form-control">
+            <label for="max_payment_date">To:</label>
+            <input type="date" name="max_payment_date" id="max_payment_date" value="{{ request.GET.max_payment_date }}" class="form-control">
+            <button type="submit" class="btn btn-primary">Apply Filter</button>
+        </form>
+    </div>
+
+    <br>
+
+    <div class="col-12">
+        <div class="card top-selling overflow-auto">
+            <div class="card-body pb-0">
+                <h5 class="card-title">Payment List</h5>
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Vendor</th>
+                            <th scope="col">Loan</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Payment Date</th>
+                            <th scope="col">Payment Method</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                            <tr>
+                                <th scope="row">
+                                    <a href="{% url 'payment_detail' payment.id %}">
+                                        {{ payment.id }}
+                                    </a>
+                                </th>
+                                <td>{{ payment.vendor.name }}</td>
+                                <td>{{ payment.loan.id }}</td>
+                                <td>{{ payment.amount }}</td>
+                                <td>{{ payment.payment_date }}</td>
+                                <td>{{ payment.get_payment_method_display }}</td>
+                                <td>{{ payment.get_status_display }}</td>
+                                <td><a href="{% url 'payment_detail' payment.id %}" class="btn btn-primary">View</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

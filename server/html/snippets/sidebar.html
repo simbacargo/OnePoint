@@ -1,0 +1,250 @@
+<!-- { % if user.is_authenticated %} -->
+<!-- ======= Sidebar ======= -->
+<aside id="sidebar" class="sidebar">
+  <!-- <img src="/assets/img/logo.jpg" alt="LoGo" class="rounded" width="100%"> -->
+
+  <ul class="sidebar-nav" id="sidebar-nav">
+
+    <li class="nav-item">
+        <a hx-target="#main" hx-get="/index/dashboard" class="nav-link" >
+        <i class="bi bi-grid"></i>
+        <span>Dashboard</span>
+      </a>
+    </li><!-- End Dashboard Nav -->
+
+    <li class="nav-item">
+      <!-- <a class="nav-link collapsed" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#">
+        <i class="bi bi-menu-button-wide"></i><span>Invoices</span><i class="bi bi-chevron-down ms-auto"></i>
+      </a> -->
+      <ul id="components-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+        <li>
+          <a hx-get="components-alerts.html" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>New Invoices</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="components-accordion.html" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>Invoices Reports</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="components-badges.html" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>Invoices Product sales</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="components-breadcrumbs.html" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>All Invoices</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="components-buttons.html" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>Buttons</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="components-cards.html" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>Cards</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="components-carousel.html" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>Carousel</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="components-list-group.html" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>List group</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="components-modal.html" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>Modal</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="components-tabs.html" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>Tabs</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="components-pagination.html" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>Pagination</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="components-progress.html" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>Progress</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="components-spinners.html" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>Spinners</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="components-tooltips.html" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>Tooltips</span>
+          </a>
+        </li>
+      </ul>
+    </li><!-- End Components Nav -->
+
+    <li class="nav-item">
+      <a class="nav-link collapsed" data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
+        <i class="bi bi-journal-text"></i><span>Products</span><i class="bi bi-chevron-down ms-auto"></i>
+      </a>
+      <ul id="forms-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+        <li>
+          <a hx-get="{% url 'product_create' %}" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>New Products</span>
+          </a>
+        </li>
+        <li>
+          <a hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>All Products</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="{% url 'list_of_products'  %}?is_verified=true" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>Verified Products</span>
+          </a>
+        </li>
+        <li></li>
+      </ul>
+    </li><!-- End Forms Nav -->
+
+    <li class="nav-item">
+      <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
+        <i class="bi bi-layout-text-window-reverse"></i><span>Sales</span><i class="bi bi-chevron-down ms-auto"></i>
+      </a>
+      <ul id="tables-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+        <li>
+          <a hx-get="{ % url 'vendor_create' %}" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>New Sales </span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="{ % url 'vendor_list' %}" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>Verified/Premium Sales</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="{ % url 'vendor_list' %}" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>All Sales</span>
+          </a>
+        </li>
+      </ul>
+    </li><!-- End Tables Nav -->
+
+    <li class="nav-item">
+      <a class="nav-link collapsed" data-bs-target="#charts-nav" data-bs-toggle="collapse" href="#">
+        <i class="bi bi-bar-chart"></i><span>Customers</span><i class="bi bi-chevron-down ms-auto"></i>
+      </a>
+      <ul id="charts-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+        <li>
+          <a hx-get="{ % url 'loan_list' %}" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>Approved Customers</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="{ % url 'create_loan' %}" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>New Customers</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="{ % url 'payment_list' %}" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>All Customers</span>
+          </a>
+        </li>
+      </ul>
+    </li><!-- End Charts Nav -->
+{% comment %}
+    <li class="nav-item">
+      <a class="nav-link collapsed" data-bs-target="#icons-nav" data-bs-toggle="collapse" href="#">
+        <i class="bi bi-gem"></i><span>Payments</span><i class="bi bi-chevron-down ms-auto"></i>
+      </a>
+      <ul id="icons-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+        <li>
+          <a hx-get="{ % url 'make_payment' 1 %}" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>New Payments</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="{ % url 'payment_list' %}" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>InComplete Payments</span>
+          </a>
+        </li>
+        <li>
+          <a hx-get="{ % url 'payment_list' %}" hx-target="#main" href="#">
+            <i class="bi bi-circle"></i><span>All payments</span>
+          </a>
+        </li>
+      </ul>
+    </li><!-- End Icons Nav -->
+
+    <li class="nav-heading">Pages</li>
+
+    <li class="nav-item">
+      <a class="nav-link collapsed" hx-get="/profile/{{user.username}}" hx-target="#main" href="#">
+        <i class="bi bi-person"></i>
+        <span>Profile</span>
+      </a>
+    </li><!-- End Profile Page Nav -->
+
+    <li class="nav-item">
+      <a class="nav-link collapsed" hx-get="/suppliers" hx-target="#main" href="#">
+        <i class="bi bi-envelope"></i>
+        <span>Customers</span>
+      </a>
+    </li><!-- End Contact Page Nav -->
+
+    <li class="nav-item">
+      <a class="nav-link collapsed" hx-get="/error" hx-target="#main" href="#">
+        <i class="bi bi-question-circle"></i>
+        <span>Invoices</span>
+      </a>
+    </li><!-- End Invoices Page Nav -->
+    <li class="nav-item">
+      <a class="nav-link collapsed" hx-get="/error" hx-target="#main" href="#">
+        <i class="bi bi-card-list"></i>
+        <span>Reports</span>
+      </a>
+    </li><!-- End Register Page Nav -->
+
+    <li class="nav-item">
+      <a class="nav-link collapsed" hx-get="/error" hx-target="#main" href="#">
+        <i class="bi bi-box-arrow-in-right"></i>
+        <span>Manage team</span>
+      </a>
+    </li><!-- End Login Page Nav -->
+
+    <li class="nav-item">
+      <a class="nav-link collapsed" hx-get="pages-error-404.html" hx-target="#main" href="#">
+        <i class="bi bi-dash-circle"></i>
+        <span>Error 404</span>
+      </a>
+    </li><!-- End Error 404 Page Nav -->
+
+    <li class="nav-item">
+      <a class="nav-link collapsed" hx-get="pages-blank.html" hx-target="#main" href="#">
+        <i class="bi bi-file-earmark"></i>
+        <span>Blank</span>
+      </a>
+    </li><!-- End Blank Page Nav -->
+    {% endcomment %}
+  </ul>
+
+</aside><!-- End Sidebar -->
+<!-- { % endif %} -->
+
+<style>
+  .sidebar-nav .nav-item {
+  margin-bottom: 0px;
+}
+aside{
+  margin: 15px 10px;
+  border-radius: 12px;
+}
+
+</style>

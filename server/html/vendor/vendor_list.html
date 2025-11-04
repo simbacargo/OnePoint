@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Vendor List</h1>
+
+    <br>
+    <!-- Filter Controls -->
+    <div class="filter">
+        <h5>Filter by Credit Score:</h5>
+        <form method="get" action="{% url 'vendor_list' %}">
+            <label for="min_credit_score">Minimum Credit Score:</label>
+            <input type="number" name="min_credit_score" id="min_credit_score" value="{{ request.GET.min_credit_score }}" class="form-control">
+            <select name="business_type" class="form-control">
+                <option value="">All Business Types</option>
+                <option value="SMALL_BUSINESS" {% if request.GET.business_type == 'SMALL_BUSINESS' %}selected{% endif %}>Small Business</option>
+                <option value="STARTUP" {% if request.GET.business_type == 'STARTUP' %}selected{% endif %}>Startup</option>
+                <option value="SOLOPRENEUR" {% if request.GET.business_type == 'SOLOPRENEUR' %}selected{% endif %}>Solopreneur</option>
+                <option value="CORPORATION" {% if request.GET.business_type == 'CORPORATION' %}selected{% endif %}>Corporation</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Apply Filter</button>
+        </form>
+    </div>
+
+    <br>
+
+    <div class="col-12">
+        <div class="card top-selling overflow-auto">
+            <div class="card-body pb-0">
+                <h5 class="card-title">Vendor List</h5>
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Business Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Phone Number</th>
+                            <th scope="col">Credit Score</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for vendor in vendors %}
+                            <tr>
+                                <th scope="row">
+                                    <a href="{% url 'vendor_detail' vendor.id %}">
+                                        {{ vendor.id }}
+                                    </a>
+                                </th>
+                                <td>{{ vendor.name }}</td>
+                                <td>{{ vendor.business_name }}</td>
+                                <td>{{ vendor.email }}</td>
+                                <td>{{ vendor.phone_number }}</td>
+                                <td>{{ vendor.credit_score }}</td>
+                                <td><a href="{% url 'vendor_detail' vendor.id %}" class="btn btn-primary">View</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

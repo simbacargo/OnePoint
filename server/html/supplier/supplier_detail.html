@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+  <div class="container">
+    <h1>Supplier Details</h1>
+    <table class="table table-bordered">
+      <tbody>
+        <tr>
+          <th>Name</th>
+          <td>{{ supplier.name }}</td>
+        </tr>
+        <tr>
+          <th>Company Name</th>
+          <td>{{ supplier.company_name|default:"N/A" }}</td>
+        </tr>
+        <tr>
+          <th>Contact Person</th>
+          <td>{{ supplier.contact_person }}</td>
+        </tr>
+        <tr>
+          <th>Phone Number</th>
+          <td>{{ supplier.phone_number }}</td>
+        </tr>
+        <tr>
+          <th>Email</th>
+          <td>{{ supplier.email }}</td>
+        </tr>
+        <tr>
+          <th>Address</th>
+          <td>{{ supplier.address }}</td>
+        </tr>
+        <tr>
+          <th>Website</th>
+          <td><a href="{{ supplier.website }}" target="_blank">{{ supplier.website|default:"N/A" }}</a></td>
+        </tr>
+        <tr>
+          <th>Verified</th>
+          <td>{% if supplier.is_verified %} Yes {% else %} No {% endif %}</td>
+        </tr>
+        <tr>
+          <th>Rating</th>
+          <td>{{ supplier.rating|default:"N/A" }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <a href="{% url 'supplier_update' supplier.pk %}" class="btn btn-primary">Edit</a>
+  </div>
+{% endblock %}

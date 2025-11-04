@@ -1,0 +1,43 @@
+{% block content %}
+<h1>Confirm Deletion</h1>
+
+<!-- Display confirmation message -->
+<p>Are you sure you want to delete the job with ID "{{ object.job_id }}"?</p>
+
+<!-- Display job details for reference -->
+<table class="table table-bordered mt-3">
+  <tbody>
+    <tr>
+      <th>Job ID</th>
+      <td>{{ object.job_id }}</td>
+    </tr>
+    <tr>
+      <th>Consignee</th>
+      <td>{{ object.consignee }}</td>
+    </tr>
+    <tr>
+      <th>Origin</th>
+      <td>{{ object.origin }}</td>
+    </tr>
+    <tr>
+      <th>Destination</th>
+      <td>{{ object.final_destination }}</td>
+    </tr>
+    <tr>
+      <th>Gross Weight (kg)</th>
+      <td>{{ object.gross_weight }}</td>
+    </tr>
+    <tr>
+      <th>CBM</th>
+      <td>{{ object.cbm }}</td>
+    </tr>
+    <tr>
+      <th>Price</th>
+      <td>${{ object.price|floatformat:2 }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<a hx-post="{% url 'home:job_delete' job.pk %}" hx-target="#body" hx-swap="innerHTML" href="#" class="btn btn-danger btn-sm">Confirm Deletion</a>
+<a hx-get="{% url 'home:job_detail' job.pk %}" hx-target="#body" hx-swap="innerHTML" href="#"  class="btn btn-secondary">Cancel</a>
+{% endblock %}

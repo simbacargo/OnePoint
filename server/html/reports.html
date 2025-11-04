@@ -1,0 +1,29 @@
+<center>
+      <h1>There are no reports generated yet</h1>
+
+    <div>
+        <button
+            hx-get="{% url 'home:generate_report' %}?type=daily&format=pdf"
+            hx-target="#report-result"
+            hx-swap="innerHTML"
+            class="btn-report"
+        >
+            Generate Daily PDF Report
+        </button>
+
+        <button
+            hx-get="{% url 'home:generate_report' %}?type=daily&format=excel"
+            hx-target="#report-result"
+            hx-swap="innerHTML"
+            class="btn-report"
+        >
+            Generate Daily Excel Report
+        </button>
+    </div>
+
+    <div id="report-result">
+        <!-- Report will be loaded here -->
+    </div>
+
+</center>
+{% endblock %}

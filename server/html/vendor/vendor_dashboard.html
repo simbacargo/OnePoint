@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Welcome, {{ vendor.name }}!</h1>
+    
+    <div class="dashboard-summary">
+        <div class="summary-box">
+            <h3>Your Profile</h3>
+            <p><strong>Business Name:</strong> {{ vendor.business_name }}</p>
+            <p><strong>Credit Score:</strong> {{ vendor.credit_score }}</p>
+            <p><strong>Email:</strong> {{ vendor.email }}</p>
+            <p><strong>Phone:</strong> {{ vendor.phone_number }}</p>
+        </div>
+
+        <div class="summary-box">
+            <h3>Your Loans</h3>
+            {% if vendor.loans.all %}
+                <ul>
+                    {% for loan in vendor.loans.all %}
+                        <li>
+                            Loan ID: {{ loan.id }} - Amount: {{ loan.amount }} - Status: {{ loan.status }}<br>
+                            Due Date: {{ loan.due_date }} - Outstanding Balance: {{ loan.outstanding_balance }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>You have no active loans.</p>
+            {% endif %}
+        </div>
+
+        <div class="summary-box">
+            <h3>Your Payments</h3>
+            {% if vendor.payments.all %}
+                <ul>
+                    {% for payment in vendor.payments.all %}
+                        <li>
+                            Payment ID: {{ payment.id }} - Amount: {{ payment.amount }} - Status: {{ payment.status }}<br>
+                            Date: {{ payment.payment_date }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>You have no payment history yet.</p>
+            {% endif %}
+        </div>
+
+        <div class="summary-box">
+            <h3>Available Products</h3>
+            {% if available_products %}
+                <ul>
+                    {% for product in available_products %}
+                        <li>
+                            <strong>{{ product.name }}</strong><br>
+                            Price: {{ product.price }}<br>
+                            <a href="{% url 'product_list' %}">View Products</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No products available at the moment.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

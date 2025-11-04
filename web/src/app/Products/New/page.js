@@ -1,4 +1,5 @@
-'use client';
+
+I am working on a React component for creating new products in an inventory system. The component includes a form with fields for product details, handles form submission with loading states, and displays success or error messages based on the outcome. Here's the complete code for the component:
 
 import React, { useState, useCallback } from 'react';
 import { Plus, Loader2, CheckCircle, XCircle } from 'lucide-react';
@@ -320,3 +321,7 @@ export default function CreateProductPage() {
     </div>
   );
 }
+
+
+
+can you convert it to a dnango template?

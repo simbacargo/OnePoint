@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Loan List</h1>
+
+    <br>
+    <!-- Filter Controls -->
+    <div class="filter">
+        <h5>Filter by Loan Status:</h5>
+        <a href="{% url 'loan_list' %}?loan_status=PENDING" class="btn btn-info">Pending</a>
+        <a href="{% url 'loan_list' %}?loan_status=APPROVED" class="btn btn-success">Approved</a>
+        <a href="{% url 'loan_list' %}?loan_status=REPAID" class="btn btn-primary">Repaid</a>
+        <a href="{% url 'loan_list' %}?loan_status=OVERDUE" class="btn btn-danger">Overdue</a>
+    </div>
+
+    <br>
+
+    <!-- Filter by Repayment Status -->
+    <div class="filter">
+        <h5>Filter by Repayment Status:</h5>
+        <a href="{% url 'loan_list' %}?is_repaid=true" class="btn btn-success">Fully Repaid</a>
+        <a href="{% url 'loan_list' %}?is_repaid=false" class="btn btn-warning">Not Fully Repaid</a>
+        <a href="{% url 'loan_list' %}" class="btn btn-secondary">All Loans</a>
+    </div>
+
+    <br>
+
+    <!-- Filter by Due Date Range -->
+    <div class="filter">
+        <h5>Filter by Due Date:</h5>
+        <form method="get" action="{% url 'loan_list' %}">
+            <label for="min_due_date">From:</label>
+            <input type="date" name="min_due_date" id="min_due_date" value="{{ request.GET.min_due_date }}" class="form-control">
+            <label for="max_due_date">To:</label>
+            <input type="date" name="max_due_date" id="max_due_date" value="{{ request.GET.max_due_date }}" class="form-control">
+            <button type="submit" class="btn btn-primary">Apply Filter</button>
+        </form>
+    </div>
+
+    <br>
+
+    <div class="col-12">
+        <div class="card top-selling overflow-auto">
+            <div class="card-body pb-0">
+                <h5 class="card-title">Loan List</h5>
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Vendor</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Loan Date</th>
+                            <th scope="col">Due Date</th>
+                            <th scope="col">Repayment Status</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for loan in loans %}
+                            <tr>
+                                <th scope="row">
+                                    <a href="{% url 'loan_detail' loan.id %}">
+                                        {{ loan.id }}
+                                    </a>
+                                </th>
+                                <td>{{ loan.vendor.name }}</td>
+                                <td>{{ loan.amount }}</td>
+                                <td>{{ loan.loan_date }}</td>
+                                <td>{{ loan.due_date }}</td>
+                                <td>
+                                    {% if loan.total_repaid >= loan.amount %}
+                                        Fully Repaid
+                                    {% else %}
+                                        Not Fully Repaid
+                                    {% endif %}
+                                </td>
+                                <td>{{ loan.get_status_display }}</td>
+                                <td><a href="{% url 'loan_detail' loan.id %}" class="btn btn-primary">View</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

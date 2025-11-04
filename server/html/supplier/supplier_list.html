@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Supplier List</h1>
+   
+    <br>
+    <!-- Filter Links -->
+    <div class="filter">
+        <h5>Filter by Verified Status:</h5>
+        <a href="{% url 'supplier_list' %}?is_verified=true" class="btn btn-success">Verified</a>
+        <a href="{% url 'supplier_list' %}?is_verified=false" class="btn btn-danger">Unverified</a>
+        <a href="{% url 'supplier_list' %}" class="btn btn-secondary">All</a>
+    </div>
+
+    <br>
+
+    <div class="col-12">
+        <div class="card top-selling overflow-auto">
+            <div class="card-body pb-0">
+                <h5 class="card-title">Supplier List</h5>
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Contact Person</th>
+                            <th scope="col">Phone Number</th>
+                            <th scope="col">Address</th>
+                            <th scope="col">Verified Status</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for supplier in suppliers %}
+                            <tr>
+                                <th scope="row">
+                                    <a href="{% url 'supplier_detail' supplier.id %}">
+                                        <!-- <img src="assets/img/product-1.jpg" alt=""> -->
+                                        {{ supplier.id }}
+                                    </a>
+                                </th>
+                                <td>{{ supplier.name }}</td>
+                                <td>{{ supplier.contact_person }}</td>
+                                <td class="fw-bold">{{ supplier.phone_number }}</td>
+                                <td>{{ supplier.address }}</td>
+                                <td>{{ supplier.is_verified|yesno:"Verified,Unverified" }}</td>
+                                <td><a href="{% url 'supplier_detail' supplier.id %}" class="btn btn-primary">View</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% if not suppliers %}
+                <H3> <center>There are no supplies registered Yet</center></H3>
+                {% endif %}
+            
+            </div>
+        </div>
+    </div>
+{% endblock %}

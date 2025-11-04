@@ -1,0 +1,179 @@
+
+{% load static %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the loader icon rotation */
+        .animate-spin-slow {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        /* Ensure the body uses the Inter font as requested */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f9;
+        }
+    </style>
+<div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">
+    
+    <!-- Header -->
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Create New Product</h1>
+    <p class="text-gray-500 mb-6">Enter the details for the new inventory item below. This form is rendered by Django.</p>
+
+    <!-- Status Message Display (Uses Django context 'status_message' and 'status_type') -->
+    {% if status_message %}
+        {% if status_type == 'success' %}
+            {% with icon_class="text-green-700" bg_class="bg-green-100 border-green-400" text_class="text-green-700" %}
+            <div class="flex items-center p-4 mb-6 rounded-lg border-l-4 font-medium {{ bg_class }} border-l-green-600" role="alert">
+                <!-- Using inline SVG for CheckCircle - lucide-react equivalent -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-3 flex-shrink-0 {{ icon_class }}"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><path d="M22 4L12 14.01l-3-3"></path></svg>
+                <p>{{ status_message }}</p>
+            </div>
+            {% endwith %}
+        {% elif status_type == 'error' %}
+            {% with icon_class="text-red-700" bg_class="bg-red-100 border-red-400" text_class="text-red-700" %}
+            <div class="flex items-center p-4 mb-6 rounded-lg border-l-4 font-medium {{ bg_class }} border-l-red-600" role="alert">
+                <!-- Using inline SVG for XCircle - lucide-react equivalent -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-3 flex-shrink-0 {{ icon_class }}"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
+                <p>{{ status_message }}</p>
+            </div>
+            {% endwith %}
+        {% endif %}
+    {% endif %}
+
+    <!-- Card equivalent -->
+    <div class="bg-white p-6 rounded-xl shadow-2xl transition duration-300 border border-gray-100">
+        
+        <!-- Django Form Submission -->
+        <form method="POST" hx-post="{% url 'product_create' %}" hx-targert="main-content" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Section 1: Core Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
+                <!-- Name -->
+                <div>
+                    <label for="id_name" class="text-sm font-medium text-gray-700">Product Name <span class="text-red-500">*</span></label>
+                    <input type="text" id="id_name" name="name" placeholder="e.g., Oil Filter (Premium)" required
+                           value="{{ form.name.value|default:'' }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.name.errors %}<p class="text-xs text-red-500 mt-1">{{ form.name.errors }}</p>{% endif %}
+                </div>
+
+                <!-- Part Number -->
+                <div>
+                    <label for="id_part_number" class="text-sm font-medium text-gray-700">Part Number</label>
+                    <input type="text" id="id_part_number" name="part_number" placeholder="e.g., K-4902-12345 (Optional)" 
+                           value="{{ form.part_number.value|default:'' }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.part_number.errors %}<p class="text-xs text-red-500 mt-1">{{ form.part_number.errors }}</p>{% endif %}
+                </div>
+            </div>
+
+            <!-- Section 2: Inventory & Pricing -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
+                <!-- Quantity -->
+                <div>
+                    <label for="id_quantity" class="text-sm font-medium text-gray-700">Starting Quantity (QTY) <span class="text-red-500">*</span></label>
+                    <input type="number" id="id_quantity" name="quantity" placeholder="0" required min="0" 
+                           value="{{ form.quantity.value|default:0 }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.quantity.errors %}<p class="text-xs text-red-500 mt-1">{{ form.quantity.errors }}</p>{% endif %}
+                </div>
+                
+                <!-- Price -->
+                <div>
+                    <label for="id_price" class="text-sm font-medium text-gray-700">Price (USD) <span class="text-red-500">*</span></label>
+                    <input type="number" id="id_price" name="price" placeholder="0.00" required min="0.01" step="0.01"
+                           value="{{ form.price.value|default:'0.00' }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.price.errors %}<p class="text-xs text-red-500 mt-1">{{ form.price.errors }}</p>{% endif %}
+                </div>
+            </div>
+
+            <!-- Section 3: Brand & Vehicles -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
+                <!-- Brand -->
+                <div>
+                    <label for="id_brand" class="text-sm font-medium text-gray-700">Brand <span class="text-red-500">*</span></label>
+                    <input type="text" id="id_brand" name="brand" placeholder="e.g., Bosch" required
+                           value="{{ form.brand.value|default:'' }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.brand.errors %}<p class="text-xs text-red-500 mt-1">{{ form.brand.errors }}</p>{% endif %}
+                </div>
+                
+                <!-- Vehicles -->
+                <div>
+                    <label for="id_vehicles" class="text-sm font-medium text-gray-700">Vehicles (Comma Separated) <span class="text-red-500">*</span></label>
+                    <input type="text" id="id_vehicles" name="vehicles" placeholder="e.g., Honda Accord, Toyota Camry" required
+                           value="{{ form.vehicles.value|default:'' }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.vehicles.errors %}<p class="text-xs text-red-500 mt-1">{{ form.vehicles.errors }}</p>{% endif %}
+                </div>
+            </div>
+
+            <!-- Section 4: Sales Metrics (Assuming initial values are required/set) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pb-6">
+                <!-- Amount -->
+                <div>
+                    <label for="id_amount" class="text-sm font-medium text-gray-700">Initial Total Amount <span class="text-red-500">*</span></label>
+                    <input type="number" id="id_amount" name="amount" placeholder="e.g., 100" required min="0"
+                           value="{{ form.amount.value|default:0 }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.amount.errors %}<p class="text-xs text-red-500 mt-1">{{ form.amount.errors }}</p>{% endif %}
+                </div>
+                
+                <!-- Sold Units -->
+                <div>
+                    <label for="id_sold_units" class="text-sm font-medium text-gray-700">Initial Sold Units <span class="text-red-500">*</span></label>
+                    <input type="number" id="id_sold_units" name="sold_units" placeholder="e.g., 10" required min="0"
+                           value="{{ form.sold_units.value|default:0 }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.sold_units.errors %}<p class="text-xs text-red-500 mt-1">{{ form.sold_units.errors }}</p>{% endif %}
+                </div>
+                
+                <!-- Amount Collected -->
+                <div>
+                    <label for="id_amount_collected" class="text-sm font-medium text-gray-700">Initial Amount Collected (USD) <span class="text-red-500">*</span></label>
+                    <input type="number" id="id_amount_collected" name="amount_collected" placeholder="e.g., 1000.00" required min="0.01" step="0.01"
+                           value="{{ form.amount_collected.value|default:'0.00' }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.amount_collected.errors %}<p class="text-xs text-red-500 mt-1">{{ form.amount_collected.errors }}</p>{% endif %}
+                </div>
+            </div>
+
+            <!-- Section 5: Description -->
+            <div>
+                <label for="id_description" class="text-sm font-medium text-gray-700">Description</label>
+                <textarea id="id_description" name="description" rows="3" placeholder="A brief description of the product, its use, and compatibility."
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150 resize-none">{% if form.description.value %}{{ form.description.value }}{% endif %}</textarea>
+                {% if form.description.errors %}<p class="text-xs text-red-500 mt-1">{{ form.description.errors }}</p>{% endif %}
+            </div>
+
+
+            <!-- Action Buttons -->
+            <div class="flex justify-end space-x-4 pt-4">
+                
+                <!-- The "Clear Form" button now relies on client-side JS (optional, kept for UX) -->
+                <button
+                    type="reset"
+                    class="px-6 py-3 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150"
+                >
+                    Clear Form
+                </button>
+
+                <!-- Submit Button -->
+                <!-- The loading state is removed as it's handled server-side now. We use a static button. -->
+                <button
+                    type="submit"
+                    class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150"
+                >
+                    <!-- Using inline SVG for Plus - lucide-react equivalent -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-2"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                    Create Product
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

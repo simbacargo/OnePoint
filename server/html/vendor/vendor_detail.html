@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{{ vendor.name }}'s Dashboard</h1>
+    <p><strong>Business Name:</strong> {{ vendor.business_name }}</p>
+    <p><strong>Credit Score:</strong> {{ vendor.credit_score }}</p>
+    <p><strong>Phone:</strong> {{ vendor.phone_number }}</p>
+    <p><strong>Bank Account:</strong> {{ vendor.account_number }}</p>
+    <p><strong>Address:</strong> {{ vendor.address }}</p>
+
+    <a href="{% url 'vendor_update' vendor.id %}">Edit Profile</a>
+{% endblock %}

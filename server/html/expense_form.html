@@ -1,0 +1,28 @@
+{% load bootstrap_tags %}
+
+{% block content %}
+<h2>{% if form.instance.pk %}Update{% else %}Create{% endif %} Expense</h2>
+
+<form method="post"
+      hx-post="{% if form.instance.pk %}{% url 'home:expense_edit' form.instance.pk %}{% else %}{% url 'home:expense_create' %}{% endif %}"
+      hx-target="#body"
+      hx-swap="innerHTML">
+
+    <div class="form-group">
+      {% if form.non_field_errors %}
+          <div class="alert alert-danger">
+              {% for error in form.non_field_errors %}
+                  <p>{{ error }}</p>
+              {% endfor %}
+          </div>
+      {% endif %}
+  </div>
+
+    {% csrf_token %}
+    {{ form|as_bootstrap }}
+<br>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">{% if form.instance.pk %}Update{% else %}Create{% endif %}</button>
+    </div>
+</form>
+{% endblock %}

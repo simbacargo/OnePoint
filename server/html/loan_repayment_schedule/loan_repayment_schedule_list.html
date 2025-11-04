@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Loan Repayment Schedule</h1>
+
+    <br>
+    <!-- Filter Controls -->
+    <div class="filter">
+        <h5>Filter by Status:</h5>
+        <a href="{% url 'loan_repayment_schedule_list' %}?status=PENDING" class="btn btn-info">Pending</a>
+        <a href="{% url 'loan_repayment_schedule_list' %}?status=PAID" class="btn btn-success">Paid</a>
+        <a href="{% url 'loan_repayment_schedule_list' %}" class="btn btn-dark">All Schedules</a>
+    </div>
+
+    <br>
+
+    <!-- Filter by Loan -->
+    <div class="filter">
+        <h5>Filter by Loan:</h5>
+        <form method="get" action="{% url 'loan_repayment_schedule_list' %}">
+            <label for="loan_id">Select Loan:</label>
+            <select name="loan_id" id="loan_id" class="form-control">
+                <option value="">-- Select Loan --</option>
+                {% for loan in loans %}
+                    <option value="{{ loan.id }}" {% if loan.id == request.GET.loan_id %}selected{% endif %}>Loan #{{ loan.id }} - {{ loan.vendor.name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">Apply Filter</button>
+        </form>
+    </div>
+
+    <br>
+
+    <!-- Filter by Due Date Range -->
+    <div class="filter">
+        <h5>Filter by Due Date:</h5>
+        <form method="get" action="{% url 'loan_repayment_schedule_list' %}">
+            <label for="min_due_date">From:</label>
+            <input type="date" name="min_due_date" id="min_due_date" value="{{ request.GET.min_due_date }}" class="form-control">
+            <label for="max_due_date">To:</label>
+            <input type="date" name="max_due_date" id="max_due_date" value="{{ request.GET.max_due_date }}" class="form-control">
+            <button type="submit" class="btn btn-primary">Apply Filter</button>
+        </form>
+    </div>
+
+    <br>
+
+    <div class="col-12">
+        <div class="card top-selling overflow-auto">
+            <div class="card-body pb-0">
+                <h5 class="card-title">Loan Repayment Schedule</h5>
+
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Loan ID</th>
+                            <th scope="col">Due Date</th>
+                            <th scope="col">Amount Due</th>
+                            <th scope="col">Amount Paid</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for repayment in repayment_schedules %}
+                            <tr>
+                                <th scope="row">
+                                    <a href="{% url 'loan_repayment_schedule_detail' repayment.id %}">
+                                        {{ repayment.id }}
+                                    </a>
+                                </th>
+                                <td>{{ repayment.loan.id }}</td>
+                                <td>{{ repayment.due_date }}</td>
+                                <td>{{ repayment.amount_due }}</td>
+                                <td>{{ repayment.amount_paid }}</td>
+                                <td>{{ repayment.get_status_display }}</td>
+                                <td><a href="{% url 'loan_repayment_schedule_detail' repayment.id %}" class="btn btn-primary">View</a></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

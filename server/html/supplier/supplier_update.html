@@ -1,0 +1,14 @@
+<!-- supplier_update.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Update Supplier</h2>
+  <form method="post" style="display: inline-grid;">
+    {% csrf_token %}
+    {{ form.as_table }}
+    <button type="submit" class="btn btn-primary">Update Supplier</button>
+<hr>
+    <a href="{% url 'supplier_list' %}" class="btn btn-warning">Back to Supplier List</a>
+  </form>
+
+{% endblock %}

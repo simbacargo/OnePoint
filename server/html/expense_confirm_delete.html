@@ -1,0 +1,37 @@
+<!-- templates/expense_confirm_delete.html -->
+
+{% block content %}
+  <h1>Confirm Deletion</h1>
+  
+  <!-- Display confirmation message -->
+  <p>Are you sure you want to delete the expense dated "{{ object.date }}" with amount ${{ object.amount|floatformat:2 }}?</p>
+
+  <!-- Display expense details for reference -->
+  <table class="table table-bordered mt-3">
+    <tbody>
+      <tr>
+        <th>Date</th>
+        <td>{{ object.date }}</td>
+      </tr>
+      <tr>
+        <th>Category</th>
+        <td>{{ object.category }}</td>
+      </tr>
+      <tr>
+        <th>Amount</th>
+        <td>${{ object.amount|floatformat:2 }}</td>
+      </tr>
+      <tr>
+        <th>Description</th>
+        <td>{{ object.description }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Confirmation form -->
+  <form method="post" class="mt-3">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Confirm Deletion</button>
+    <a href="{% url 'home:expense_detail' object.pk %}" class="btn btn-secondary">Cancel</a>
+  </form>
+{% endblock %}

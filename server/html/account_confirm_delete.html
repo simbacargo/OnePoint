@@ -1,0 +1,48 @@
+{% block content %}
+  <h1>Confirm Deletion</h1>
+  
+  <!-- Display confirmation message -->
+  <p>Are you sure you want to delete the account "{{ object.name }}"?</p>
+
+  <!-- Display account details for reference -->
+  <table class="table table-bordered mt-3">
+    <tbody>
+      <tr>
+        <th>Name</th>
+        <td>{{ object.name }}</td>
+      </tr>
+      <tr>
+        <th>Email</th>
+        <td>{{ object.email }}</td>
+      </tr>
+      <tr>
+        <th>Company Name</th>
+        <td>{{ object.company_name }}</td>
+      </tr>
+      <tr>
+        <th>Receivable</th>
+        <td>${{ object.receivable|floatformat:2 }}</td>
+      </tr>
+      <tr>
+        <th>Price</th>
+        <td>${{ object.price|floatformat:2 }}</td>
+      </tr>
+      <tr>
+        <th>Outstanding Receivables</th>
+        <td>${{ object.outstanding_receivables|floatformat:2 }}</td>
+      </tr>
+      <tr>
+        <th>Comment</th>
+        <td>{{ object.comment }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Confirmation form -->
+  <form method="post" class="mt-3">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Confirm Deletion</button>
+    <a href="{% url 'account_detail' object.pk %}" class="btn btn-secondary">Cancel</a>
+  </form>
+{% endblock %}
+
