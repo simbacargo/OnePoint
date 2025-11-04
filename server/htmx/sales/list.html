@@ -1,0 +1,38 @@
+<div class="max-w-6xl mx-auto mt-10">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">Sales Records</h1>
+        <a href="{% url 'create_sale' %}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">+ Add Sale</a>
+    </div>
+
+    <div class="overflow-x-auto bg-white dark:bg-gray-900 shadow rounded-lg">
+        <table class="min-w-full text-left text-sm text-gray-600 dark:text-gray-200">
+            <thead class="bg-gray-100 dark:bg-gray-800">
+                <tr>
+                    <th class="py-3 px-4">Product</th>
+                    <th class="py-3 px-4">Qty Sold</th>
+                    <th class="py-3 px-4">Unit Price</th>
+                    <th class="py-3 px-4">Total</th>
+                    <th class="py-3 px-4">Date</th>
+                    <th class="py-3 px-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in sales %}
+                <tr class="border-b border-gray-200 dark:border-gray-700">
+                    <td class="py-3 px-4">{{ sale.product.name }}</td>
+                    <td class="py-3 px-4">{{ sale.quantity_sold }}</td>
+                    <td class="py-3 px-4">{{ sale.price_per_unit }}</td>
+                    <td class="py-3 px-4 font-semibold">{{ sale.total_amount }}</td>
+                    <td class="py-3 px-4">{{ sale.date_sold|date:"Y-m-d H:i" }}</td>
+                    <td class="py-3 px-4 space-x-2">
+                        <a href="{% url 'edit_sale' sale.pk %}" class="text-blue-500 hover:underline">Edit</a>
+                        <a href="{% url 'delete_sale' sale.pk %}" class="text-red-500 hover:underline">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center py-4 text-gray-500">No sales yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,270 +1,104 @@
-<div class="container mx-auto p-4 sm:p-6 lg:p-8">
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-900 mb-4 sm:mb-0">
-            📦 Orodha ya Bidhaa
-        </h1>
-        <a hx-get="{% url 'product_create' %}" hx-target="#main-content" href="#"
-            class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out">
-            + Ongeza Bidhaa Mpya
-        </a>
-    </div>
+<div class="max-w-7xl mx-auto mt-10">
 
-    <div class="mb-6 flex flex-col sm:flex-row gap-4 items-center" id="tafuta-na-chuja-kontena">
-        <input type="text" placeholder="Tafuta bidhaa..."
-            class="flex-grow p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
-            id="bidhaa-tafuta">
+    <!-- Search + Filters -->
+    <form method="get" class="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <!-- Search -->
+            <div class="col-span-2">
+                <input type="text" name="q" placeholder="Search products..."
+                    value="{{ query }}"
+                    class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
 
-        <select class="p-2 border border-gray-300 rounded-lg shadow-sm" id="chujio-chabrandi">
-            <option value="">Chuja kwa Brand (Zote)</option>
-            {% for product in products %}
-            <option value="{{ product.brand|lower }}" class="hidden">{{ product.brand }}</option>
-            {% endfor %}
-        </select>
-    </div>
-
-    <div class="bg-white shadow-xl rounded-lg overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-fulld divide-y divide-gray-200" id="bidhaa-jedwali">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-indigo-600"
-                            data-sort-key="name" data-col-index="0">
-                            Name <span class="panga-ikoni"></span>
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-indigo-600"
-                            data-sort-key="brand" data-col-index="1">
-                            Brand <span class="panga-ikoni"></span>
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-indigo-600"
-                            data-sort-key="part_number" data-col-index="2">
-                            Part Number #
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-indigo-600"
-                            data-sort-key="quantity" data-col-index="3">
-                            Quantity <span class="panga-ikoni"></span>
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-indigo-600"
-                            data-sort-key="price" data-col-index="4">
-                            Price <span class="panga-ikoni"></span>
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            data-sort-key="vehicles" data-col-index="5">
-                            Vehicle
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            data-sort-key="created_at" data-col-index="6">
-                            Registered At
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Vitendo
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200" id="jedwali-mwili-bidhaa">
-                    {% for product in products %}
-                    <tr class="hover:bg-gray-50 bidhaa-mstari" data-brand="{{ product.brand|lower }}">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ product.name }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ product.brand }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ product.part_number }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold namba-data">{{ product.quantity }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 namba-data">{{ product.price }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ product.vehicles|default:"N/A" }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ product.created_at|date:"Y-m-d" }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                            <a href="{% url 'edit_product' product.pk %}"
-                                class="text-indigo-600 hover:text-indigo-900 transition duration-150 ease-in-out"
-                                title="Badilisha">
-                                Badilisha
-                            </a>
-                            <button hx-delete="{% url 'product_delete' product.id %}" hx-swap="outerHTML swap:0ms"
-                                hx-confirm="Uko na uhakika unataka kufuta bidhaa {{ product.name }}?"
-                                class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-150">
-                                Futa (Delete)
-                            </button>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr id="hakuna-bidhaa-mstari">
-                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">
-                            Hakuna bidhaa zilizopatikana kwenye orodha.
-                        </td>
-                    </tr>
+            <!-- Brand Filter -->
+            <div>
+                <select name="brand"
+                    class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <option value="">All Brands</option>
+                    {% for brand in brands %}
+                    <option value="{{ brand }}" {% if brand_filter == brand %}selected{% endif %}>{{ brand }}</option>
                     {% endfor %}
-                </tbody>
-            </table>
+                </select>
+            </div>
+
+            <!-- Vehicle Filter -->
+            <div>
+                <select name="vehicle"
+                    class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <option value="">All Vehicles</option>
+                    {% for v in vehicles %}
+                    <option value="{{ v.id }}" {% if vehicle_filter == v.id|stringformat:'s' %}selected{% endif %}>{{ v.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Price Range -->
+            <div class="flex space-x-2">
+                <input type="number" name="price_min" placeholder="Min" value="{{ price_min }}"
+                    class="w-1/2 border border-gray-300 dark:border-gray-700 rounded-lg px-2 py-2 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                <input type="number" name="price_max" placeholder="Max" value="{{ price_max }}"
+                    class="w-1/2 border border-gray-300 dark:border-gray-700 rounded-lg px-2 py-2 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
         </div>
+
+        <div class="flex justify-end mt-4 space-x-3">
+            <button type="submit"
+                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Filter</button>
+            <a href="{% url 'list_of_products' %}"
+                class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">Reset</a>
+        </div>
+    </form>
+
+    <!-- Product List -->
+    <div class="bg-white dark:bg-gray-900 shadow rounded-lg overflow-hidden">
+        <table class="min-w-full text-sm text-gray-600 dark:text-gray-200">
+            <thead class="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100">
+                <tr>
+                    <th class="py-3 px-4 text-left">Name</th>
+                    <th class="py-3 px-4">Brand</th>
+                    <th class="py-3 px-4">Part No</th>
+                    <th class="py-3 px-4">Price</th>
+                    <th class="py-3 px-4">Stock</th>
+                    <th class="py-3 px-4">Sold</th>
+                    <th class="py-3 px-4">Amount</th>
+                    <th class="py-3 px-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in page_obj %}
+                <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+                    <td class="py-3 px-4 font-medium">{{ product.name }}</td>
+                    <td class="py-3 px-4">{{ product.brand }}</td>
+                    <td class="py-3 px-4">{{ product.part_number }}</td>
+                    <td class="py-3 px-4">{{ product.price }}</td>
+                    <td class="py-3 px-4">{{ product.quantity }}</td>
+                    <td class="py-3 px-4">{{ product.sold_units }}</td>
+                    <td class="py-3 px-4">{{ product.amount_collected }}</td>
+                    <td class="py-3 px-4">
+                        <a href="{% url 'edit_product' product.pk %}" class="text-blue-500 hover:underline">Edit</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" class="text-center py-4 text-gray-500">No products found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex justify-center mt-6 space-x-2">
+        {% if page_obj.has_previous %}
+        <a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+           class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600">Prev</a>
+        {% endif %}
+
+        <span class="px-4 py-1 bg-blue-600 text-white rounded">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+        <a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.next_page_number }}"
+           class="px-3 py-1 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600">Next</a>
+        {% endif %}
     </div>
 </div>
-
-<script>
-    // --- 0. Helper Function to Get Current Elements ---
-    // Queries the DOM every time it's called, guaranteeing fresh references.
-    function getTableElements() {
-        // We use querySelector/getElementById directly inside the functions
-        // since the search/filter inputs and the table are assumed to be present.
-        const tableBody = document.getElementById('jedwali-mwili-bidhaa');
-        return {
-            searchInput: document.getElementById('bidhaa-tafuta'),
-            brandFilter: document.getElementById('chujio-chabrandi'),
-            tableBody: tableBody,
-            tableHeaders: document.querySelectorAll('#bidhaa-jedwali thead th[data-sort-key]'),
-            noProductsRow: document.getElementById('hakuna-bidhaa-mstari'),
-            // Only query rows if the table body exists
-            tableRows: tableBody ? Array.from(tableBody.querySelectorAll('.bidhaa-mstari')) : []
-        };
-    }
-
-    // --- 1. Filtering Logic (Called by Delegation) ---
-    function applyFilters() {
-        const { searchInput, brandFilter, tableRows, noProductsRow } = getTableElements();
-
-        if (!searchInput || !brandFilter || tableRows.length === 0) return;
-
-        const searchTerm = searchInput.value.toLowerCase().trim();
-        const selectedBrand = brandFilter.value;
-        let visibleRowCount = 0;
-
-        tableRows.forEach(row => {
-            const brandMatch = selectedBrand === '' || row.getAttribute('data-brand') === selectedBrand;
-            const rowText = Array.from(row.querySelectorAll('td:not(:last-child)'))
-                .map(td => td.textContent.toLowerCase())
-                .join(' ');
-            const searchMatch = rowText.includes(searchTerm);
-
-            if (brandMatch && searchMatch) {
-                row.style.display = '';
-                visibleRowCount++;
-            } else {
-                row.style.display = 'none';
-            }
-        });
-
-        if (noProductsRow) {
-            noProductsRow.style.display = visibleRowCount === 0 ? '' : 'none';
-        }
-    }
-
-    // --- 2. Sorting Logic (Called by Delegation) ---
-    function sortTableRows(header) {
-        const { tableBody, tableHeaders } = getTableElements();
-        if (!tableBody || !tableHeaders.length) return;
-
-        const columnIndex = parseInt(header.getAttribute('data-col-index'));
-
-        // Update global sort state
-        if (currentSortColumnIndex === columnIndex) {
-            isAscending = !isAscending;
-        } else {
-            currentSortColumnIndex = columnIndex;
-            isAscending = true;
-        }
-
-        const rows = getTableElements().tableRows;
-
-        rows.sort((rowA, rowB) => {
-            // ... (Sorting logic is correct and remains the same) ...
-            const isNumeric = rowA.children[columnIndex].classList.contains('namba-data');
-
-            let cellA = rowA.children[columnIndex].textContent.trim();
-            let cellB = rowB.children[columnIndex].textContent.trim();
-
-            if (isNumeric) {
-                cellA = parseFloat(cellA.replace(/[^0-9.$]/g, '')) || 0; // Ensure '$' is stripped
-                cellB = parseFloat(cellB.replace(/[^0-9.$]/g, '')) || 0;
-            } else {
-                cellA = cellA.toLowerCase();
-                cellB = cellB.toLowerCase();
-            }
-
-            let comparison = 0;
-            if (cellA > cellB) { comparison = 1; }
-            else if (cellA < cellB) { comparison = -1; }
-
-            return isAscending ? comparison : comparison * -1;
-        });
-
-        // Clear and append sorted rows
-        tableBody.innerHTML = '';
-        rows.forEach(row => { tableBody.appendChild(row); });
-
-        // Update sort icons
-        tableHeaders.forEach(h => {
-            const icon = h.querySelector('.panga-ikoni');
-            if (icon) { icon.textContent = ''; }
-        });
-
-        const currentIcon = header.querySelector('.panga-ikoni');
-        if (currentIcon) { currentIcon.textContent = isAscending ? ' ▲' : ' ▼'; }
-
-        applyFilters();
-    }
-
-    // --- 3. Brand Population Logic (Called on Swap) ---
-    function populateBrandFilter() {
-        const { brandFilter, tableRows } = getTableElements();
-        if (!brandFilter) return;
-
-        const brands = new Set();
-        tableRows.forEach(row => {
-            const brand = row.getAttribute('data-brand');
-            if (brand) brands.add(brand);
-        });
-
-        while (brandFilter.options.length > 1) {
-            brandFilter.remove(1);
-        }
-
-        brands.forEach(brand => {
-            const option = document.createElement('option');
-            option.value = brand;
-            option.textContent = brand.charAt(0).toUpperCase() + brand.slice(1);
-            brandFilter.appendChild(option);
-        });
-    }
-
-    // --- 4. Event Delegation and HTMX Hooks ---
-    document.addEventListener('DOMContentLoaded', () => {
-        // Initial setup for static content
-        populateBrandFilter();
-    });
-
-    // Delegated Listener for Filtering (Search and Select)
-    // Listens for 'input' or 'change' events anywhere on the document body
-    document.body.addEventListener('input', (event) => {
-        if (event.target.id === 'bidhaa-tafuta') {
-            applyFilters();
-        }
-    });
-    document.body.addEventListener('change', (event) => {
-        if (event.target.id === 'chujio-chabrandi') {
-            applyFilters();
-        }
-    });
-
-    // Delegated Listener for Sorting (Click on Table Header)
-    document.body.addEventListener('click', (event) => {
-        const header = event.target.closest('#bidhaa-jedwali thead th[data-sort-key]');
-        if (header) {
-            sortTableRows(header);
-        }
-    });
-
-    // HTMX Hook: Re-initialize and re-apply filters after new content is loaded/swapped
-    document.body.addEventListener('htmx:load', function (event) {
-        // Check if the swapped content affects the table area
-        if (event.target.closest('#bidhaa-jedwali') || event.target.closest('#tafuta-na-chuja-kontena')) {
-            populateBrandFilter();
-            applyFilters(); // Apply any existing search/filter values to the new rows
-        }
-    });
-</script>

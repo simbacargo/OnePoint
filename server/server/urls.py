@@ -32,8 +32,8 @@ urlpatterns += [
     path('index/low_quantity_products', views.low_quantity_products, name='low_quantity_products'),
     path('index/product_details', views.product_details, name='product_details'),
     path('index/<int:pk>/product_delete/', views.product_delete, name='product_delete'),
-    path('index/<int:pk>/edit_product/', views.product_delete, name='edit_product'),
-    path('index/sales', views.sales, name='sales'),
+    path('index/<int:pk>/edit_product/', views.edit_product, name='edit_product'),
+    path('index/sales', views.sales_summary_view, name='sales_summary_view'),
     path('index/sales_create', views.sales_create, name='sales_create'),
     path('index/sales_list', views.sales_list, name='sales_list'),
     path('index/sales_details', views.sales_details, name='sales_details'),
@@ -42,4 +42,14 @@ urlpatterns += [
     path('index/product_create', views.product_create, name='product_create'),
     path('index/product_create', views.product_create, name='product_create'),
     
+]
+
+
+urlpatterns += [
+    path('sales/', views.list_sales, name='list_sales'),
+    path('sales/add/', views.create_sale, name='create_sale'),
+    path('sales/<int:pk>/edit/', views.edit_sale, name='edit_sale'),
+    path('sales/<int:pk>/delete/', views.delete_sale, name='delete_sale'),
+
+    path("dashboard/", views.dashboard, name="dashboard"),
 ]

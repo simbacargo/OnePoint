@@ -147,3 +147,95 @@ class ProductDetailView(APIView):
         product = Product.objects.get(pk=pk)
         serializer = ProductSerializer(product)
         return Response(serializer.data)
+
+
+
+
+
+from django.shortcuts import render
+from django.db.models import Sum, F, Q
+from django.core.cache import cache
+from django.conf import settings
+
+# Define a cache timeout (e.g., 5 minutes)
+SALES_CACHE_TIMEOUT = getattr(settings, 'SALES_CACHE_TIMEOUT', 300)
+
+## 1. Sales Summary View
+# Shows key metrics like total revenue and total units sold.
+def sales_summary_view(request):
+    """
+    Displays a high-level summary of all sales activity.
+    """
+    cache_key = 'sales_summary'
+    context = cache.get(cache_key)
+    
+    if context is None:
+        # Calculate overall metrics from the Product model
+        sales_data = Product.objects.aggregate(
+            total_revenue=Sum('amount_collected'),
+            total_units_sold=Sum('sold_units')
+        )
+        
+        # Calculate Total Products in Stock (Quantity - Sold Units)
+        total_stock = Product.objects.aggregate(
+            total_stock=Sum(F('quantity') - F('sold_units'), 
+                            filter=Q(quantity__gt=F('sold_units')))
+        )['total_stock'] or 0
+
+        context = {
+            'total_revenue': sales_data['total_revenue'] or 0.00,
+            'total_units_sold': sales_data['total_units_sold'] or 0,
+            'total_stock': total_stock,
+            'title': 'Overall Sales Summary',
+        }
+        
+        # Cache the result
+        cache.set(cache_key, context, SALES_CACHE_TIMEOUT)
+
+    return render(request, 'sales/sales_summary.html', context)
+
+
+## 2. Best Selling Products View
+# Shows products sorted by the number of units sold.
+def best_sellers_view(request):
+    """
+    Lists products ordered by the number of units sold (descending).
+    """
+    # Filter for products that have actually been sold
+    best_sellers = Product.objects.filter(
+        sold_units__gt=0
+    ).order_by(
+        '-sold_units', '-amount_collected' # Primary sort by units, secondary by revenue
+    )[:10] # Top 10 best sellers
+
+    context = {
+        'products': best_sellers,
+        'title': 'Top 10 Best Sellers',
+    }
+    return render(request, 'sales/best_sellers.html', context)
+
+
+## 3. Low Stock Alert View
+# Helps management identify products needing re-ordering.
+def low_stock_view(request):
+    """
+    Lists products where remaining stock is below a safety threshold.
+    """
+    # Define a low-stock threshold (e.g., 5 units)
+    LOW_STOCK_THRESHOLD = 5 
+    
+    low_stock_products = Product.objects.annotate(
+        current_stock=F('quantity') - F('sold_units')
+    ).filter(
+        current_stock__lte=LOW_STOCK_THRESHOLD
+    ).order_by(
+        'current_stock', 'name'
+    )
+
+    context = {
+        'products': low_stock_products,
+        'threshold': LOW_STOCK_THRESHOLD,
+        'title': 'Low Stock Alerts',
+    }
+    return render(request, 'sales/low_stock.html', context)
+

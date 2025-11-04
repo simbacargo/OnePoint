@@ -68,7 +68,7 @@ WSGI_APPLICATION = 'server.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'db2.sqlite3',
     }
 }
 
@@ -146,8 +146,8 @@ CACHES = {
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': BASE_DIR / 'django_cache',  # Directory where cache files will be stored
-        'TIMEOUT': 60 * 15,  # Cache timeout in seconds (15 minutes in this case)
+        'LOCATION': BASE_DIR / 'django_cacmhe',  # Directory where cache files will be stored
+        'TIMEOUT': 0,  # Cache timeout in seconds (15 minutes in this case)
     }
 }
 

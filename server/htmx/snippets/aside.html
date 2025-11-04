@@ -1,13 +1,13 @@
         <aside id="sidebar" class="w-64 bg-sky-900 shadow-xl flex-shrink-0">
             <div class="p-4 border-b">
-                <h2 class="text-xl font-semibold text-gray-800">Sidebar</h2>
+                <h2 class="text-xl font-semibold text-gray-800">Msaidizi</h2>
             </div>
             <nav class="p-4">
                 <ul class="space-y-2">
-                    <li><a href="#" hx-target="#main-content" hx-get="{% url 'list_of_products' %}" class="block p-2 text-white text-gray-700 hover:bg-indigo-500 hover:text-white rounded transition duration-150"><i class="bi bi-circle"></i><span>Dashboard</span></a></li>
+                    <li><a href="#" hx-target="#main-content" hx-get="{% url 'dashboard' %}" class="block p-2 text-white text-gray-700 hover:bg-indigo-500 hover:text-white rounded transition duration-150"><i class="bi bi-circle"></i><span>Dashboard</span></a></li>
                     <li><a href="#" hx-target="#main-content" hx-get="{% url 'list_of_products' %}" class="block p-2 text-white text-gray-700 hover:bg-indigo-500 hover:text-white rounded transition duration-150"><i class="bi bi-circle"></i><span>Products</span></a></li>
-                    <li><a href="#" hx-target="#main-content" hx-get="{% url 'list_of_products' %}" class="block p-2 text-white text-gray-700 hover:bg-indigo-500 hover:text-white rounded transition duration-150"><i class="bi bi-circle"></i><span>Sell</span></a></li>
-                    <li><a href="#" hx-target="#main-content" hx-get="{% url 'list_of_products' %}" class="block p-2 text-white text-gray-700 hover:bg-indigo-500 hover:text-white rounded transition duration-150"><i class="bi bi-circle"></i><span>Sales</span></a></li>
+                    <li><a href="#" hx-target="#main-content" hx-get="{% url 'create_sale' %}" class="block p-2 text-white text-gray-700 hover:bg-indigo-500 hover:text-white rounded transition duration-150"><i class="bi bi-circle"></i><span>Sell</span></a></li>
+                    <li><a href="#" hx-target="#main-content" hx-get="{% url 'list_sales' %}" class="block p-2 text-white text-gray-700 hover:bg-indigo-500 hover:text-white rounded transition duration-150"><i class="bi bi-circle"></i><span>Sales</span></a></li>
                     <li><a href="#" hx-target="#main-content" hx-get="{% url 'list_of_products' %}" class="block p-2 text-white text-gray-700 hover:bg-indigo-500 hover:text-white rounded transition duration-150"><i class="bi bi-circle"></i><span>Customers</span></a></li>
                     </ul>
             </nav>
