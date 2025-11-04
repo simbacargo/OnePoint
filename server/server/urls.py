@@ -25,6 +25,7 @@ urlpatterns += [
     # path('logout/', views.logout, name='logout'),
     path('admin/', admin.site.urls),
 
+    path('index/', views.index, name='index'),
     path('index/index/', views.index, name='index'),
     path('index/index/index', views.index, name='index'),
     path('index/index/product_create', views.product_create, name='product_create'),
