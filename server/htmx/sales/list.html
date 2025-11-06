@@ -1,7 +1,7 @@
 <div class="max-w-6xl mx-auto mt-10">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">Sales Records</h1>
-        <a href="{% url 'create_sale' %}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">+ Add Sale</a>
+        <a hx-get="{% url 'create_sale' %}" hx-target="#main-content" href="#" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">+ Add Sale</a>
     </div>
 
     <div class="overflow-x-auto bg-white dark:bg-gray-900 shadow rounded-lg">
@@ -25,8 +25,8 @@
                     <td class="py-3 px-4 font-semibold">{{ sale.total_amount }}</td>
                     <td class="py-3 px-4">{{ sale.date_sold|date:"Y-m-d H:i" }}</td>
                     <td class="py-3 px-4 space-x-2">
-                        <a href="{% url 'edit_sale' sale.pk %}" class="text-blue-500 hover:underline">Edit</a>
-                        <a href="{% url 'delete_sale' sale.pk %}" class="text-red-500 hover:underline">Delete</a>
+                        <a hx-get="{% url 'edit_sale' sale.pk %}"    hx-target="#main-content" href="#" class="text-blue-500 hover:underline">Edit</a>
+                        <a hx-get="{% url 'delete_sale' sale.pk %}"  hx-target="#main-content" href="#" class="text-red-500 hover:underline">Delete</a>
                     </td>
                 </tr>
                 {% empty %}
