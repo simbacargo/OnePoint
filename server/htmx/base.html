@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/slim-select@2.8.2/dist/slimselect.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
         // Global state for sorting (only the state needs to be global)
         var currentSortColumnIndex = -1;
@@ -17,13 +18,15 @@
 </head>
 
 <body>
-    <div id="page-container" class="flex h-screen">
-
+    <div id="page-container" class=" flex h-screen">
         {% include "snippets/aside.html" %}
-        {% include "snippets/header.html" %}
-        <main id="main-content" class="flex-grow p-6 overflow-y-auto">
+        <div>
+                    {% include "snippets/header.html" %}
+        <main id="main-content" class="flex-grow p-6 overflow-y-auto w-full">
 
         </main>
+
+        </div>
 
     </div>
 
