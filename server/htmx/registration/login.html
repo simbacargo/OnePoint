@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Msaidizi</title>
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@1.7.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100">
+
+    <!-- Signup Container -->
+    <div class="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+    <div class="w-full max-w-md bg-white rounded-xl shadow-2xl p-8 space-y-6">
+        <h2 class="text-3xl font-extrabold text-gray-900 text-center">
+            Log In to Your Account
+        </h2>
+
+        <a href="{ % url 'social:begin' 'google-oauth2' %}" 
+           class="w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition duration-150 ease-in-out">
+            <svg class="w-5 h-5 mr-3" viewBox="0 0 48 48">
+                ...
+            </svg>
+            Log in with Google
+        </a>
+
+        <div class="relative">
+            <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-300"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+                <span class="px-2 bg-white text-gray-500">
+                    Or log in with email
+                </span>
+            </div>
+        </div>
+
+        <div id="login-message" class="text-center font-medium">
+            </div>
+
+        <form 
+            action="{% url 'login' %}" 
+            class="space-y-4"
+			method="post"
+        >
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    {{ field.label }}
+                </label>
+                <div class="mt-1">
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-red-500 text-xs mt-1">
+                            {% for error in field.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <style>
+                /* Apply Tailwind styles to form fields */
+                .form-group input {
+                    @apply appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm;
+                }
+            </style>
+            
+            <div class="flex items-center justify-between">
+                <div class="text-sm">
+                    <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        Forgot your password?
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" 
+                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                    Log In
+                </button>
+            </div>
+        </form>
+
+        <p class="text-center text-sm text-gray-600">
+            Don't have an account? 
+            <a href="{% url 'signup' %}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                Sign Up
+            </a>
+        </p>
+    </div>
+</div>
+<style>
+    input{
+  background: #efefef;
+  border-radius: 18px;
+  height: 46px;
+  width: 100%;
+  border-width: 1px;
+  border-color: grey;
+  padding : 0 16px;
+  font-size: large;
+  font-weight: 600;
+}
+
+</style>
+</body>
+
+</html>

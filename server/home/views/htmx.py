@@ -1,19 +1,24 @@
-from django import forms
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.shortcuts import render
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
-from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect, render
 from ..models import Product,Sale, Vehicle
 from django.views.decorators.cache import never_cache
 from django import forms
+from django.shortcuts import render, redirect
+from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+
+from django.shortcuts import render
+from django.db.models import Sum, Count
+from django.http import JsonResponse
+from django import forms
+from ..models import Customer
+
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -21,7 +26,7 @@ class ProductForm(forms.ModelForm):
         # Specify the fields the user is expected to input.
         # Fields like 'created_at' and calculated fields like 'amount'/'sold_units' 
         # should often be omitted from the input form.
-        fields = ['name', 'description', 'brand', 'price', 'part_number', 'vehicles', 'quantity', 'amount', 'sold_units', 'amount_collected']
+        fields = ['name', 'description', 'brand', 'price', 'part_number', 'vehicles', 'quantity', 'amount', 'amount_collected']
 
         # Optional: Add Tailwind CSS classes to fields for better styling
         widgets = {
@@ -30,6 +35,7 @@ class ProductForm(forms.ModelForm):
         }
 
 @never_cache
+@login_required
 def index(request):
     products = Product.objects.all() 
     print(products)
@@ -38,6 +44,7 @@ def index(request):
     }
     return render(request, "base.html", context)
 
+@login_required
 def product_create(request):
     # Initialize an empty form
     form = ProductForm()
@@ -45,6 +52,7 @@ def product_create(request):
     if request.method == 'POST':
         # If the request is POST, bind the submitted data to the form
         form = ProductForm(request.POST)
+        print(form.errors)
         
         if form.is_valid():
             # Save the new Product instance to the database
@@ -60,6 +68,7 @@ def product_create(request):
     return render(request, "products/create.html", context)
 
 
+@login_required
 def list_of_products(request):
     products = Product.objects.all()
     context ={
@@ -69,6 +78,7 @@ def list_of_products(request):
 
 
 
+@login_required
 def product_list(request):
     query = request.GET.get('q', '')
     brand_filter = request.GET.get('brand', '')
@@ -101,12 +111,14 @@ def product_list(request):
     if price_max:
         products = products.filter(price__lte=price_max)
 
+    print(products)
     # Pagination
     paginator = Paginator(products.distinct(), 10)  # 10 per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     context = {
+        'products':products,
         'page_obj': page_obj,
         'brands': Product.objects.values_list('brand', flat=True).distinct(),
         'vehicles': Vehicle.objects.all(),
@@ -118,6 +130,7 @@ def product_list(request):
     }
     return render(request, 'products/list.html', context)
 
+@login_required
 def low_quantity_products(request):
     return render(request, "dashboard.html", context={})
 
@@ -242,24 +255,78 @@ def edit_product(request, pk):
 
 
 
+@login_required
 def sales(request):
     return render(request, "dashboard.html", context={})
 
+@login_required
 def sales_create(request):
     return render(request, "dashboard.html", context={})
 
+@login_required
 def sales_list(request):
     return render(request, "dashboard.html", context={})
 
+@login_required
 def sales_details(request):
     return render(request, "dashboard.html", context={})
 
+@login_required
 def sales_delete(request):
     return render(request, "dashboard.html", context={})
 
 
 
+
+@login_required
+def list_sales(request):
+    sales = Sale.objects.select_related('product').order_by('-date_sold')
+    return render(request, 'sales/list.html', {'sales': sales})
+
+
+@login_required
+def list_unverified_sales(request):
+    sales = Sale.objects.select_related('product').filter(aproved=False).order_by('-date_sold')
+    print(sales)
+    return render(request, 'sales/unverified.html', {'sales': sales})
+
+
+@login_required
+def verify_sale(request, pk):
+    sales = Sale.objects.select_related('product').filter(aproved=False).order_by('-date_sold')
+    sale = get_object_or_404(Sale, pk=pk)
+    # sale.aproved = True
+    # sale.save()
+    message = f"Sale of {sale.product.name} verified successfully."
+    return render(request, 'sales/unverified.html', {'sales': sales, 'message': message})
+
+
 class SaleForm(forms.ModelForm):
+    total = forms.DecimalField(
+        label='Calculated Total Amount',
+        max_digits=12, 
+        decimal_places=2,
+        required=False,
+        widget=forms.NumberInput(attrs={
+            'class': 'w-full rounded-lg border border-gray-300 dark:border-gray-700 '
+                     'bg-gray-200 dark:bg-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300 '
+                     'focus:outline-none cursor-not-allowed', 
+            'readonly': 'readonly', # KEY: prevents user input
+            'step': '0.01'
+        })
+    )
+
+    class Meta:
+        model = Sale
+        fields = ['product', 'quantity_sold', 'price_per_unit']
+        # ... (Your existing widgets) ...
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Populate total for existing sales (for editing)
+        if self.instance and self.instance.pk:
+            self.initial['total'] = self.instance.total_amount
+            
     class Meta:
         model = Sale
         fields = ['product', 'quantity_sold', 'price_per_unit']
@@ -283,11 +350,7 @@ class SaleForm(forms.ModelForm):
         }
 
 
-def list_sales(request):
-    sales = Sale.objects.select_related('product').order_by('-date_sold')
-    return render(request, 'sales/list.html', {'sales': sales})
-
-
+@login_required
 def create_sale(request):
     form = SaleForm()
     if request.method == 'POST':
@@ -296,6 +359,17 @@ def create_sale(request):
             form.save()
             return redirect(reverse('list_sales'))
     return render(request, 'sales/create.html', {'form': form})
+
+@login_required
+def search_products(request):
+    query = request.GET.get('query', '')
+    if query:
+        # Assuming your Product model has a 'name' field
+        products = Product.objects.filter(name__icontains=query)
+        results = [{"id": product.id, "text": product.name} for product in products]
+    else:
+        results = []
+    return JsonResponse({"products": results})
 
 
 def edit_sale(request, pk):
@@ -309,28 +383,26 @@ def edit_sale(request, pk):
     return render(request, 'sales/edit.html', {'form': form, 'sale': sale})
 
 
+
 def delete_sale(request, pk):
     sale = get_object_or_404(Sale, pk=pk)
-    if request.method == 'POST':
+    if request.method == 'GET':
         sale.delete()
         return redirect(reverse('list_sales'))
     return render(request, 'sales/delete.html', {'sale': sale})
 
 
-
-# inventory/views/dashboard.py
-from django.shortcuts import render
-from django.db.models import Sum, Count
-
+@login_required
 def dashboard(request):
     total_products = Product.objects.count()
     total_sales = Sale.objects.aggregate(total=Sum("total_amount"))["total"] or 0
     total_units_sold = Sale.objects.aggregate(total=Sum("quantity_sold"))["total"] or 0
     total_inventory_value = Product.objects.aggregate(total=Sum("quantity"))["total"] or 0
-
+    total_revenue = Sale.objects.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
     recent_sales = Sale.objects.select_related("product").order_by("-date_sold")[:5]
 
     context = {
+                'total_revenue': total_revenue,
         "total_products": total_products,
         "total_sales": total_sales,
         "total_units_sold": total_units_sold,
@@ -339,3 +411,65 @@ def dashboard(request):
     }
 
     return render(request, "dashboard/index.html", context)
+
+
+
+
+
+
+def get_product_price(request, product_id):
+    try:
+        product = Product.objects.get(id=product_id)
+        return JsonResponse({'price': str(product.price)})
+    except Product.DoesNotExist:
+        return JsonResponse({'error': 'Product not found'}, status=404)
+
+
+# your_project/customers/forms.py
+
+class CustomerForm(forms.ModelForm):
+    class Meta:
+        model = Customer
+        fields = ['name', 'email', 'phone', 'sale', 'remaining_balance']
+
+# Customer List View (Read all)
+class CustomerListView(ListView):
+    model = Customer
+    template_name = 'customers/customer_list.html'
+    context_object_name = 'customers'
+
+
+# Customer Create View (Create)
+class CustomerCreateView(CreateView):
+    model = Customer
+    template_name = 'customers/customer_form.html'
+    # form_class = forms.ModelForm
+    fields = ['name', 'email', 'phone', 'sale', 'remaining_balance']
+
+    def get_success_url(self):
+        return reverse_lazy('customer_list')  # Redirect to the customer list after success
+
+
+# Customer Detail View (Read one)
+class CustomerDetailView(DetailView):
+    model = Customer
+    template_name = 'customers/customer_detail.html'
+    context_object_name = 'customer'
+
+
+# Customer Update View (Update)
+class CustomerUpdateView(UpdateView):
+    model = Customer
+    template_name = 'customers/customer_form.html'
+    fields = ['name', 'email', 'phone', 'sale', 'remaining_balance']
+
+    def get_success_url(self):
+        return reverse_lazy('customer_list')  # Redirect to the customer list after success
+
+
+# Customer Delete View (Delete)
+class CustomerDeleteView(DeleteView):
+    model = Customer
+    template_name = 'customers/customer_confirm_delete.html'
+    context_object_name = 'customer'
+    success_url = reverse_lazy('customer_list')  # Redirect to the customer list after deletion

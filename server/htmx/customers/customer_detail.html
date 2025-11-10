@@ -1,0 +1,9 @@
+  <h1>{{ customer.name }}</h1>
+  <p>Email: {{ customer.email }}</p>
+  <p>Phone: {{ customer.phone }}</p>
+  <p>Sale: {{ customer.sale }}</p>
+  <p>Remaining Balance: {{ customer.remaining_balance }}</p>
+
+  <a href="#" hx-target="#main-content" hx-get="{% url 'customer_update' customer.pk %}">Edit</a>
+  <a href="#" hx-target="#main-content" hx-get="{% url 'customer_delete' customer.pk %}">Delete</a>
+  <a href="#" hx-target="#main-content" hx-get="{% url 'customer_list' %}">Back to List</a>

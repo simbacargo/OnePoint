@@ -1,0 +1,59 @@
+<div class="max-w-6xl mx-auto mt-10">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">Sales Records</h1>
+        <a hx-get="{% url 'create_sale' %}" hx-target="#main-content" href="#" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">+ Add Sale</a>
+    </div>
+
+    
+    {% if message %}
+    <div id="message" class="mb-4 p-4 rounded-lg 
+        {% if message_type == 'success' %} bg-green-100 text-green-800 border border-green-300 {% elif message_type == 'error' %} bg-red-100 text-red-800 border border-red-300 {% elif message_type == 'info' %} bg-blue-100 text-blue-800 border border-blue-300 {% else %} bg-yellow-100 text-yellow-800 border border-yellow-300 {% endif %}">
+        <p class="font-semibold">{{ message }}</p>
+    </div>
+    <script>
+        setTimeout(function() {
+            const messageElement = document.getElementById('message');
+            if (messageElement) {
+                messageElement.classList.add('opacity-0');  // Start fading out
+                messageElement.classList.add('transition-opacity');
+                setTimeout(function() {
+                    messageElement.style.display = 'none';  // Completely hide the message after fade out
+                }, 500);  // Wait for the fade-out transition to finish
+            }
+        }, 3000);  // Wait for 5 seconds before starting the fade-out
+    </script>
+    {% endif %}
+
+
+    <div class="overflow-x-auto bg-white dark:bg-gray-900 shadow rounded-lg">
+        <table class="min-w-full text-left text-sm text-gray-600 dark:text-gray-200">
+            <thead class="bg-gray-100 dark:bg-gray-800">
+                <tr>
+                    <th class="py-3 px-4">Product</th>
+                    <th class="py-3 px-4">Qty Sold</th>
+                    <th class="py-3 px-4">Unit Price</th>
+                    <th class="py-3 px-4">Total</th>
+                    <th class="py-3 px-4">Date</th>
+                    <th class="py-3 px-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale in sales %}
+                <tr class="border-b border-gray-200 dark:border-gray-700">
+                    <td class="py-3 px-4">{{ sale.product.name }}</td>
+                    <td class="py-3 px-4">{{ sale.quantity_sold }}</td>
+                    <td class="py-3 px-4">{{ sale.price_per_unit }}</td>
+                    <td class="py-3 px-4 font-semibold">{{ sale.total_amount }}</td>
+                    <td class="py-3 px-4">{{ sale.date_sold|date:"Y-m-d H:i" }}</td>
+                    <td class="py-3 px-4 space-x-2">
+                        <a hx-get="{% url 'verify_sale' sale.pk %}"    hx-target="#main-content" href="#" class="text-blue-500 hover:underline">Verify Sale</a>
+                        <a hx-get="{% url 'delete_sale' sale.pk %}"  hx-target="#main-content" href="#" class="text-red-500 hover:underline">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center py-4 text-gray-500">No sales yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -19,10 +19,12 @@ class Product(models.Model):
     part_number = models.CharField(max_length=100, blank=True)
     vehicles = models.ManyToManyField(Vehicle, blank=True)
     quantity = models.PositiveIntegerField(default=0)
+    quantity_in_store = models.PositiveIntegerField(default=0)
     amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     sold_units = models.PositiveIntegerField(default=0)
     amount_collected = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
+    deleted = models.BooleanField(default=False,)
 
     class Meta:
         indexes = [
@@ -33,7 +35,7 @@ class Product(models.Model):
 
 
     def __str__(self):
-        return f"{self.name} ({self.brand})"
+        return f"{self.name}"
 
     def update_stock(self, sold_units, amount_collected):
         self.sold_units += sold_units
@@ -48,6 +50,8 @@ class Sale(models.Model):
     price_per_unit = models.DecimalField(max_digits=10, decimal_places=2)
     total_amount = models.DecimalField(max_digits=12, decimal_places=2, editable=False)
     date_sold = models.DateTimeField(auto_now_add=True)
+    aproved = models.BooleanField(default=False,)
+    deleted = models.BooleanField(default=False,)
 
     def __str__(self):
         return f"Sale of {self.product.name} - {self.quantity_sold} units"
@@ -68,3 +72,19 @@ class Sale(models.Model):
 # @receiver(post_delete, sender=Sale)
 # def clear_sales_cache(sender, instance, **kwargs):
 #     cache.delete('sales_summary')
+
+
+class Customer(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=15, blank=True)
+    sale = models.ForeignKey(Sale, on_delete=models.CASCADE, null=1,blank=1, related_name="customers")
+    remaining_balance = models.IntegerField(default=0)
+    
+    def pay_balance(self, amount):
+        self.remaining_balance = max(0, self.remaining_balance - amount)
+        self.save()
+
+    
+    def __str__(self):
+        return self.name

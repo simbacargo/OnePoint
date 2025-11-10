@@ -1,0 +1,41 @@
+<div class="max-w-6xl mx-auto mt-10">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">Customer List</h1>
+        <a hx-get="{% url 'customer_create' %}" hx-target="#main-content" href="#" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">+ Add New Customer</a>
+    </div>
+
+    <div class="overflow-x-auto bg-white dark:bg-gray-900 shadow rounded-lg">
+        <table class="min-w-full text-left text-sm text-gray-600 dark:text-gray-200">
+            <thead class="bg-gray-100 dark:bg-gray-800">
+                <tr>
+                    <th class="py-3 px-4">Name</th>
+                    <th class="py-3 px-4">Sale</th>
+                    <th class="py-3 px-4">Total</th>
+                    <th class="py-3 px-4">Phone</th>
+                    <th class="py-3 px-4">Date</th>
+                    <th class="py-3 px-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in customers %}
+                <tr class="border-b border-gray-200 dark:border-gray-700">
+                    <td class="py-3 px-4">{{ customer.name }}</td>
+                    <td class="py-3 px-4">{{ customer.sale }}</td>
+                    <td class="py-3 px-4">{{ customer.sale.total_amount }}</td>
+                    <td class="py-3 px-4 font-semibold">{{ customer.phone }}</td>
+                    <td class="py-3 px-4">{{ customer.sale.date_sold|date:"Y-m-d H:i" }}</td>
+                    <td class="py-3 px-4 space-x-2">
+                        <a hx-get="{% url 'customer_update' customer.pk %}"    hx-target="#main-content" href="#" class="text-blue-500 hover:underline">Edit</a>
+                        <a hx-get="{% url 'customer_delete' customer.pk %}"  hx-target="#main-content" href="#" class="text-red-500 hover:underline">Delete</a>
+        <a href="#" hx-target="#main-content" hx-get="{% url 'customer_detail' customer.pk %}">Details</a>
+
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center py-4 text-gray-500">No customers yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+

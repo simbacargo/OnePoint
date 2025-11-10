@@ -11,7 +11,7 @@ SECRET_KEY = 'django-insecure-0*&#!sej456s12n%p+fk(u#*(rpfqrin!8*dqn+lx)56@o9@q&
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
+ALLOWED_SIGNUP_DOMAINS = ["*"]
 
 # Application definition
 
@@ -36,7 +36,7 @@ MIDDLEWARE = [
     # 'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.cache.FetchFromCacheMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -157,3 +157,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, "asset")
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "assets"),
 ]
+
+
+
+
+LOGIN_URL ="/login"
+LOGIN_REDIRECT_URL ="/"
+LOGOUT_REDIRECT_URL ="/"
+# CSRF_TRUSTED_ORIGINS = ['*']

@@ -5,7 +5,7 @@
         Edit Product — {{ product.name }}
     </h1>
 
-    <form method="POST" class="space-y-6">
+    <form method="POST"  hx-targert="main-content" hx-post="{% url 'edit_product' pk=product.id %}" class="space-y-6"> 
         {% csrf_token %}
 
         {% for field in form %}

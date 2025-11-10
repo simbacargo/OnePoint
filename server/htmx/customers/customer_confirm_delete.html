@@ -1,0 +1,8 @@
+  <h1>Are you sure you want to delete {{ customer.name }}?</h1>
+
+  <form method="POST">
+    {% csrf_token %}
+    <button type="submit">Confirm Delete</button>
+  </form>
+
+  <a href="#" hx-target="#main-content" hx-get="{% url 'customer_list' %}">Cancel</a>

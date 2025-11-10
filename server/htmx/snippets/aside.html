@@ -1,15 +1,79 @@
-        <aside id="sidebar" class="w-64 bg-sky-900 shadow-xl flex-shrink-0">
-            <div class="p-4 border-b">
-                <h2 class="text-xl font-semibold text-gray-800">Msaidizi</h2>
-            </div>
-            <nav class="p-4">
-                <ul class="space-y-2">
-                    <li class="font-black text-l "><a href="#" hx-target="#main-content" hx-get="{% url 'dashboard' %}" class="block p-2 text-white text-gray-700 hover:bg-indigo-500 hover:text-white rounded transition duration-150"><i class="bi bi-circle"></i><span>Dashboard</span></a></li><hr>
-                    <li class="font-black text-l "><a href="#" hx-target="#main-content" hx-get="{% url 'product_create' %}" class="block p-2 text-white text-gray-700 hover:bg-indigo-500 hover:text-white rounded transition duration-150"><i class="bi bi-circle"></i><span>Sajili Bidhaa</span></a></li><hr>
-                    <li class="font-black text-l "><a href="#" hx-target="#main-content" hx-get="{% url 'list_of_products' %}" class="block p-2 text-white text-gray-700 hover:bg-indigo-500 hover:text-white rounded transition duration-150"><i class="bi bi-circle"></i><span>Bidhaa</span></a></li><hr>
-                    <li class="font-black text-l "><a href="#" hx-target="#main-content" hx-get="{% url 'create_sale' %}" class="block p-2 text-white text-gray-700 hover:bg-indigo-500 hover:text-white rounded transition duration-150"><i class="bi bi-circle"></i><span>Uza</span></a></li><hr>
-                    <li class="font-black text-l "><a href="#" hx-target="#main-content" hx-get="{% url 'list_sales' %}" class="block p-2 text-white text-gray-700 hover:bg-indigo-500 hover:text-white rounded transition duration-150"><i class="bi bi-circle"></i><span>Mauzo</span></a></li><hr>
-                    <li class="font-black text-l "><a href="#" hx-target="#main-content" hx-get="{% url 'list_of_products' %}" class="block p-2 text-white text-gray-700 hover:bg-indigo-500 hover:text-white rounded transition duration-150"><i class="bi bi-circle"></i><span>Wateja Waliosajiliwa</span></a></li><hr>
-                    </ul>
-            </nav>
-        </aside>
+{% load humanize %}
+
+<aside id="sidebar" class="w-64 bg-sky-900 shadow-xl flex-shrink-0 rounded-lg transition-all duration-300 ease-in-out">
+    <div class="p-6 border-b bg-sky-800">
+        <h2 class="text-2xl font-semibold text-white">Msaidizi</h2>
+    </div>
+
+    <nav class="py-6">
+        <ul class="space-y-4">
+            <!-- Dashboard Link -->
+            <li class="px-2">
+                <a href="#" hx-target="#main-content" hx-get="{% url 'dashboard' %}" 
+                   class="flex items-center p-3 text-lg font-medium text-white hover:bg-indigo-600 rounded-lg transition duration-200">
+                   <i class="bi bi-house-door mr-3 text-xl"></i><span>Dashboard</span>
+                </a>
+            </li>
+
+            <!-- Register Product Link -->
+            <li class="px-2">
+                <a href="#" hx-target="#main-content" hx-get="{% url 'product_create' %}" 
+                   class="flex items-center p-3 text-lg font-medium text-white hover:bg-indigo-600 rounded-lg transition duration-200">
+                   <i class="bi bi-box mr-3 text-xl"></i><span>Register Product</span>
+                </a>
+            </li>
+
+            <!-- Product List Link -->
+            <li class="px-2">
+                <a href="#" hx-target="#main-content" hx-get="{% url 'list_of_products' %}" 
+                   class="flex items-center p-3 text-lg font-medium text-white hover:bg-indigo-600 rounded-lg transition duration-200">
+                   <i class="bi bi-boxes mr-3 text-xl"></i><span>Product List</span>
+                </a>
+            </li>
+
+            <!-- Sell Product Link -->
+            <li class="px-2">
+                <a href="#" hx-target="#main-content" hx-get="{% url 'create_sale' %}" 
+                   class="flex items-center p-3 text-lg font-medium text-white hover:bg-indigo-600 rounded-lg transition duration-200">
+                   <i class="bi bi-cart-plus mr-3 text-xl"></i><span>Sell Product</span>
+                </a>
+            </li>
+
+            <!-- Sales Link -->
+            <li class="px-2">
+                <a href="#" hx-target="#main-content" hx-get="{% url 'list_sales' %}" 
+                   class="flex items-center p-3 text-lg font-medium text-white hover:bg-indigo-600 rounded-lg transition duration-200">
+                   <i class="bi bi-clipboard-data mr-3 text-xl"></i><span>Sales</span>
+                </a>
+            </li>
+
+            <!-- Approve Sales Link -->
+            <li class="px-2">
+                <a href="#" hx-target="#main-content" hx-get="{% url 'list_unverified_sales' %}" 
+                   class="flex items-center p-3 text-lg font-medium text-white hover:bg-indigo-600 rounded-lg transition duration-200">
+                   <i class="bi bi-check mr-3 text-xl"></i><span>Approve Sales</span>
+                </a>
+            </li>
+
+            <!-- Registered Customers Link -->
+            <li class="px-2">
+                <a href="#" hx-target="#main-content" hx-get="{% url 'customer_list' %}" 
+                   class="flex items-center p-3 text-lg font-medium text-white hover:bg-indigo-600 rounded-lg transition duration-200">
+                   <i class="bi bi-person-lines-fill mr-3 text-xl"></i><span>Registered Customers</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+<!-- 
+    <div class="absolute bottom-0 w-full p-4">
+        <div class="bg-blue-100 text-black font-bold text-lg rounded-lg p-3">
+            <p class="text-sm">{{ user.username|capfirst }}</p>
+            <span class="text-sm">
+                |
+                {% if not user.is_admin %}
+                    Admin
+                {% endif %}
+            </span>
+        </div>
+    </div> -->
+</aside>

@@ -2,7 +2,8 @@ from django.urls import include, path
 from rest_framework import routers
 from home import views
 from django.contrib import admin
-
+from authentication import views as bootcamp_auth_views
+from django.contrib.auth.views import LogoutView, LoginView
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'products', views.ProductViewSet) # 'products' will be the base URL for the API
@@ -20,7 +21,7 @@ urlpatterns = [
     ]
 
 urlpatterns += [
-    path('signup/', views.signup, name='signup'),
+    # path('signup/', views.signup, name='signup'),
     path('login/', views.login, name='login'),
     # path('logout/', views.logout, name='logout'),
     path('admin/', admin.site.urls),
@@ -42,13 +43,48 @@ urlpatterns += [
     path('index/index/product_create', views.product_create, name='product_create'),
     path('index/index/product_create', views.product_create, name='product_create'),
     path('index/index/product_create', views.product_create, name='product_create'),
-]
-#
+
+    #####   Authentication  ###
+    # path(r'accounts/login/', auth_views.LoginView.as_view()),
+        path(r'signup_api/', bootcamp_auth_views.signup_api, name='signup'),
+        path(r'signup/', bootcamp_auth_views.signup, name='signup'),
+        path(r'activate/<slug:uidb64>/<slug:token>/', bootcamp_auth_views.activate, name='activate'),
+    path(r'login', LoginView.as_view(), name='login'),
+     path('logout', LogoutView.as_view(), {'next_page': "/"}, name='logout'),
+    path('auth/', include('authentication.urls',namespace='authentication')),
+
+    # path(r'login', auth_views.LoginView.as_view(), name='login'),
+    # path(r'logout', auth_views.LoginView.as_view(), {'next_page': '/'}, name='logout'),
+
+
+]#
 urlpatterns += [
     path('index/sales/', views.list_sales, name='list_sales'),
     path('index/sales/add/', views.create_sale, name='create_sale'),
     path('index/sales/<int:pk>/edit/', views.edit_sale, name='edit_sale'),
     path('index/sales/<int:pk>/delete/', views.delete_sale, name='delete_sale'),
-
+    path('index/sales/list_unverified_sales/', views.list_unverified_sales, name='list_unverified_sales'),
     path("index/dashboard/", views.dashboard, name="dashboard"),
+    path('index/sales/<int:pk>/verify_sale/', views.verify_sale, name='verify_sale'),
+]
+
+
+urlpatterns += [
+    path('create/', views.create_sale, name='create_sale'),
+    path('search-products/', views.search_products, name='search_products'),
+    path('search-products/', views.search_products, name='product_search_url'),
+    path('api/get_product_price/<int:product_id>/', views.get_product_price, name='get_product_price'),
+    path('filter-products/', views.product_list, name='product_list'),
+
+]
+
+# your_project/your_app/urls.py
+
+
+urlpatterns += [
+    path('customers/', views.CustomerListView.as_view(), name='customer_list'),  # View all customers
+    path('customers/create/', views.CustomerCreateView.as_view(), name='customer_create'),  # Create a new customer
+    path('customers/<int:pk>/', views.CustomerDetailView.as_view(), name='customer_detail'),  # View a single customer
+    path('customers/<int:pk>/update/', views.CustomerUpdateView.as_view(), name='customer_update'),  # Update an existing customer
+    path('customers/<int:pk>/delete/', views.CustomerDeleteView.as_view(), name='customer_delete'),  # Delete a customer
 ]

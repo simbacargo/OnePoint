@@ -1,40 +1,151 @@
 <div class="max-w-3xl mx-auto mt-10 bg-white dark:bg-gray-900 shadow rounded-2xl p-8">
     <h1 class="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-6">Add New Sale</h1>
-
-    <form method="POST" class="space-y-6">
+    <form method="POST" hx-post="{% url 'create_sale' %}" hx-target="#main-content" class="space-y-6">
         {% csrf_token %}
-        {% for field in form %}
+
         <div>
-            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                {{ field.label }}
+            <label for="{{ form.product.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {{ form.product.label }}
             </label>
-            {{ field }}
-            {% if field.errors %}
-                <p class="text-red-500 text-sm mt-1">{{ field.errors|striptags }}</p>
+            {{ form.product }}
+            {% if form.product.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.product.errors|striptags }}</p>
             {% endif %}
         </div>
-        {% endfor %}
+
+        <div>
+            <label for="{{ form.quantity_sold.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {{ form.quantity_sold.label }}
+            </label>
+            {{ form.quantity_sold }}
+            {% if form.quantity_sold.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.quantity_sold.errors|striptags }}</p>
+            {% endif %}
+        </div>
+
+        <div>
+            <label for="{{ form.price_per_unit.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                {{ form.price_per_unit.label }}
+            </label>
+            {{ form.price_per_unit }}
+            {% if form.price_per_unit.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.price_per_unit.errors|striptags }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Total Amount Field (Readonly) -->
+        <div>
+            <label for="total_amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Total Amount
+            </label>
+            <input id="total_amount" type="text" name="total_amount" class="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-200 dark:bg-gray-700 px-3 py-2 text-gray-700 dark:text-gray-300 focus:outline-none cursor-not-allowed" readonly>
+        </div>
+
         <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Save Sale</button>
     </form>
 </div>
 
-<!-- Tom Select -->
-<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const select = document.querySelector("#id_product");
-    if (select) {
-        new TomSelect(select, {
-            placeholder: "Search or select a product...",
-            create: false,
-            maxOptions: 500,
-            sortField: {
-                field: "text",
-                direction: "asc"
+// Function to initialize SlimSelect for the product dropdown
+function initializeProductSelect(targetEl) {
+    // Only initialize if the element exists and is a select element
+    if (targetEl && targetEl.tagName === 'SELECT' && targetEl.id === 'id_product') {
+        new SlimSelect({
+            select: targetEl,
+            placeholder: 'Type to search for a product...',
+            allowDeselect: true,
+            searchText: 'Searching...',
+            searchPlaceholder: 'Type product name or SKU...',
+            // Configure for AJAX/Remote Loading (Server-Side Search)
+            ajax: function (search, callback) {
+                // Wait for at least 2 characters to start searching
+                if (!search || search.length < 2) {
+                    return callback(false); // Do not search
+                }
+
+                // Construct the URL for the search endpoint
+                // IMPORTANT: Ensure 'product_search_url' is defined in your Django urls.py
+                const searchUrl = `{% url 'search_products' %}?q=${encodeURIComponent(search)}`;
+                
+                // Use the Fetch API for the AJAX request
+                fetch(searchUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        // SlimSelect expects an array of objects like: 
+                        // [{value: "1", text: "Product A"}, ...]
+                        // Assuming your Django view returns this format (value/text)
+                        callback(data);
+                    })
+                    .catch(error => {
+                        console.error("Product search failed:", error);
+                        callback(false); // Indicate failure
+                    });
             }
         });
     }
+}
+
+// 1. Initial Load: Initialize when the page first loads
+document.addEventListener("DOMContentLoaded", function() {
+    const initialSelect = document.querySelector("#id_product");
+    initializeProductSelect(initialSelect);
+});
+
+// 2. HTMX Fix: Re-initialize after an HTMX swap completes
+// This is critical if the form is loaded or swapped via HTMX (e.g., hx-target="#main-content")
+document.body.addEventListener('htmx:afterSwap', function(event) {
+    // Check if the swapped content contains the product select element
+    const swappedSelect = event.target.querySelector('#id_product');
+    if (swappedSelect) {
+        initializeProductSelect(swappedSelect);
+    }
+});
+</script>
+
+<script>
+// Fetch product price when a product is selected
+document.addEventListener('mouseup', function() {
+    // Dynamically find the product dropdown by its ID
+    const productSelect = document.querySelector('[name="product"]');
+    console.log(productSelect);
+    
+    const quantityInput = document.querySelector('[name="quantity_sold"]');
+    const priceInput = document.querySelector('[name="price_per_unit"]');
+    const totalInput = document.querySelector('#total_amount');
+
+    // Function to fetch the price of the selected product
+    function fetchProductPrice() {
+        const productId = productSelect.value;
+        if (productId) {
+            fetch(`/api/get_product_price/${productId}/`) // URL to fetch the price for the selected product
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.price) {
+                        priceInput.value = data.price; // Update the price field
+                        calculateTotal(); // Recalculate the total whenever the price changes
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching product price:', error);
+                });
+        }
+    }
+
+    // Function to calculate the total amount
+    function calculateTotal() {
+        const quantity = parseInt(quantityInput.value, 10);
+        const price = parseFloat(priceInput.value);
+        if (!isNaN(quantity) && !isNaN(price)) {
+            const total = quantity * price;
+            totalInput.value = total.toFixed(2); // Update the total amount field
+        } else {
+            totalInput.value = ''; // If invalid quantity or price, clear the total
+        }
+    }
+
+    // Event listeners
+    productSelect.addEventListener('change', fetchProductPrice); // Fetch price when product changes
+    quantityInput.addEventListener('input', calculateTotal); // Recalculate total when quantity changes
 });
 </script>
