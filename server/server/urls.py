@@ -50,7 +50,7 @@ urlpatterns += [
         path(r'signup/', bootcamp_auth_views.signup, name='signup'),
         path(r'activate/<slug:uidb64>/<slug:token>/', bootcamp_auth_views.activate, name='activate'),
     path(r'login', LoginView.as_view(), name='login'),
-     path('logout', LogoutView.as_view(), name='logout'),
+     path('logout', LogoutView.as_view(), {'next_page': "/"}, name='logout'),
     path('auth/', include('authentication.urls',namespace='authentication')),
 
     # path(r'login', auth_views.LoginView.as_view(), name='login'),

@@ -38,7 +38,7 @@
                    <i class="bi bi-clipboard-data mr-3 text-xl"></i><span>Mauzo</span>
                 </a>
             </li>
-            {% if not user.is_admin %}
+            {% if user.is_admin %}
             <li class="px-2">
                 <a href="#" hx-target="#main-content" hx-get="{% url 'list_unverified_sales' %}" 
                    class="flex items-center p-2 text-lg font-medium text-white hover:bg-indigo-600 rounded-lg transition duration-200">
@@ -59,7 +59,7 @@
     <div class="mt-auto p-4 flex-shrink-0">
         <div class="bg-blue-100 text-black font-extrabold text-lg p-3 rounded-lg flex justify-between items-center">
             <b>{{user.username|capfirst }}</b>
-            {% if not user.is_admin %}
+            {% if user.is_admin %}
                 <span class="text-sm font-semibold">Admin</span>
             {% else %}
                 <span class="text-sm font-semibold">User</span>

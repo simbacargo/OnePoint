@@ -20,7 +20,7 @@ from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from ..serializers import UserSerializer  # If you have a custom serializer for User
 from rest_framework.authtoken.views import obtain_auth_token
-
+from authentication.models import User
 @api_view(['POST'])
 def signup(request):
     if request.method == 'POST':
