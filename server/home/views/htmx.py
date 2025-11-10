@@ -164,12 +164,15 @@ def product_delete(request, pk):
     # HTMX understands the 'Location' header and automatically performs the redirect 
     # without needing a full page refresh.
     response = redirect(reverse('list_of_products')) 
+    if response.status_code == 302:
+        response.status_code = 200  # Change to 200 OK for HTMX compatibility
+    response = redirect(reverse('list_of_products')) 
     
     # Optional: Send a success message header that HTMX can pick up and display
     # HTMX uses the 'HX-Trigger' header to trigger client-side events.
-    response['HX-Trigger'] = '{"productDeleted": true, "message": "Bidhaa ' + product_name + ' imefutwa."}'
+    # response['HX-Trigger'] = '{"productDeleted": true, "message": "Bidhaa ' + product_name + ' imefutwa."}'
 
-    return response
+    return render (request, "products/list.html", {"products": Product.objects.all()})
 
     # Option 2: If the delete button was on the list page (table row), 
     # the HTMX request would simply target and remove the table row, and the view

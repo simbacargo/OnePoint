@@ -1,77 +1,71 @@
+{% load humanize %}
 <div class="max-w-7xl mx-auto mt-10 px-6">
-    <!-- Header -->
-    <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">📊 E‑Commerce Dashboard</h1>
+    <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">📊 **Dashibodi ya Biashara Mtandaoni**</h1>
 
-    <!-- KPI Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-        <!-- Total Products -->
         <div class="bg-white dark:bg-gray-900 shadow rounded-xl p-6">
-            <p class="text-sm text-gray-500 dark:text-gray-400">Total Products</p>
-            <p class="text-2xl font-semibold text-blue-600">{{ total_products }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Jumla ya Bidhaa</p>
+            <p class="text-2xl font-semibold text-blue-600">{{ total_products|intcomma }}</p>
         </div>
 
-        <!-- Total Sales -->
         <div class="bg-white dark:bg-gray-900 shadow rounded-xl p-6">
-            <p class="text-sm text-gray-500 dark:text-gray-400">Total Sales</p>
-            <p class="text-2xl font-semibold text-green-600">{{ total_sales }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Jumla ya Mauzo</p>
+            <p class="text-2xl font-semibold text-green-600">{{ total_sales|intcomma }}</p>
         </div>
 
-        <!-- Units Sold -->
         <div class="bg-white dark:bg-gray-900 shadow rounded-xl p-6">
-            <p class="text-sm text-gray-500 dark:text-gray-400">Units Sold</p>
-            <p class="text-2xl font-semibold text-purple-600">{{ total_units_sold }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Vitengo Vilivyouzwa</p>
+            <p class="text-2xl font-semibold text-purple-600">{{ total_units_sold|intcomma }}</p>
         </div>
 
-        <!-- Revenue -->
         <div class="bg-white dark:bg-gray-900 shadow rounded-xl p-6">
-            <p class="text-sm text-gray-500 dark:text-gray-400">Revenue</p>
-            <p class="text-2xl font-semibold text-red-600">${{ total_revenue }}</p>
-        </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Mapato</p>
+            <p class="text-2xl font-semibold text-red-600">{{ total_revenue|intcomma }}</p>
+ /=        </div>
     </div>
 
-    <!-- Sales Table -->
     <div class="bg-white dark:bg-gray-900 shadow rounded-xl p-6 mb-10">
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Recent Sales</h2>
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Mauzo ya Hivi Karibuni</h2>
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Product</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Quantity</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Price</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Total</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Date</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Bidhaa</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Kiasi</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Bei</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Jumla</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Tarehe</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                 {% for sale in recent_sales %}
                 <tr>
                     <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">{{ sale.product.name }}</td>
-                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">{{ sale.quantity_sold }}</td>
-                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">${{ sale.price_per_unit }}</td>
-                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">${{ sale.total_amount }}</td>
+                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">{{ sale.quantity_sold|intcomma }}</td>
+                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">{{ sale.price_per_unit|intcomma }} /=</td>
+                    <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">{{ sale.total_amount|intcomma }} /=</td>
                     <td class="px-4 py-2 text-sm text-gray-700 dark:text-gray-300">{{ sale.date_sold|date:"M d, Y" }}</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" class="px-4 py-4 text-center text-gray-500">No sales yet.</td>
+                    <td colspan="5" class="px-4 py-4 text-center text-gray-500">Hakuna mauzo bado.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <!-- Inventory Section -->
     <div class="bg-white dark:bg-gray-900 shadow rounded-xl p-6">
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Low Stock Products</h2>
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Bidhaa Zilizo na Akiba Ndogo</h2>
         <ul class="divide-y divide-gray-200 dark:divide-gray-700">
             {% for product in low_stock_products %}
             <li class="py-3 flex justify-between items-center">
                 <span class="text-gray-700 dark:text-gray-300">{{ product.name }}</span>
-                <span class="text-sm font-medium text-red-600">Stock: {{ product.quantity }}</span>
+                <span class="text-sm font-medium text-red-600">Akiba: {{ product.quantity }}</span>
             </li>
             {% empty %}
-            <li class="py-3 text-gray-500">All products are sufficiently stocked.</li>
+            <li class="py-3 text-gray-500">Bidhaa zote zina akiba ya kutosha.</li>
             {% endfor %}
         </ul>
     </div>
 </div>
+    

@@ -1,222 +1,150 @@
 {% load static %}
-<style>
-    /* Custom styles for loader icon rotation */
-    .animate-spin-slow {
-        animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-    /* Ensure the body uses the Inter font */
-    body {
-        font-family: 'Inter', sans-serif;
-        background-color: #1a202c; /* Dark background */
-    }
-    /* Make form container more spacious */
-    .form-container {
-        background-color: #2d3748; /* Darker gray for contrast */
-        padding: 3rem;
-        border-radius: 12px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-        border: 1px solid #4a5568; /* Subtle border */
-    }
-    /* Form Section Title */
-    h2 {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #e2e8f0;
-        margin-bottom: 2rem;
-    }
-    /* Alert Box */
-    .alert-box {
-        display: flex;
-        align-items: center;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 2rem;
-        background-color: #2d3748;
-        border-left-width: 4px;
-    }
-    .alert-box svg {
-        margin-right: 0.75rem;
-    }
-    .alert-box p {
-        color: #e2e8f0;
-    }
-    /* Form Labels */
-    label {
-        font-size: 0.875rem;
-        font-weight: 500;
-        color: #e2e8f0;
-    }
-    /* Input fields */
-    input, textarea {
-        width: 100%;
-        padding: 1rem;
-        background-color: #4a5568;
-        border-radius: 8px;
-        color: #edf2f7;
-        border: 1px solid #4a5568;
-        transition: border-color 0.3s, background-color 0.3s;
-    }
-    input:focus, textarea:focus {
-        outline: none;
-        border-color: #63b3ed;
-        background-color: #2d3748;
-    }
-    input::placeholder, textarea::placeholder {
-        color: #a0aec0;
-    }
-    .form-section {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-    .form-section .full-width {
-        grid-column: span 2;
-    }
-    /* Error messages */
-    .error-message {
-        font-size: 0.75rem;
-        color: #f56565;
-        margin-top: 0.5rem;
-    }
-    /* Buttons */
-    .button {
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
-        font-weight: 600;
-        border-radius: 8px;
-        transition: background-color 0.3s, transform 0.2s;
-    }
-    .button:hover {
-        transform: translateY(-2px);
-    }
-    .button:focus {
-        outline: none;
-        border-color: #63b3ed;
-    }
-    .button-clear {
-        background-color: #4a5568;
-        color: #e2e8f0;
-        border: 1px solid #4a5568;
-    }
-    .button-clear:hover {
-        background-color: #2d3748;
-    }
-    .button-submit {
-        background-color: #3182ce;
-        color: #ffffff;
-        border: none;
-    }
-    .button-submit:hover {
-        background-color: #2b6cb0;
-    }
-</style>
+    <style>
+        /* Custom styles for the loader icon rotation */
+        .animate-spin-slow {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        /* Ensure the body uses the Inter font as requested */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f9;
+        }
+    </style>
+<div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">
+    
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">Unda Bidhaa Mpya</h1>
+    <p class="text-gray-500 mb-6">Ingiza maelezo ya bidhaa mpya kwenye orodha hapa chini. Fomu hii imeundwa na Django.</p>
 
-<div class="container mx-auto p-6 sm:p-8 lg:p-10 max-w-4xl">
-    <!-- Header -->
-    <h1 class="text-4xl font-extrabold text-white mb-4">Create New Product</h1>
-    <p class="text-gray-400 mb-10">Fill in the details for the new product in your inventory.</p>
-
-    <!-- Status Message Display -->
     {% if status_message %}
         {% if status_type == 'success' %}
-            <div class="alert-box bg-green-800 border-l-green-500">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="w-6 h-6 text-green-300" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                    <path d="M22 4L12 14.01l-3-3"></path>
-                </svg>
+            {% with icon_class="text-green-700" bg_class="bg-green-100 border-green-400" text_class="text-green-700" %}
+            <div class="flex items-center p-4 mb-6 rounded-lg border-l-4 font-medium {{ bg_class }} border-l-green-600" role="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-3 flex-shrink-0 {{ icon_class }}"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><path d="M22 4L12 14.01l-3-3"></path></svg>
                 <p>{{ status_message }}</p>
             </div>
+            {% endwith %}
         {% elif status_type == 'error' %}
-            <div class="alert-box bg-red-800 border-l-red-500">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="w-6 h-6 text-red-300" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="m15 9-6 6"></path>
-                    <path d="m9 9 6 6"></path>
-                </svg>
+            {% with icon_class="text-red-700" bg_class="bg-red-100 border-red-400" text_class="text-red-700" %}
+            <div class="flex items-center p-4 mb-6 rounded-lg border-l-4 font-medium {{ bg_class }} border-l-red-600" role="alert">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-3 flex-shrink-0 {{ icon_class }}"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
                 <p>{{ status_message }}</p>
             </div>
+            {% endwith %}
         {% endif %}
     {% endif %}
 
-    <!-- Main Form -->
-    <div class="form-container">
-        <!-- Form Header -->
-        <h2>Product Details</h2>
-
-        <!-- Django Form Submission -->
-        <form method="POST" hx-post="{% url 'product_create' %}" hx-target="#main-content" class="space-y-8">
+    <div class="bg-white p-6 rounded-xl shadow-2xl transition duration-300 border border-gray-100">
+        
+        <form method="POST" hx-post="{% url 'product_create' %}" hx-target="#main-content" class="space-y-6">
             {% csrf_token %}
             
-            <!-- Core Details Section -->
-            <div class="form-section">
-                <!-- Product Name -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
                 <div>
-                    <label for="id_name">Product Name <span class="text-red-500">*</span></label>
-                    <input type="text" id="id_name" name="name" placeholder="e.g., Oil Filter (Premium)" required 
-                           value="{{ form.name.value|default:'' }}">
-                    {% if form.name.errors %}
-                        <p class="error-message">{{ form.name.errors }}</p>
-                    {% endif %}
+                    <label for="id_name" class="text-sm font-medium text-gray-700">Jina la Bidhaa <span class="text-red-500">*</span></label>
+                    <input type="text" id="id_name" name="name" placeholder="mfano, Kichujio cha Mafuta (Bora)" required
+                           value="{{ form.name.value|default:'' }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.name.errors %}<p class="text-xs text-red-500 mt-1">{{ form.name.errors }}</p>{% endif %}
                 </div>
 
-                <!-- Part Number -->
                 <div>
-                    <label for="id_part_number">Part Number</label>
-                    <input type="text" id="id_part_number" name="part_number" placeholder="e.g., K-4902-12345 (Optional)" 
-                           value="{{ form.part_number.value|default:'' }}">
-                    {% if form.part_number.errors %}
-                        <p class="error-message">{{ form.part_number.errors }}</p>
-                    {% endif %}
+                    <label for="id_part_number" class="text-sm font-medium text-gray-700">Part Number</label>
+                    <input type="text" id="id_part_number" name="part_number" placeholder="mfano, K-4902-12345 (Si lazima)" 
+                           value="{{ form.part_number.value|default:'' }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.part_number.errors %}<p class="text-xs text-red-500 mt-1">{{ form.part_number.errors }}</p>{% endif %}
                 </div>
             </div>
 
-            <!-- Inventory & Pricing Section -->
-            <div class="form-section">
-                <!-- Quantity -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
                 <div>
-                    <label for="id_quantity">Starting Quantity <span class="text-red-500">*</span></label>
+                    <label for="id_quantity" class="text-sm font-medium text-gray-700">Kiasi cha Kuanzia <span class="text-red-500">*</span></label>
                     <input type="number" id="id_quantity" name="quantity" placeholder="0" required min="0" 
-                           value="{{ form.quantity.value|default:0 }}">
-                    {% if form.quantity.errors %}
-                        <p class="error-message">{{ form.quantity.errors }}</p>
-                    {% endif %}
+                           value="{{ form.quantity.value|default:0 }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.quantity.errors %}<p class="text-xs text-red-500 mt-1">{{ form.quantity.errors }}</p>{% endif %}
                 </div>
-
-                <!-- Price -->
-                <div>
-                    <label for="id_price">Price (USD) <span class="text-red-500">*</span></label>
-                    <input type="number" id="id_price" name="price" placeholder="0.00" required min="0.01" step="0.01" 
-                           value="{{ form.price.value|default:'0.00' }}">
-                    {% if form.price.errors %}
-                        <p class="error-message">{{ form.price.errors }}</p>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Description Section -->
-            <div>
-                <label for="id_description">Description</label>
-                <textarea id="id_description" name="description" rows="4" placeholder="Describe the product and its use.">
-                    {% if form.description.value %}{{ form.description.value }}{% endif %}
-                </textarea>
-                {% if form.description.errors %}
-                    <p class="error-message">{{ form.description.errors }}</p>
-                {% endif %}
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex justify-end space-x-6 pt-6">
-                <button type="reset" class="button button-clear">
-                    Clear Form
-                </button>
                 
-                <button type="submit" class="button button-submit">
-                    Create Product
+                <div>
+                    <label for="id_price" class="text-sm font-medium text-gray-700">Bei (USD) <span class="text-red-500">*</span></label>
+                    <input type="number" id="id_price" name="price" placeholder="0.00" required min="0.01" step="0.01"
+                           value="{{ form.price.value|default:'0.00' }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.price.errors %}<p class="text-xs text-red-500 mt-1">{{ form.price.errors }}</p>{% endif %}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
+                <div>
+                    <label for="id_brand" class="text-sm font-medium text-gray-700">Jina la Kampuni (Brand) <span class="text-red-500">*</span></label>
+                    <input type="text" id="id_brand" name="brand" placeholder="mfano, Bosch" required
+                           value="{{ form.brand.value|default:'' }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.brand.errors %}<p class="text-xs text-red-500 mt-1">{{ form.brand.errors }}</p>{% endif %}
+                </div>
+                
+                <!-- <div>
+                    <label for="id_vehicles" class="text-sm font-medium text-gray-700">Magari (Tenganisha kwa Koma) <span class="text-red-500">*</span></label>
+                    <input type="text" id="id_vehicles" name="vehicles" placeholder="mfano, Honda Accord, Toyota Camry" required
+                           value="{{ form.vehicles.value|default:'' }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.vehicles.errors %}<p class="text-xs text-red-500 mt-1">{{ form.vehicles.errors }}</p>{% endif %}
+                </div> -->
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pb-6">
+                <div>
+                    <label for="id_amount" class="text-sm font-medium text-gray-700">Jumla ya Kiasi cha Kuanzia <span class="text-red-500">*</span></label>
+                    <input type="number" id="id_amount" name="amount" placeholder="mfano, 100" required min="0"
+                           value="{{ form.amount.value|default:0 }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.amount.errors %}<p class="text-xs text-red-500 mt-1">{{ form.amount.errors }}</p>{% endif %}
+                </div>
+                
+                <div>
+                    <label for="id_sold_units" class="text-sm font-medium text-gray-700">Spea zilivyouzwa (Vya Kuanzia) <span class="text-red-500">*</span></label>
+                    <input type="number" id="id_sold_units" name="sold_units" placeholder="mfano, 10" required min="0"
+                           value="{{ form.sold_units.value|default:0 }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.sold_units.errors %}<p class="text-xs text-red-500 mt-1">{{ form.sold_units.errors }}</p>{% endif %}
+                </div>
+                
+                <div>
+                    <label for="id_amount_collected" class="text-sm font-medium text-gray-700">Jumla ya Pesa Iliyokusanywa (USD) <span class="text-red-500">*</span></label>
+                    <input type="number" id="id_amount_collected" name="amount_collected" placeholder="mfano, 1000.00" required min="0.01" step="0.01"
+                           value="{{ form.amount_collected.value|default:'0.00' }}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    {% if form.amount_collected.errors %}<p class="text-xs text-red-500 mt-1">{{ form.amount_collected.errors }}</p>{% endif %}
+                </div>
+            </div>
+
+            <div>
+                <label for="id_description" class="text-sm font-medium text-gray-700">Maelezo</label>
+                <textarea id="id_description" name="description" rows="3" placeholder="Maelezo mafupi ya bidhaa, matumizi yake, na magari yanayotumia."
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150 resize-none">{% if form.description.value %}{{ form.description.value }}{% endif %}</textarea>
+                {% if form.description.errors %}<p class="text-xs text-red-500 mt-1">{{ form.description.errors }}</p>{% endif %}
+            </div>
+
+
+            <div class="flex justify-end space-x-4 pt-4">
+                
+                <button
+                    type="reset"
+                    class="px-6 py-3 border border-gray-300 text-sm font-medium rounded-lg shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150"
+                >
+                    Futa Fomu
+                </button>
+
+                <button
+                    type="submit"
+                    class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mr-2"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
+                    Unda Bidhaa
                 </button>
             </div>
         </form>

@@ -1,3 +1,4 @@
+{% load humanize %}
 <div class="max-w-6xl mx-auto mt-10">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100">Sales Records</h1>
@@ -41,9 +42,9 @@
                 {% for sale in sales %}
                 <tr class="border-b border-gray-200 dark:border-gray-700">
                     <td class="py-3 px-4">{{ sale.product.name }}</td>
-                    <td class="py-3 px-4">{{ sale.quantity_sold }}</td>
-                    <td class="py-3 px-4">{{ sale.price_per_unit }}</td>
-                    <td class="py-3 px-4 font-semibold">{{ sale.total_amount }}</td>
+                    <td class="py-3 px-4">{{ sale.quantity_sold|intcomma }}</td>
+                    <td class="py-3 px-4">{{ sale.price_per_unit|intcomma }}</td>
+                    <td class="py-3 px-4 font-semibold">{{ sale.total_amount|intcomma }}</td>
                     <td class="py-3 px-4">{{ sale.date_sold|date:"Y-m-d H:i" }}</td>
                     <td class="py-3 px-4 space-x-2">
                         <a hx-get="{% url 'verify_sale' sale.pk %}"    hx-target="#main-content" href="#" class="text-blue-500 hover:underline">Verify Sale</a>
