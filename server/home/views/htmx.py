@@ -298,8 +298,8 @@ def list_unverified_sales(request):
 def verify_sale(request, pk):
     sales = Sale.objects.select_related('product').filter(aproved=False).order_by('-date_sold')
     sale = get_object_or_404(Sale, pk=pk)
-    # sale.aproved = True
-    # sale.save()
+    sale.aproved = True
+    sale.save()
     message = f"Sale of {sale.product.name} verified successfully."
     return render(request, 'sales/unverified.html', {'sales': sales, 'message': message})
 
