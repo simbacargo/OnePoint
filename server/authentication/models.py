@@ -90,7 +90,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     country = models.CharField(max_length=50, null=True)
     district = models.CharField(max_length=50, null=True)#Pronvice
     city = models.CharField(max_length=50, null=True)
-    area = models.CharField(max_length=150, null=True)
+    language = models.CharField(max_length=150, null=True)
     mobile = models.CharField(max_length=26, default='0', null=True)
     date_joined = models.DateTimeField(auto_now_add=True)
     pincode = models.CharField(default='', max_length=10, null=True)

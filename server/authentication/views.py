@@ -10,6 +10,8 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMessage
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django import forms
+from django.views import View
 from django.contrib.auth import (
     authenticate, get_user_model, password_validation,
 )
@@ -106,20 +108,48 @@ def activate(request, uidb64, token: str):
 
 
 
-
-
-from rest_framework import serializers
- 
-class userSerializers(serializers.ModelSerializer):
- 
+class ProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields =  '__all__'
+        fields = ['username', 'email', 'firstname', 'lastname', 'language' ]  # Add other fields as necessary
 
 
-from rest_framework import viewsets
- 
- 
-class userviewsets(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = userSerializers
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+from django.views import View
+
+class ProfileUpdateView(View):
+    model = User
+    template_name = 'profile.html'
+    form_class = ProfileForm
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        form = self.form_class(instance=user)
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        form = self.form_class(request.POST, instance=user)
+
+        if form.is_valid():
+            form.save()
+            # HTMX response: render success message
+            message = "Profile updated successfully!"
+            return JsonResponse({
+                'message': message,
+                'success': True
+            })
+        
+        else:
+            print(form.errors)  
+            # HTMX response: return the form with errors
+            return JsonResponse({
+                'message': "There were errors in the form.",
+                'success': False,
+                'errors': form.errors,
+                # 'form_html': render_to_string(self.template_name, {'form': form}, request=request),
+            })
+
+

@@ -1,0 +1,93 @@
+{% load static %}
+<body class="bg-gray-100 font-sans antialiased">
+    <div class="container mx-auto p-6 max-w-4xl bg-white rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6">Update Your Profile</h2>
+
+        <form method="POST" action="{% url 'user_settings' %}" enctype="multipart/form-data" class="space-y-6" hx-post="{% url 'user_settings' %}" hx-target="#form-message" hx-swap="innerHTML">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Username Field -->
+                <div>
+                    <label for="id_username" class="block text-sm font-medium text-gray-700">Username</label>
+                    <input type="text" name="username" id="id_username" value="{{ form.username.value }}" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                    {% if form.username.errors %}
+                        <div class="mt-2 text-red-500 text-sm">
+                            {% for error in form.username.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Email Field -->
+                <div>
+                    <label for="id_email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" name="email" id="id_email" value="{{ form.email.value }}" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                    {% if form.email.errors %}
+                        <div class="mt-2 text-red-500 text-sm">
+                            {% for error in form.email.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- First Name Field -->
+                <div>
+                    <label for="id_firstname" class="block text-sm font-medium text-gray-700">First Name</label>
+                    <input type="text" name="firstname" id="id_firstname" value="{{ form.firstname.value }}" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                    {% if form.firstname.errors %}
+                        <div class="mt-2 text-red-500 text-sm">
+                            {% for error in form.firstname.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Last Name Field -->
+                <div>
+                    <label for="id_lastname" class="block text-sm font-medium text-gray-700">Last Name</label>
+                    <input type="text" name="lastname" id="id_lastname" value="{{ form.lastname.value }}" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
+                    {% if form.lastname.errors %}
+                        <div class="mt-2 text-red-500 text-sm">
+                            {% for error in form.lastname.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Language Field -->
+            <div>
+                <label for="id_language" class="block text-sm font-medium text-gray-700">Language</label>
+                <select name="language" id="id_language" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="en" {% if form.language.value == 'en' %} selected {% endif %}>English</option>
+                    <option value="sw" {% if form.language.value == 'sw' %} selected {% endif %}>Swahili</option>
+                    <option value="fr" {% if form.language.value == 'fr' %} selected {% endif %}>French</option>
+                    <!-- Add more options as necessary -->
+                </select>
+                {% if form.language.errors %}
+                    <div class="mt-2 text-red-500 text-sm">
+                        {% for error in form.language.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit" class="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+
+        <!-- Feedback/Message after Form Submission -->
+        <div id="form-message" class="mt-4 text-green-600">
+        </div>
+        </div></body>

@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: postgres_container
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: myappdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    container_name: django_container
+    command: python manage.py runserver 0.0.0.0:8000  # Django command to start server
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - DJANGO_SECRET_KEY=your-secret-key
+      - DATABASE_URL=postgres://myuser:mysecretpassword@db:5432/myappdb  # Adjust as necessary
+
+volumes:
+  postgres_data:

@@ -3,7 +3,15 @@
         <div class="flex justify-between items-center h-16">
             
             <div class="flex-shrink-0">
-                <span class="text-2xl font-extrabold text-sky-900 tracking-wider dark:text-white">Mfumo wa Mauzo</span>
+                <span class="text-2xl font-extrabold text-sky-900 tracking-wider dark:text-white">
+                    {% if user.language == 'fr' %}
+                        Système de Ventes
+                    {% elif user.language == 'sw' %}
+                        Mfumo wa Mauzo
+                    {% else %}
+                        Sales System
+                    {% endif %}
+                </span>
             </div>
 
             <div class="flex items-center space-x-6">
@@ -41,20 +49,26 @@
                          x-transition:leave-end="transform opacity-0 scale-95"
                          class="origin-top-right absolute right-0 mt-2 w-56 rounded-lg shadow-2xl bg-white ring-1 ring-black ring-opacity-5 py-1 z-50 dark:bg-gray-700">
                         
-                        <a href="{ % url 'user_profile' %}" 
+                        <!-- <a href="{ % url 'user_profile' %}" 
                            hx-target="#main-content" hx-get="{ % url 'user_profile' %}" 
                            @click="open = false"
                            class="flex items-center px-4 py-3 text-sm font-medium text-gray-700 hover:bg-sky-50 dark:text-gray-200 dark:hover:bg-gray-600">
                            <i class="bi bi-person-circle w-5 h-5 mr-3 text-sky-600"></i>
                            Profile
-                        </a>
+                        </a> -->
 
-                        <a href="{ % url 'user_settings' %}" 
-                           hx-target="#main-content" hx-get="{ % url 'user_settings' %}" 
+                        <a href="{% url 'user_settings' %}" 
+                           hx-target="#main-content" hx-get="{% url 'user_settings' %}" 
                            @click="open = false"
                            class="flex items-center px-4 py-3 text-sm font-medium text-gray-700 hover:bg-sky-50 dark:text-gray-200 dark:hover:bg-gray-600">
                            <i class="bi bi-gear-fill w-5 h-5 mr-3 text-sky-600"></i>
-                           Settings
+                           {% if user.language == 'fr' %}
+                               Paramètres
+                           {% elif user.language == 'sw' %}
+                               Mipangilio
+                           {% else %}
+                               Settings
+                           {% endif %}
                         </a>
                         
                         <form method="post" action="{% url 'logout' %}" class="w-full">
