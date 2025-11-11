@@ -46,7 +46,7 @@
         <div class="flex justify-end mt-4 space-x-3">
             <button type="submit"
                 class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Filter</button>
-            <a href="{% url 'list_of_products' %}"
+            <a hx-get="{% url 'list_of_products' %}" hx-target="#main-content"
                 class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">Reset</a>
         </div>
     </form>

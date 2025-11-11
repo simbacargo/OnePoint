@@ -18,7 +18,7 @@
                 </span>
                 </a>
             </li>
-
+            {% if user.is_admin %}
             <li class="px-2">
                 <a href="#" hx-target="#main-content" hx-get="{% url 'product_create' %}" 
                    class="flex items-center p-2 text-lg font-medium text-white hover:bg-indigo-600 rounded-lg transition duration-200">
@@ -33,7 +33,7 @@
                    </span>
                 </a>
             </li>
-
+            {% endif %}
             <li class="px-2">
                 <a href="#" hx-target="#main-content" hx-get="{% url 'list_of_products' %}" 
                    class="flex items-center p-2 text-lg font-medium text-white hover:bg-indigo-600 rounded-lg transition duration-200">

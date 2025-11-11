@@ -435,12 +435,6 @@ class CustomerForm(forms.ModelForm):
         model = Customer
         fields = ['name', 'email', 'phone', 'sale', 'remaining_balance']
 
-# Customer List View (Read all)
-class CustomerListView(ListView):
-    model = Customer
-    template_name = 'customers/customer_list.html'
-    context_object_name = 'customers'
-
 
 # Customer Create View (Create)
 class CustomerCreateView(CreateView):
@@ -451,6 +445,12 @@ class CustomerCreateView(CreateView):
 
     def get_success_url(self):
         return reverse_lazy('customer_list')  # Redirect to the customer list after success
+
+# Customer List View (Read all)
+class CustomerListView(ListView):
+    model = Customer
+    template_name = 'customers/customer_list.html'
+    context_object_name = 'customers'
 
 
 # Customer Detail View (Read one)

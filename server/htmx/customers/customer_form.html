@@ -1,9 +1,45 @@
-  <h1>{% if form.instance.pk %}Update{% else %}Create{% endif %} Customer</h1>
+<div class="max-w-3xl mx-auto mt-10 bg-white dark:bg-gray-900 shadow rounded-2xl p-8">
 
-  <form method="POST" hx-target="#main-content" hx-post="{% if form.instance.pk %}{% url 'customer_update' form.instance.pk %}{% else %}{% url 'customer_create' %}{% endif %}">
+<h1 class="text-3xl font-semibold mb-4">{% if form.instance.pk %}Update{% else %}Create{% endif %} Customer</h1>
+
+<form method="POST" hx-target="#main-content" hx-post="{% if form.instance.pk %}{% url 'customer_update' form.instance.pk %}{% else %}{% url 'customer_create' %}{% endif %}" class="space-y-4 p-6 rounded-lg shadow-lg">
+
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">{% if form.instance.pk %}Update{% else %}Create{% endif %} Customer</button>
-  </form>
+    
+    <div class="space-y-4">
+        <div class="flex flex-col">
+            <label for="id_name" class="text-sm font-medium text-white">Name</label>
+            {{ form.name }}
+        </div>
+        
+        <div class="flex flex-col">
+            <label for="id_email" class="text-sm font-medium text-white">Email</label>
+            {{ form.email }}
+        </div>
+        
+        <div class="flex flex-col">
+            <label for="id_phone" class="text-sm font-medium text-white">Phone</label>
+            {{ form.phone }}
+        </div>
+        
+        <div class="flex flex-col">
+            <label for="id_sale" class="text-sm font-medium text-white">Sale</label>
+            {{ form.sale }}
+        </div>
+        
+        <div class="flex flex-col">
+            <label for="id_remaining_balance" class="text-sm font-medium text-white">Remaining Balance</label>
+            {{ form.remaining_balance }}
+        </div>
+    </div>
 
-  <a href="#" hx-target="#main-content" hx-get="{% url 'customer_list' %}">Back to List</a>
+    <button type="submit" class="w-full py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition">
+        {% if form.instance.pk %}Update{% else %}Create{% endif %} Customer
+    </button>
+    
+</form>
+
+<a href="#" hx-target="#main-content" hx-get="{% url 'customer_list' %}" class="mt-4 inline-block text-blue-500 hover:text-blue-700">
+    Back to List
+</a>
+</div>
