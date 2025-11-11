@@ -1,41 +1,127 @@
 {% load humanize %}
 <div class="max-w-7xl mx-auto mt-10 px-6">
-    <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">📊 
-        Dashibodi ya Biashara Mtandaoni
-    </h1>
+    <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-8">📊 
+        {% if user.language == 'fr' %}
+            Tableau de Bord Commercial
+        {% elif user.language == 'sw' %}
+            Dashibodi ya Biashara Mtandaoni
+        {% else %}
+            Business Dashboard
+        {% endif %}
+    </h2>
 
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
         <div class="bg-white dark:bg-gray-900 shadow rounded-xl p-6">
-            <p class="text-sm text-gray-500 dark:text-gray-400">Jumla ya Bidhaa</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                {% if user.language == 'fr' %}
+                    Total des Produits
+                {% elif user.language == 'sw' %}
+                    Jumla ya Bidhaa
+                {% else %}
+                    Total Products
+                {% endif %}
+            </p>
             <p class="text-2xl font-semibold text-blue-600">{{ total_products|intcomma }}</p>
         </div>
 
         <div class="bg-white dark:bg-gray-900 shadow rounded-xl p-6">
-            <p class="text-sm text-gray-500 dark:text-gray-400">Jumla ya Mauzo</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                {% if user.language == 'fr' %}
+                    Ventes Totales
+                {% elif user.language == 'sw' %}
+                    Jumla ya Mauzo 
+                {% else %}
+                    Total Sales
+                {% endif %}
+            </p>
             <p class="text-2xl font-semibold text-green-600">{{ total_sales|intcomma }}</p>
         </div>
 
         <div class="bg-white dark:bg-gray-900 shadow rounded-xl p-6">
-            <p class="text-sm text-gray-500 dark:text-gray-400">Vitengo Vilivyouzwa</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                {% if user.language == 'fr' %}
+                    Unités Vendues
+                {% elif user.language == 'sw' %}
+                    Idadi ya Spea ziilizouzwa
+                {% else %}
+                    Units Sold
+                {% endif %}
+            </p>
             <p class="text-2xl font-semibold text-purple-600">{{ total_units_sold|intcomma }}</p>
         </div>
 
         <div class="bg-white dark:bg-gray-900 shadow rounded-xl p-6">
-            <p class="text-sm text-gray-500 dark:text-gray-400">Mapato</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                {% if user.language == 'fr' %}
+                    Revenu Total
+                {% elif user.language == 'sw' %}
+                    Mapato Yote
+                {% else %}
+                    Total Revenue
+                {% endif %}
+            </p>
             <p class="text-2xl font-semibold text-red-600">{{ total_revenue|intcomma }}</p>
  /=        </div>
     </div>
 
     <div class="bg-white dark:bg-gray-900 shadow rounded-xl p-6 mb-10">
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Mauzo ya Hivi Karibuni</h2>
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
+            {% if user.language == 'fr' %}
+                Ventes Récentes
+            {% elif user.language == 'sw' %}
+                Mauzo ya Hivi Karibuni
+            {% else %}
+                Recent Sales
+            {% endif %}
+        </h2>
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead class="bg-gray-50 dark:bg-gray-800">
                 <tr>
-                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Bidhaa</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Kiasi</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Bei</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Jumla</th>
-                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">Tarehe</th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">
+                        {% if user.language == 'fr' %}
+                            Produit
+                        {% elif user.language == 'sw' %}
+                            Bidhaa
+                        {% else %}
+                            Product
+                        {% endif %}
+                    </th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">
+                        {% if user.language == 'fr' %}
+                            Quantité
+                        {% elif user.language == 'sw' %}
+                            Kiasi
+                        {% else %}
+                            Quantity
+                        {% endif %}
+                    </th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">
+                        {% if user.language == 'fr' %}
+                            Prix Unitaire
+                        {% elif user.language == 'sw' %}
+                            Bei ya Kila Moja
+                        {% else %}
+                            Unit Price
+                        {% endif %}
+                    </th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">
+                        {% if user.language == 'fr' %}
+                            Montant Total
+                        {% elif user.language == 'sw' %}
+                            Jumla ya Kiasi
+                        {% else %}
+                            Total Amount
+                        {% endif %}
+                    </th>
+                    <th class="px-4 py-2 text-left text-sm font-medium text-gray-600 dark:text-gray-300">
+                        {% if user.language == 'fr' %}
+                            Date de Vente
+                        {% elif user.language == 'sw' %}
+                            Tarehe ya Mauzo
+                        {% else %}
+                            Sale Date
+                        {% endif %}
+                    </th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
@@ -49,7 +135,15 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" class="px-4 py-4 text-center text-gray-500">Hakuna mauzo bado.</td>
+                    <td colspan="5" class="px-4 py-4 text-center text-gray-500">
+                        {% if user.language == 'fr' %}
+                            Aucune vente récente disponible.
+                        {% elif user.language == 'sw' %}
+                            Hakuna mauzo ya hivi karibuni yanayopatikana.
+                        {% else %}
+                            No recent sales available.
+                        {% endif %}
+                        </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -57,15 +151,40 @@
     </div>
 
     <div class="bg-white dark:bg-gray-900 shadow rounded-xl p-6">
-        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Bidhaa Zilizo na Akiba Ndogo</h2>
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">
+            {% if user.language == 'fr' %}
+                Produits en Rupture de Stock
+            {% elif user.language == 'sw' %}
+                Bidhaa Zenye Akiba Chache
+            {% else %}
+                Low Stock Products
+            {% endif %}
+        </h2>
         <ul class="divide-y divide-gray-200 dark:divide-gray-700">
             {% for product in low_stock_products %}
             <li class="py-3 flex justify-between items-center">
                 <span class="text-gray-700 dark:text-gray-300">{{ product.name }}</span>
-                <span class="text-sm font-medium text-red-600">Akiba: {{ product.quantity }}</span>
+                <span class="text-sm font-medium text-red-600">
+                    {% if user.language == 'fr' %}
+                        Quantité: {{ product.quantity }}
+                    {% elif user.language == 'sw' %}
+                        Kiasi: {{ product.quantity }}
+                    {% else %}
+                        Quantity
+                    : {{ product.quantity }}
+                    {% endif %}
+                    </span>
             </li>
             {% empty %}
-            <li class="py-3 text-gray-500">Bidhaa zote zina akiba ya kutosha.</li>
+            <li class="py-3 text-gray-500">
+                {% if user.language == 'fr' %}
+                    Aucun produit en rupture de stock.
+                {% elif user.language == 'sw' %}
+                    Hakuna bidhaa zenye akiba chache.
+                {% else %}
+                    No low stock products.
+                {% endif %}
+            </li>
             {% endfor %}
         </ul>
     </div>

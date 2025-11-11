@@ -57,12 +57,52 @@
             <thead class="bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100">
                 <tr>
                     <th class="py-3 px-4 text-left cursor-pointer" onclick="sortTable(0)">Name</th>
-                    <th class="py-3 px-4 cursor-pointer" onclick="sortTable(2)">Part No</th>
-                    <th class="py-3 px-4 cursor-pointer" onclick="sortTable(1)">Brand</th>
-                    <th class="py-3 px-4 cursor-pointer" onclick="sortTable(3)">Price</th>
-                    <th class="py-3 px-4 cursor-pointer" onclick="sortTable(4)">Stock</th>
-                    <th class="py-3 px-4 cursor-pointer" onclick="sortTable(5)">Storage</th>
-                    <th class="py-3 px-4 cursor-pointer" onclick="sortTable(6)">Amount</th>
+                    <th class="py-3 px-0 br- cursor-pointer" onclick="sortTable(2)">
+                        {% if user.language == 'fr' %}
+                            Numéro de pièce
+                        {% elif user.language == 'sw' %}
+                            Part Number
+                        {% else %}
+                            Part Number
+                        {% endif %}
+                    </th>
+                    <th class="py-3 px-0 br- cursor-pointer" onclick="sortTable(1)">Brand</th>
+                    <th class="py-3 px-0 br- cursor-pointer" onclick="sortTable(3)">
+                        {% if user.language == 'fr' %}
+                            Prix
+                        {% elif user.language == 'sw' %}
+                            Bei
+                        {% else %}
+                            Price
+                        {% endif %}
+                    </th>
+                    <th class="py-3 px-0 br- cursor-pointer" onclick="sortTable(4)">
+                        {% if user.language == 'fr' %}
+                            Stock
+                        {% elif user.language == 'sw' %}
+                            Idadi
+                        {% else %}
+                            Stock
+                        {% endif %}
+                    </th>
+                    <th class="py-3 px-0 br- cursor-pointer" onclick="sortTable(5)">
+                        {% if user.language == 'fr' %}
+                            En Magasin
+                        {% elif user.language == 'sw' %}
+                            kwenye Stoo
+                        {% else %}
+                            In Store
+                        {% endif %}
+                    </th>
+                    <th class="py-3 px-0 br- cursor-pointer" onclick="sortTable(6)">
+                        {% if user.language == 'fr' %}
+                            Montant 
+                        {% elif user.language == 'sw' %}
+                            Jumla
+                        {% else %}
+                            Amount
+                        {% endif %}
+                    </th>
                     <th class="py-3 px-4">Actions</th>
                 </tr>
             </thead>

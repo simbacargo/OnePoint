@@ -16,8 +16,15 @@
     </style>
 <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-4xl">
     
-    <h1 class="text-3xl font-bold text-gray-900 mb-2">Unda Bidhaa Mpya</h1>
-    <p class="text-gray-500 mb-6">Ingiza maelezo ya bidhaa mpya kwenye orodha hapa chini. Fomu hii imeundwa na Django.</p>
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                    {% if user.language == 'fr' %}
+                        Ajouter un Nouveau Produit
+                    {% elif user.language == 'sw' %}
+                        Sajili Bidhaa Mpya
+                    {% else %}
+                        Add New Product
+                    {% endif %}
+    </h1>
 
     {% if status_message %}
         {% if status_type == 'success' %}
@@ -44,7 +51,15 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
                 <div>
-                    <label for="id_name" class="text-sm font-medium text-gray-700">Jina la Bidhaa <span class="text-red-500">*</span></label>
+                    <label for="id_name" class="text-sm font-medium text-gray-700">
+                        {% if user.language == 'fr' %}
+                            Nom du Produit
+                        {% elif user.language == 'sw' %}
+                            Jina la Bidhaa
+                        {% else %}
+                            Product Name
+                        {% endif %}
+                        <span class="text-red-500">*</span></label>
                     <input type="text" id="id_name" name="name" placeholder="mfano, Kichujio cha Mafuta (Bora)" required
                            value="{{ form.name.value|default:'' }}"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
@@ -62,7 +77,15 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
                 <div>
-                    <label for="id_quantity" class="text-sm font-medium text-gray-700">Kiasi cha Kuanzia <span class="text-red-500">*</span></label>
+                    <label for="id_quantity" class="text-sm font-medium text-gray-700">
+                        {% if user.language == 'fr' %}
+                            Quantité
+                        {% elif user.language == 'sw' %}
+                            Kiasi cha Kuanzia
+                        {% else %}
+                            Initial Quantity
+                        {% endif %}
+                        <span class="text-red-500">*</span></label>
                     <input type="number" id="id_quantity" name="quantity" placeholder="0" required min="0" 
                            value="{{ form.quantity.value|default:0 }}"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
@@ -70,7 +93,15 @@
                 </div>
                 
                 <div>
-                    <label for="id_price" class="text-sm font-medium text-gray-700">Bei (USD) <span class="text-red-500">*</span></label>
+                    <label for="id_price" class="text-sm font-medium text-gray-700">
+                            {% if user.language == 'fr' %}
+                                Prix Unitaire
+                            {% elif user.language == 'sw' %}
+                                Bei ya Kila Moja
+                            {% else %}
+                                Unit Price
+                            {% endif %}
+                        <span class="text-red-500">*</span></label>
                     <input type="number" id="id_price" name="price" placeholder="0.00" required min="0.01" step="0.01"
                            value="{{ form.price.value|default:'0.00' }}"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
@@ -80,7 +111,15 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
                 <div>
-                    <label for="id_brand" class="text-sm font-medium text-gray-700">Jina la Kampuni (Brand) <span class="text-red-500">*</span></label>
+                    <label for="id_brand" class="text-sm font-medium text-gray-700">
+                        {% if user.language == 'fr' %}
+                            Marque
+                        {% elif user.language == 'sw' %}
+                            Jina la Chapa
+                        {% else %}
+                            Brand Name
+                        {% endif %}
+                        <span class="text-red-500">*</span></label>
                     <input type="text" id="id_brand" name="brand" placeholder="mfano, Bosch" required
                            value="{{ form.brand.value|default:'' }}"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
@@ -94,17 +133,25 @@
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                     {% if form.vehicles.errors %}<p class="text-xs text-red-500 mt-1">{{ form.vehicles.errors }}</p>{% endif %}
                 </div> -->
-            </div>
+            <!-- </div> -->
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pb-6">
                 <div>
-                    <label for="id_amount" class="text-sm font-medium text-gray-700">Jumla ya Kiasi cha Kuanzia <span class="text-red-500">*</span></label>
+                    <label for="id_amount" class="text-sm font-medium text-gray-700">
+                        {% if user.language == 'fr' %}
+                            Quantité Initiale
+                        {% elif user.language == 'sw' %}
+                            Kiasi cha Kuanzia 
+                        {% else %}
+                            Initial Quantity 
+                        {% endif %}
+                        <span class="text-red-500">*</span></label>
                     <input type="number" id="id_amount" name="amount" placeholder="mfano, 100" required min="0"
                            value="{{ form.amount.value|default:0 }}"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                     {% if form.amount.errors %}<p class="text-xs text-red-500 mt-1">{{ form.amount.errors }}</p>{% endif %}
                 </div>
-                
+                <!-- {% block comment %}  ->
                 <div>
                     <label for="id_sold_units" class="text-sm font-medium text-gray-700">Spea zilivyouzwa (Vya Kuanzia) <span class="text-red-500">*</span></label>
                     <input type="number" id="id_sold_units" name="sold_units" placeholder="mfano, 10" required min="0"
@@ -114,16 +161,25 @@
                 </div>
                 
                 <div>
-                    <label for="id_amount_collected" class="text-sm font-medium text-gray-700">Jumla ya Pesa Iliyokusanywa (USD) <span class="text-red-500">*</span></label>
+                    <label for="id_amount_collected" class="text-sm font-medium text-gray-700">Jumla ya Pesa Iliyokusanywa  <span class="text-red-500">*</span></label>
                     <input type="number" id="id_amount_collected" name="amount_collected" placeholder="mfano, 1000.00" required min="0.01" step="0.01"
                            value="{{ form.amount_collected.value|default:'0.00' }}"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                     {% if form.amount_collected.errors %}<p class="text-xs text-red-500 mt-1">{{ form.amount_collected.errors }}</p>{% endif %}
                 </div>
+                <!-- {% endblock comment %} -->
             </div>
 
             <div>
-                <label for="id_description" class="text-sm font-medium text-gray-700">Maelezo</label>
+                <label for="id_description" class="text-sm font-medium text-gray-700">
+                    {% if user.language == 'fr' %}
+                        Description du Produit
+                    {% elif user.language == 'sw' %}
+                        Maelezo ya Bidhaa
+                    {% else %}
+                        Product Description
+                    {% endif %}
+                </label>
                 <textarea id="id_description" name="description" rows="3" placeholder="Maelezo mafupi ya bidhaa, matumizi yake, na magari yanayotumia."
                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150 resize-none">{% if form.description.value %}{{ form.description.value }}{% endif %}</textarea>
                 {% if form.description.errors %}<p class="text-xs text-red-500 mt-1">{{ form.description.errors }}</p>{% endif %}
