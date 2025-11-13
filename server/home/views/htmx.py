@@ -26,7 +26,9 @@ class ProductForm(forms.ModelForm):
         # Specify the fields the user is expected to input.
         # Fields like 'created_at' and calculated fields like 'amount'/'sold_units' 
         # should often be omitted from the input form.
-        fields = ['name', 'description', 'brand', 'price', 'part_number', 'vehicles', 'quantity', 'amount', 'amount_collected']
+        fields = ['name', 'description', 'brand', 'price', 'part_number', 'vehicles', 'quantity', 'amount', 
+        # 'amount_collected'
+        ]
 
         # Optional: Add Tailwind CSS classes to fields for better styling
         widgets = {
@@ -195,7 +197,8 @@ class UpdateProductForm(forms.ModelForm):
         fields = [
             'name', 'description', 'brand', 'price',
             'part_number', 'vehicles', 'quantity',
-            'amount', 'sold_units', 'amount_collected'
+            'amount', 'sold_units',
+            #  'amount_collected'
         ]
         
         # Use a dictionary comprehension to apply the standard class to most fields
@@ -229,10 +232,10 @@ class UpdateProductForm(forms.ModelForm):
             'sold_units': forms.NumberInput(attrs={
                 'class': STANDARD_INPUT_CLASSES,
             }),
-            'amount_collected': forms.NumberInput(attrs={
-                'class': STANDARD_INPUT_CLASSES,
-                'step': '0.01'
-            }),
+            # 'amount_collected': forms.NumberInput(attrs={
+            #     'class': STANDARD_INPUT_CLASSES,
+            #     'step': '0.01'
+            # }),
             # Correcting base widget types for number fields since the initial 
             # dictionary comprehension defaulted to forms.TextInput
             'name': forms.TextInput(attrs={'class': STANDARD_INPUT_CLASSES}),
