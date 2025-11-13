@@ -26,7 +26,8 @@ class ProductForm(forms.ModelForm):
         # Specify the fields the user is expected to input.
         # Fields like 'created_at' and calculated fields like 'amount'/'sold_units' 
         # should often be omitted from the input form.
-        fields = ['name', 'description', 'brand', 'price', 'part_number', 'vehicles', 'quantity', 'amount', 
+        fields = ['name', 'description', 'brand', 'price', 'part_number', 'vehicles', 'quantity',
+                #    'amount', 
         # 'amount_collected'
         ]
 
