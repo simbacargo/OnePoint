@@ -195,6 +195,21 @@ class User(AbstractBaseUser,PermissionsMixin):
 
 
 
+
+# from allauth.socialaccount.signals import social_account_added
+# from django.dispatch import receiver
+
+# @receiver(social_account_added)
+# def google_logged_in(sender, request, user, sociallogin, **kwargs):
+#     # Handle the additional user fields here
+#     extra_data = sociallogin.account.extra_data
+#     user.firstname = extra_data.get('given_name', '')
+#     user.lastname = extra_data.get('family_name', '')
+#     user.email = extra_data.get('email', '')
+#     user.save()
+
+
+
 # class Profile(models.Model):
 #     user = models.OneToOneField(User,on_delete=models.CASCADE,related_name='profile')
 #     location = models.CharField(max_length=50, null=True, blank=True)

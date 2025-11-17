@@ -53,7 +53,7 @@ urlpatterns += [
      path('logout', LogoutView.as_view(), {'next_page': "/"}, name='logout'),
     path('auth/', include('authentication.urls',namespace='authentication')),   
         path(r'profile_view/', bootcamp_auth_views.ProfileUpdateView.as_view(), name='user_settings'),
-
+path('accounts/', include('allauth.urls')),
     # path(r'login', auth_views.LoginView.as_view(), name='login'),
     # path(r'logout', auth_views.LoginView.as_view(), {'next_page': '/'}, name='logout'),
 

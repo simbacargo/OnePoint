@@ -15,7 +15,7 @@ class Product(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     brand = models.CharField(max_length=100, blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=1, blank=1)
     part_number = models.CharField(max_length=100, blank=True)
     vehicles = models.ManyToManyField(Vehicle, blank=True)
     quantity = models.PositiveIntegerField(default=0)

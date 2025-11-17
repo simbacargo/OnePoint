@@ -8,7 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-0*&#!sej456s12n%p+fk(u#*(rpfqrin!8*dqn+lx)56@o9@q&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 0
+DEBUG = 1
 
 ALLOWED_HOSTS = ["*"]
 ALLOWED_SIGNUP_DOMAINS = ["*"]
@@ -28,6 +28,11 @@ INSTALLED_APPS = [
     'corsheaders',
     'home',
     'authentication',
+     'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',  # Google provider
+    # 'allauth.socialaccount.providers.apple', # <-- You need this
 ]
 
 MIDDLEWARE = [
@@ -41,6 +46,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'server.urls'
@@ -72,16 +78,16 @@ DATABASES = {
         'NAME': BASE_DIR / 'db3.sqlite3',
     }
 }
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'onepoint',         # The POSTGRES_DB value from docker-compose.yml
-        'USER': 'testuser',          # The POSTGRES_USER value
-        'PASSWORD': 'supersecret', # The POSTGRES_PASSWORD value
-        'HOST': '127.0.0.1',       # Or 127.0.0.1, since the port is mapped to your host
-        'PORT': '5432',            # The port exposed on your host machine
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'onepoint',         # The POSTGRES_DB value from docker-compose.yml
+#         'USER': 'testuser',          # The POSTGRES_USER value
+#         'PASSWORD': 'supersecret', # The POSTGRES_PASSWORD value
+#         'HOST': '127.0.0.1',       # Or 127.0.0.1, since the port is mapped to your host
+#         'PORT': '5432',            # The port exposed on your host machine
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -178,3 +184,34 @@ CSRF_TRUSTED_ORIGINS = ['https://msaidizi.nsaro.com']
 
 
 AUTH_USER_MODEL = 'authentication.User'
+
+AUTHENTICATION_BACKENDS = (
+    'allauth.account.auth_backends.AuthenticationBackend',  # allauth authentication backend
+    'django.contrib.auth.backends.ModelBackend',  # Default backend for local authentication
+)
+
+# For allauth, you need to define the SITE_ID, this is the ID of your site in the Django sites framework
+SITE_ID = 1
+
+
+# Use email address as the primary identifier
+ACCOUNT_LOGIN_METHOD = 'email'
+
+# Require email verification
+# ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+
+# Make email unique
+ACCOUNT_UNIQUE_EMAIL = True
+
+# Don't require a separate username field during signup for social accounts
+# ACCOUNT_USERNAME_REQUIRED = True # Keep this True if you still want users to log in with a username/password, but...
+ACCOUNT_USERNAME_VALIDATORS = None # ... you'll need to figure out how to generate the username (see Step 5)
+
+# Redirect URLs after login/logout
+LOGIN_REDIRECT_URL = '/' # Or whatever path you want
+ACCOUNT_LOGOUT_REDIRECT_URL = '/' # Or whatever path you want
+
+
+# settings.py
+SOCIALACCOUNT_ADAPTER = 'authentication.adapters.CustomSocialAccountAdapter'

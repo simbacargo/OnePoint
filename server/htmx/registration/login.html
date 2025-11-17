@@ -1,3 +1,4 @@
+{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -19,7 +20,7 @@
             Log In to Your Account
         </h2>
 
-        <a href="{ % url 'social:begin' 'google-oauth2' %}" 
+        <a href="{% provider_login_url 'google' %}" 
            class="w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition duration-150 ease-in-out">
             <svg class="w-5 h-5 mr-3" viewBox="0 0 48 48">
                 ...
