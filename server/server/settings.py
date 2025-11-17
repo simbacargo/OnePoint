@@ -78,16 +78,16 @@ DATABASES = {
         'NAME': BASE_DIR / 'db3.sqlite3',
     }
 }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'onepoint',         # The POSTGRES_DB value from docker-compose.yml
-#         'USER': 'testuser',          # The POSTGRES_USER value
-#         'PASSWORD': 'supersecret', # The POSTGRES_PASSWORD value
-#         'HOST': '127.0.0.1',       # Or 127.0.0.1, since the port is mapped to your host
-#         'PORT': '5432',            # The port exposed on your host machine
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'onepoint',       
+        'USER': 'testuser',       
+        'PASSWORD': 'supersecret',
+        'HOST': '127.0.0.1',      
+        'PORT': '5432',           
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
