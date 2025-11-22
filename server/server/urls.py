@@ -89,3 +89,16 @@ urlpatterns += [
     path('customers/<int:pk>/update/', views.CustomerUpdateView.as_view(), name='customer_update'),  # Update an existing customer
     path('customers/<int:pk>/delete/', views.CustomerDeleteView.as_view(), name='customer_delete'),  # Delete a customer
 ]
+
+
+# urls.py (in your Django app)
+from django.urls import path
+from payments.views import InitiateMpesaPaymentView, MpesaCallbackView
+
+rlpatterns = [
+    # 1. URL called by the React Native App to START the payment
+    path('initiate/', InitiateMpesaPaymentView.as_view(), name='mpesa_initiate'),
+    
+    # 2. URL called by M-Pesa to report the FINAL transaction status (This is your CALLBACK/WEBHOOK)
+    path('callback/', MpesaCallbackView.as_view(), name='mpesa_callback'),
+]

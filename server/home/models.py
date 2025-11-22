@@ -12,19 +12,19 @@ class Vehicle(models.Model):
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
-    brand = models.CharField(max_length=100, blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2, null=1, blank=1)
-    part_number = models.CharField(max_length=100, blank=True)
-    vehicles = models.ManyToManyField(Vehicle, blank=True)
-    quantity = models.PositiveIntegerField(default=0)
-    quantity_in_store = models.PositiveIntegerField(default=0)
-    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    sold_units = models.PositiveIntegerField(default=0)
-    amount_collected = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
-    deleted = models.BooleanField(default=False,)
+    name = models.CharField(max_length=100, null=True)
+    description = models.TextField(blank=True, null=True)
+    brand = models.CharField(max_length=100, blank=True, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    part_number = models.CharField(max_length=100, blank=True, null=True)
+    vehicles = models.ManyToManyField(Vehicle, blank=True, null=True)
+    quantity = models.PositiveIntegerField(default=0, null=True)
+    quantity_in_store = models.PositiveIntegerField(default=0, null=True)
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0, null=True)
+    sold_units = models.PositiveIntegerField(default=0, null=True)
+    amount_collected = models.DecimalField(max_digits=12, decimal_places=2, default=0, null=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    deleted = models.BooleanField(default=False, null=True)
 
     class Meta:
         indexes = [

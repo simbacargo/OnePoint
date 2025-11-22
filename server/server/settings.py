@@ -215,3 +215,30 @@ ACCOUNT_LOGOUT_REDIRECT_URL = '/' # Or whatever path you want
 
 # settings.py
 SOCIALACCOUNT_ADAPTER = 'authentication.adapters.CustomSocialAccountAdapter'
+
+# settings.py (or a separate settings_local.py/env file)
+
+# Vodacom M-Pesa Tanzania C2B Push Credentials
+MPESA_CONSUMER_KEY = 'YOUR_MPESA_CONSUMER_KEY'
+MPESA_CONSUMER_SECRET = 'YOUR_MPESA_CONSUMER_SECRET'
+MPESA_SHORTCODE = 'YOUR_BUSINESS_SHORTCODE'  # The PayBill/Lipa number
+MPESA_API_INITIATE_URL = 'https://api.vodacom.co.tz/mpesa/v1/c2b-push' # Placeholder URL
+MPESA_API_TOKEN_URL = 'https://api.vodacom.co.tz/oauth/v1/token' # Placeholder URL
+
+# Your Publicly Accessible Callback URL (e.g., via Ngrok for testing)
+CALLBACK_URL = 'https://your-public-domain.com/api/mpesa/callback/'
+
+# Change this in settings.py
+MPESA_API_TOKEN_URL = 'https://openapi.m-pesa.com/sandbox/ipg/v1/token'
+
+# settings.py (Update these URLs)
+
+# The most common base host for M-Pesa Open API
+MPESA_BASE_HOST = 'https://openapi.m-pesa.com' 
+
+# 1. AUTHENTICATION URL
+MPESA_API_TOKEN_URL = f'{MPESA_BASE_HOST}/sandbox/ipg/v2/vodafoneGHA/getSession/'
+
+# 2. C2B PUSH INITIATION URL
+# The singleStage path is common for USSD/STK Push across M-Pesa markets.
+MPESA_API_INITIATE_URL = f'{MPESA_BASE_HOST}/sandbox/ipg/v2/vodacomTZN/c2bPayment/singleStage'

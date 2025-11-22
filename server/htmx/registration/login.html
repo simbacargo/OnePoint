@@ -12,6 +12,8 @@
 </head>
 
 <body class="bg-gray-100">
+    <div class="main">
+
 
     <!-- Signup Container -->
     <div class="min-h-screen flex items-center justify-center bg-gray-100 p-4">
@@ -20,7 +22,7 @@
             Log In to Your Account
         </h2>
 
-        <a href="{% provider_login_url 'google' %}" 
+        <a href="#" hx-get="{% provider_login_url 'google' %}" hx-target=".main"
            class="w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition duration-150 ease-in-out">
             <svg class="w-5 h-5 mr-3" viewBox="0 0 48 48">
                 ...
@@ -112,6 +114,8 @@
 }
 
 </style>
+
+    </div>
 </body>
 
 </html>
