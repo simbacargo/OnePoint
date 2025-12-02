@@ -74,8 +74,10 @@ def product_create(request):
 @login_required
 def list_of_products(request):
     products = Product.objects.all()
+    vehicles = Vehicle.objects.all()
     context ={
-        "products":products
+        "products":products,
+        "vehicles":vehicles
     }
     return render(request, "products/list.html", context)
 
@@ -89,11 +91,11 @@ def product_list(request):
     price_min = request.GET.get('price_min', '')
     price_max = request.GET.get('price_max', '')
 
-    products = Product.objects.all().select_related().prefetch_related('vehicles')
+    p = Product.objects.all().select_related().prefetch_related('vehicles')
 
     # Search
     if query:
-        products = products.filter(
+        products = p.filter(
             Q(name__icontains=query) |
             Q(description__icontains=query) |
             Q(brand__icontains=query) |
@@ -102,19 +104,18 @@ def product_list(request):
 
     # Brand filter
     if brand_filter:
-        products = products.filter(brand__iexact=brand_filter)
+        products = p.filter(brand__iexact=brand_filter)
 
     # Vehicle filter
     if vehicle_filter:
-        products = products.filter(vehicles__id=vehicle_filter)
+        products = p.filter(vehicles__id=vehicle_filter)
 
     # Price range
     if price_min:
-        products = products.filter(price__gte=price_min)
+        products = p.filter(price__gte=price_min)
     if price_max:
-        products = products.filter(price__lte=price_max)
+        products = p.filter(price__lte=price_max)
 
-    print(products)
     # Pagination
     paginator = Paginator(products.distinct(), 10)  # 10 per page
     page_number = request.GET.get('page')
