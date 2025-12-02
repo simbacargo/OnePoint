@@ -37,6 +37,34 @@ class ProductForm(forms.ModelForm):
             # ... add widgets for other fields
         }
 
+
+from django import forms
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = Product
+        fields = ['name', 'description', 'brand', 'price', 'part_number', 'vehicles', 'quantity']
+        widgets = {
+            'vehicles': forms.SelectMultiple(attrs={'class': 'slim-select', 'id': 'id_vehicles'}),
+            'name': forms.TextInput(attrs={'class': 'p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm'}),
+            # You can add widgets for other fields here if needed
+        }
+
+# views.py
+from django.http import JsonResponse
+
+def search_vehicles(request):
+    query = request.GET.get('q', '')
+    if query:
+        vehicles = Vehicle.objects.filter(name__icontains=query)[:10]  # Limit to 10 results
+    else:
+        vehicles = Vehicle.objects.all()[:10]  # No search query, return all vehicles
+    
+    # Prepare data for SlimSelect (value and text)
+    data = [{'value': vehicle.id, 'text': vehicle.name} for vehicle in vehicles]
+    
+    return JsonResponse(data, safe=False)
+
 @never_cache
 @login_required
 def index(request):
@@ -85,14 +113,13 @@ def list_of_products(request):
 
 @login_required
 def product_list(request):
-    query = request.GET.get('q', '')
+    query = request.GET.get('query', '')
     brand_filter = request.GET.get('brand', '')
     vehicle_filter = request.GET.get('vehicle', '')
     price_min = request.GET.get('price_min', '')
     price_max = request.GET.get('price_max', '')
 
     p = Product.objects.all().select_related().prefetch_related('vehicles')
-
     # Search
     if query:
         products = p.filter(
@@ -108,7 +135,7 @@ def product_list(request):
 
     # Vehicle filter
     if vehicle_filter:
-        products = p.filter(vehicles__id=vehicle_filter)
+        products = p.filter(Q(vehicles__name__icontains=vehicle_filter))
 
     # Price range
     if price_min:
@@ -117,7 +144,7 @@ def product_list(request):
         products = p.filter(price__lte=price_max)
 
     # Pagination
-    paginator = Paginator(products.distinct(), 10)  # 10 per page
+    paginator = Paginator(p.distinct(), 10)  # 10 per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 

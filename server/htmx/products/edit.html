@@ -1,11 +1,11 @@
 {% load static %}
-
+{% load custom_filters %}
 <div class="max-w-4xl mx-auto mt-10 bg-white dark:bg-gray-900 shadow-md rounded-2xl p-8">
     <h1 class="text-3xl font-semibold text-gray-800 dark:text-gray-100 mb-6">
         Edit Product — {{ product.name }}
     </h1>
 
-    <form method="POST"  hx-targert="main-content" hx-post="{% url 'edit_product' pk=product.id %}" class="space-y-6"> 
+    <form method="POST" hx-targert="main-content" hx-post="{% url 'edit_product' pk=product.id %}" class="space-y-6">
         {% csrf_token %}
 
         {% for field in form %}
@@ -13,7 +13,13 @@
             <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ field.label }}
             </label>
-            {{ field }}
+
+            {% if field.name == 'vehicles' %}
+                <!-- Apply SlimSelect to the vehicles field -->
+                {{ field|add_class:"slim-select" }}
+            {% else %}
+                {{ field }}
+            {% endif %}
 
             {% if field.errors %}
                 <p class="text-red-500 text-sm mt-1">{{ field.errors|striptags }}</p>
@@ -34,3 +40,56 @@
         </div>
     </form>
 </div>
+
+<!-- Include SlimSelect CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/slimselect@latest/dist/slimselect.min.css">
+
+<!-- Include SlimSelect JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/slimselect@latest/dist/slimselect.min.js"></script>
+
+<script>
+    // Initialize SlimSelect for the vehicle field with AJAX
+    function initializeVehicleSelect(targetEl) {
+        if (targetEl && targetEl.tagName === 'SELECT' && targetEl.id === 'id_vehicles') {
+            new SlimSelect({
+                select: targetEl,
+                placeholder: 'Type to search for a vehicle...',
+                allowDeselect: true,
+                searchText: 'Searching...',
+                searchPlaceholder: 'Type vehicle name...',
+                ajax: function (search, callback) {
+                    if (!search || search.length < 2) {
+                        return callback(false);  // Avoid searching with fewer than 2 characters
+                    }
+
+                    // Construct the URL for the search endpoint
+                    const searchUrl = `{% url 'search_vehicles' %}?q=${encodeURIComponent(search)}`;
+                    
+                    // Use Fetch API to perform AJAX request
+                    fetch(searchUrl)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Format response for SlimSelect
+                            callback(data);
+                        })
+                        .catch(error => {
+                            console.error("Vehicle search failed:", error);
+                            callback(false);  // Indicate failure
+                        });
+                }
+            });
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const vehicleSelect = document.querySelector("#id_vehicles");
+        initializeVehicleSelect(vehicleSelect);
+    });
+
+    document.body.addEventListener('htmx:afterSwap', function(event) {
+        const swappedSelect = event.target.querySelector('#id_vehicles');
+        if (swappedSelect) {
+            initializeVehicleSelect(swappedSelect);
+        }
+    });
+</script>

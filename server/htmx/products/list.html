@@ -6,10 +6,17 @@
         <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <!-- Search -->
             <div class="col-span-2">
-                <input type="text" name="q" placeholder="Search products..."
+                <input type="text" name="query" placeholder="Filter using part name..."
                     value="{{ query }}"
                     class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none">
             </div>
+            <!-- Vehicle Filter -->
+            <div class="col-span-2">
+                <input type="text" name="vehicle" placeholder="Filter using car name..."
+                    value="{{ query }}"
+                    class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+
 
             <!-- Brand Filter ->
             <div>
@@ -18,17 +25,6 @@
                     <option value="">All Brands</option>
                     {% for brand in vehicles %}
                     <option value="{{ brand }}" {% if brand_filter == brand %}selected{% endif %}>{{ brand }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <!-- Vehicle Filter -->
-            <div>
-                <select name="vehicle"
-                    class="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-3 py-2 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                    <option value="">All Vehicles</option>
-                    {% for v in vehicles %}
-                    <option value="{{ v.id }}" {% if vehicle_filter == v.id|stringformat:'s' %}selected{% endif %}>{{ v.name|capfirst }}</option>
                     {% endfor %}
                 </select>
             </div>

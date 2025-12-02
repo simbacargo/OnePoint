@@ -88,6 +88,8 @@ urlpatterns += [
     path('customers/<int:pk>/', views.CustomerDetailView.as_view(), name='customer_detail'),  # View a single customer
     path('customers/<int:pk>/update/', views.CustomerUpdateView.as_view(), name='customer_update'),  # Update an existing customer
     path('customers/<int:pk>/delete/', views.CustomerDeleteView.as_view(), name='customer_delete'),  # Delete a customer
+
+    path('search_vehicles/', views.search_vehicles, name='search_vehicles'),
 ]
 
 
