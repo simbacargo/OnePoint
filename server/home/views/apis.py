@@ -5,12 +5,11 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
-from ..serializers import UserSerializer
 
 from django.contrib.auth.models import Group, User
 from rest_framework import permissions, viewsets
 
-from ..serializers import UserSerializer
+from ..serializers import UserSerializer,SaleSerializer, Sale
 
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
@@ -238,4 +237,83 @@ def low_stock_view(request):
         'title': 'Low Stock Alerts',
     }
     return render(request, 'sales/low_stock.html', context)
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from ..serializers import SaleSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import NotFound
+
+
+class SaleListView(APIView):
+    permission_classes = [IsAuthenticated]  # Optional: Only authenticated users can access the API
+
+    # GET method - List all sales
+    def get(self, request, *args, **kwargs):
+        sales = Sale.objects.select_related('product').order_by('-date_sold')
+        serializer = SaleSerializer(sales, many=True)
+        return Response(serializer.data)
+
+    # POST method - Create a new sale
+    def post(self, request, *args, **kwargs):
+        serializer = SaleSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    
+class SaleDetailView(APIView):
+    permission_classes = [IsAuthenticated]  # Optional: Only authenticated users can access the API
+
+    # GET method - Retrieve a single sale
+    def get(self, request, pk, *args, **kwargs):
+        try:
+            sale = Sale.objects.get(pk=pk)
+        except Sale.DoesNotExist:
+            raise NotFound(detail="Sale not found")
+        serializer = SaleSerializer(sale)
+        return Response(serializer.data)
+
+    # PUT method - Update an existing sale (full update)
+    def put(self, request, pk, *args, **kwargs):
+        try:
+            sale = Sale.objects.get(pk=pk)
+        except Sale.DoesNotExist:
+            raise NotFound(detail="Sale not found")
+        
+        serializer = SaleSerializer(sale, data=request.data, partial=False)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # PATCH method - Partially update an existing sale
+    def patch(self, request, pk, *args, **kwargs):
+        try:
+            sale = Sale.objects.get(pk=pk)
+        except Sale.DoesNotExist:
+            raise NotFound(detail="Sale not found")
+        
+        serializer = SaleSerializer(sale, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # DELETE method - Delete a sale
+    def delete(self, request, pk, *args, **kwargs):
+        try:
+            sale = Sale.objects.get(pk=pk)
+        except Sale.DoesNotExist:
+            raise NotFound(detail="Sale not found")
+        
+        sale.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+from rest_framework import viewsets
+
+class SaleViewSet(viewsets.ModelViewSet):
+    queryset = Sale.objects.select_related('product').order_by('-date_sold')
+    serializer_class = SaleSerializer
 

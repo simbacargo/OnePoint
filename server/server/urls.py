@@ -7,14 +7,13 @@ from django.contrib.auth.views import LogoutView, LoginView
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'products', views.ProductViewSet) # 'products' will be the base URL for the API
-
-# router.register(r'api', views.UserViewSet)
+router.register(r'sales', views.SaleViewSet) # router.register(r'api', views.UserViewSet)
 #router.register(r'groups', views.GroupViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
-#     path('', include(router.urls)),
+     path('', include(router.urls)),
 #     path('api/', include(router.urls)),
 #     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 
@@ -90,6 +89,8 @@ urlpatterns += [
     path('customers/<int:pk>/delete/', views.CustomerDeleteView.as_view(), name='customer_delete'),  # Delete a customer
 
     path('search_vehicles/', views.search_vehicles, name='search_vehicles'),
+   path('sales/', views.SaleListView.as_view(), name='sale-list'),  # For listing and creating sales
+    path('sales/<int:pk>/', views.SaleDetailView.as_view(), name='sale-detail'),  # For viewing, updating, or deleting a single sale
 ]
 
 

@@ -9,7 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 from rest_framework import serializers
-from .models import Product
+from .models import Product, Sale
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,3 +18,10 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = '__all__' 
         # Alternatively, list the fields you want to expose:
         # fields = ['id', 'name', 'description', 'brand', 'price', 'part_number', 'quantity', 'amount', 'sold_units', 'amount_collected', 'created_at']
+
+
+class SaleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sale
+        fields = '__all__'
+
