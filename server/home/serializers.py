@@ -25,3 +25,17 @@ class SaleSerializer(serializers.ModelSerializer):
         model = Sale
         fields = '__all__'
 
+
+class SaleSerializer(serializers.ModelSerializer):
+    # Add a custom field to represent the product name
+    product_name = serializers.CharField(source='product.name', read_only=True)
+
+    class Meta:
+        model = Sale
+        fields = '__all__'  # Include all the fields from the Sale model
+        # Add 'product_name' field explicitly so it is returned along with the other fields
+        extra_fields = ['product_name']
+
+    # Optionally, you can exclude the `product` field to avoid returning the `id`
+    # or control how the foreign key is displayed.
+    # fields = [ ... , 'product_name'] if needed.

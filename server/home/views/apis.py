@@ -242,12 +242,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from ..serializers import SaleSerializer
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import NotFound
 
 
 class SaleListView(APIView):
-    permission_classes = [IsAuthenticated]  # Optional: Only authenticated users can access the API
+    permission_classes = [AllowAny]  # Optional: Only authenticated users can access the API
 
     # GET method - List all sales
     def get(self, request, *args, **kwargs):
