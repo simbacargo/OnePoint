@@ -74,6 +74,7 @@ urlpatterns += [
     path('search-products/', views.search_products, name='product_search_url'),
     path('api/get_product_price/<int:product_id>/', views.get_product_price, name='get_product_price'),
     path('filter-products/', views.product_list, name='product_list'),
+    path('api/productdetails/<int:pk>/', views.ProductDetailView.as_view(), name='product_detail'),
 
 ]
 
