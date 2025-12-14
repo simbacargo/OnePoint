@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/david/Desktop/msaidizi/web/src/app/%5B...sign-in%5D/layout.js"],"sourcesContent":["// app/login/page.jsx (or similar client component)\n\nexport default function LoginPage() {\n  return (\n    <a href=\"/api/auth/google/login\">\n      <button>Login with Google</button>\n    </a>\n  );\n}"],"names":[],"mappings":"AAAA,mDAAmD;;;;;;;AAEpC,SAAS;IACtB,qBACE,8OAAC;QAAE,MAAK;kBACN,cAAA,8OAAC;sBAAO;;;;;;;;;;;AAGd","debugId":null}}]
-}
