@@ -63,6 +63,15 @@
                         {% endif %}
                     </th>
                     <th class="py-3 px-0 br- cursor-pointer" onclick="sortTable(1)">Brand</th>
+                    <th class="py-3 px-0 br- cursor-pointer" onclick="sortTable(6)">
+                        {% if user.language == 'fr' %}
+                            Montant Collecté
+                        {% elif user.language == 'sw' %}
+                            Bei ya Ununuzi
+                        {% else %}
+                            Buying Price 
+                        {% endif %}
+                    </th>
                     <th class="py-3 px-0 br- cursor-pointer" onclick="sortTable(3)">
                         {% if user.language == 'fr' %}
                             Prix
@@ -90,15 +99,6 @@
                             In Store
                         {% endif %}
                     </th>
-                    <th class="py-3 px-0 br- cursor-pointer" onclick="sortTable(6)">
-                        {% if user.language == 'fr' %}
-                            Montant 
-                        {% elif user.language == 'sw' %}
-                            Jumla
-                        {% else %}
-                            Amount
-                        {% endif %}
-                    </th>
                     <th class="py-3 px-4">Actions</th>
                 </tr>
             </thead>
@@ -108,10 +108,10 @@
                     <td class="py-3 px-4 font-medium">{{ product.name }}</td>
                     <td class="py-3 px-4">{{ product.part_number }}</td>
                     <td class="py-3 px-4">{{ product.brand }}</td>
+                    <td class="py-3 px-4">{{ product.buying_price }}</td>
                     <td class="py-3 px-4">{{ product.price|intcomma }}</td>
                     <td class="py-3 px-4">{{ product.quantity }}</td>
                     <td class="py-3 px-4">{{ product.quantity_in_store }}</td>
-                    <td class="py-3 px-4">{{ product.amount_collected }}</td>
                     <td class="py-3 px-4">
                         <a href="#" hx-get="{% url 'edit_product' product.pk %}" hx-target="#main-content" class="text-blue-500 hover:underline">Edit</a>
                         <a href="#" hx-delete="{% url 'product_delete' product.pk %}" hx-target="#main-content" class="text-red-500 hover:underline">Delete</a>

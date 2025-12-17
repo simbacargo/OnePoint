@@ -5,7 +5,7 @@ from django.contrib import admin
 from authentication import views as bootcamp_auth_views
 from django.contrib.auth.views import LogoutView, LoginView
 router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
+#router.register(r'users', views.UserViewSet)
 router.register(r'products', views.ProductViewSet) # 'products' will be the base URL for the API
 router.register(r'sales', views.SaleViewSet) # router.register(r'api', views.UserViewSet)
 #router.register(r'groups', views.GroupViewSet)
@@ -91,6 +91,18 @@ urlpatterns += [
     path('search_vehicles/', views.search_vehicles, name='search_vehicles'),
    path('sales/', views.SaleListView.as_view(), name='sale-list'),  # For listing and creating sales
     path('sales/<int:pk>/', views.SaleDetailView.as_view(), name='sale-detail'),  # For viewing, updating, or deleting a single sale
+]
+
+
+from django.urls import path
+from authentication.views import RegisterView, LoginView, LogoutView
+from rest_framework_simplejwt.views import TokenRefreshView
+
+urlpatterns += [
+    path('register/', RegisterView.as_view(), name='register'),
+    path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Optional: refresh token view
 ]
 
 

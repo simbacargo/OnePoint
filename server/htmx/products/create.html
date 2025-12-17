@@ -126,14 +126,23 @@
                     {% if form.brand.errors %}<p class="text-xs text-red-500 mt-1">{{ form.brand.errors }}</p>{% endif %}
                 </div>
                 
-                <!-- <div>
-                    <label for="id_vehicles" class="text-sm font-medium text-gray-700">Magari (Tenganisha kwa Koma) <span class="text-red-500">*</span></label>
-                    <input type="text" id="id_vehicles" name="vehicles" placeholder="mfano, Honda Accord, Toyota Camry" required
-                           value="{{ form.vehicles.value|default:'' }}"
+                <div>
+                    <label for="id_buying_price" class="text-sm font-medium text-gray-700">
+                        {% if user.language == 'fr' %}
+                            Prix d'Achat
+                        {% elif user.language == 'sw' %}
+                            Bei ya kununua
+                        {% else %}
+                            Buying price
+                        {% endif %}
+                        <span class="text-red-500">*</span></label>
+                    <input type="text" id="id_buying_price" name="buying_price" placeholder="000" required
+                           value="{{ form.buying_price.value|default:'' }}"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150">
-                    {% if form.vehicles.errors %}<p class="text-xs text-red-500 mt-1">{{ form.vehicles.errors }}</p>{% endif %}
-                </div> -->
-            <!-- </div> -->
+                    {% if form.buying_price.errors %}<p class="text-xs text-red-500 mt-1">{{ form.buying_price.errors }}</p>{% endif %}
+                </div>
+                </div>
+                
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pb-6">
                 <!-- <div>

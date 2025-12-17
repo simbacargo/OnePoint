@@ -26,7 +26,7 @@ class ProductForm(forms.ModelForm):
         # Specify the fields the user is expected to input.
         # Fields like 'created_at' and calculated fields like 'amount'/'sold_units' 
         # should often be omitted from the input form.
-        fields = ['name', 'description', 'brand', 'price', 'part_number', 'vehicles', 'quantity',
+        fields = ['name', 'brand', 'buying_price', 'price', 'part_number', 'vehicles', 'quantity', 'description',
                 #    'amount', 
         # 'amount_collected'
         ]
@@ -43,7 +43,7 @@ from django import forms
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'description', 'brand', 'price', 'part_number', 'vehicles', 'quantity']
+        fields = ['name', 'brand', 'buying_price', 'price', 'part_number', 'vehicles', 'quantity', 'description']
         widgets = {
             'vehicles': forms.SelectMultiple(attrs={'class': 'slim-select', 'id': 'id_vehicles'}),
             'name': forms.TextInput(attrs={'class': 'p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 shadow-sm'}),
@@ -224,9 +224,9 @@ class UpdateProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = [
-            'name', 'description', 'brand', 'price',
+            'name', 'brand','buying_price', 'price',
             'part_number', 'vehicles', 'quantity',
-            'amount', 'sold_units',
+            'sold_units', 'description'
             #  'amount_collected'
         ]
         
@@ -254,7 +254,7 @@ class UpdateProductForm(forms.ModelForm):
             'quantity': forms.NumberInput(attrs={
                 'class': STANDARD_INPUT_CLASSES,
             }),
-            'amount': forms.NumberInput(attrs={
+            'buying_price': forms.NumberInput(attrs={
                 'class': STANDARD_INPUT_CLASSES,
                 'step': '0.01'
             }),

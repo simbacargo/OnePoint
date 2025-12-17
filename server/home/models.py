@@ -20,7 +20,7 @@ class Product(models.Model):
     vehicles = models.ManyToManyField(Vehicle, blank=True, null=True)
     quantity = models.PositiveIntegerField(default=0, null=True)
     quantity_in_store = models.PositiveIntegerField(default=0, null=True)
-    amount = models.DecimalField(max_digits=12, decimal_places=2, default=0, null=True)
+    buying_price = models.DecimalField(max_digits=12, decimal_places=2, default=0, null=True)
     sold_units = models.PositiveIntegerField(default=0, null=True)
     amount_collected = models.DecimalField(max_digits=12, decimal_places=2, default=0, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
