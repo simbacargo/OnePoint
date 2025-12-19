@@ -20,7 +20,7 @@ urlpatterns = [
 
 urlpatterns += [
     # path('signup/', views.signup, name='signup'),
-    path('login/', views.login, name='login'),
+    # path('login/', views.login, name='login'),
     # path('logout/', views.logout, name='logout'),
     path('admin/', admin.site.urls),
 
@@ -95,7 +95,7 @@ urlpatterns += [
 
 
 from django.urls import path
-from authentication.views import RegisterView, LoginView, LogoutView
+from authentication.views import RegisterView #, LoginView, LogoutView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns += [
