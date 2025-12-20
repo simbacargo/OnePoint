@@ -20,7 +20,7 @@ urlpatterns = [
 
 urlpatterns += [
     # path('signup/', views.signup, name='signup'),
-    # path('login/', views.login, name='login'),
+    # path('login/', views. login, name='login'),
     # path('logout/', views.logout, name='logout'),
     path('admin/', admin.site.urls),
 
@@ -48,6 +48,7 @@ urlpatterns += [
         path(r'signup/', bootcamp_auth_views.signup, name='signup'),
         path(r'activate/<slug:uidb64>/<slug:token>/', bootcamp_auth_views.activate, name='activate'),
     path(r'login', LoginView.as_view(), name='login'),
+    path(r'login/', LoginView.as_view(), name='login'),
      path('logout', LogoutView.as_view(), {'next_page': "/"}, name='logout'),
     path('auth/', include('authentication.urls',namespace='authentication')),   
         path(r'profile_view/', bootcamp_auth_views.ProfileUpdateView.as_view(), name='user_settings'),
@@ -95,12 +96,12 @@ urlpatterns += [
 
 
 from django.urls import path
-from authentication.views import RegisterView #, LoginView, LogoutView
+from authentication.views import RegisterView , LoginView, LogoutView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns += [
     path('register/', RegisterView.as_view(), name='register'),
-    path('login/', LoginView.as_view(), name='login'),
+    path('login_api/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Optional: refresh token view
 ]
