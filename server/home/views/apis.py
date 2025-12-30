@@ -99,12 +99,13 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return super().get_queryset()
 
-    @cache_page(60 * 15)
+    # @cache_page(60 * 15)
     def list(self, request, *args, **kwargs):
         cache_key = 'product_list'
         cached_data = cache.get(cache_key)
         
         if cached_data:
+            print("Serving from cache")
             return Response(cached_data)
         
         response = super().list(request, *args, **kwargs)
