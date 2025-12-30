@@ -97,12 +97,10 @@ class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
 
     def get_queryset(self):
-        # Optionally, you can implement filtering or pagination here
         return super().get_queryset()
 
-    # @cache_page(60 * 15)
+    @cache_page(60 * 15)
     def list(self, request, *args, **kwargs):
-        # Customize cache key if needed
         cache_key = 'product_list'
         cached_data = cache.get(cache_key)
         
