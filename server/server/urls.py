@@ -104,6 +104,8 @@ urlpatterns += [
     path('login_api/', LoginView.as_view(), name='login_api'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Optional: refresh token view
+    path("terms_and_conditions/", views.terms_of_services, name="terms_and_conditions"),
+    path("privacy_policy/", views.privacy_policy, name="privacy_policy"),
 ]
 
 

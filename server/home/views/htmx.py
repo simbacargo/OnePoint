@@ -508,3 +508,10 @@ class CustomerDeleteView(DeleteView):
     template_name = 'customers/customer_confirm_delete.html'
     context_object_name = 'customer'
     success_url = reverse_lazy('customer_list')  # Redirect to the customer list after deletion
+
+
+def terms_of_services(request):
+    return render(request, 'terms_of_services.html')
+
+def privacy_policy(request):
+    return render(request, 'privacy_policy.html')
