@@ -12,6 +12,12 @@ from rest_framework import serializers
 from .models import Product, Sale
 
 class ProductSerializer(serializers.ModelSerializer):
+    vehicles = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='name',
+        source='vehicles'
+    )
     class Meta:
         model = Product
         # Include all fields for full CRUD support
