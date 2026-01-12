@@ -12,7 +12,7 @@ from rest_framework import serializers
 from .models import Product, Sale
 
 class ProductSerializer(serializers.ModelSerializer):
-    vehicles = serializers.SlugRelatedField(
+    vehicle_list = serializers.SlugRelatedField(
         many=True,
         read_only=True,
         slug_field='name',
