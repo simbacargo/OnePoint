@@ -42,6 +42,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!user);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
 
   const login = (user: User) => {
     setUser(user);
@@ -56,12 +57,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     const accessToken = localStorage.getItem("access_token");
+    alert(accessToken);
     const savedUser = localStorage.getItem("msaidizi_user");
     if (accessToken && savedUser) {
       try {
         const the_user = JSON.parse(savedUser);
         setUser(the_user);
         setIsAuthenticated(true);
+        setAccessToken(accessToken);
       } catch (e) {
         console.error("Auth effect error", e);
         localStorage.removeItem("msaidizi_user");
@@ -76,7 +79,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, accessToken, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
