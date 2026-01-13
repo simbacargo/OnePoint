@@ -17,8 +17,15 @@ import {
     View
 } from 'react-native';
 
-const SALE_API_URL = 'http://192.168.1.191:8080/sales/';
+const SALE_API_URL = 'https://msaidizi.nsaro.com/sales/';
 const PRODUCTS_API_URL = 'https://msaidizi.nsaro.com/api/products/'; 
+
+
+function thousandSeparator(value: string | number) {
+  if (!value) return "0";
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  return num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 
 const BetterProductSaleScreen = () => {
     const [selectedProduct, setSelectedProduct] = useState(null);
@@ -160,7 +167,7 @@ const BetterProductSaleScreen = () => {
                         <View style={styles.summaryCard}>
                             <View style={styles.summaryRow}>
                                 <Text style={styles.summaryLabel}>Subtotal</Text>
-                                <Text style={styles.summaryValue}>${totalAmount}</Text>
+                                <Text style={styles.summaryValue}>{thousandSeparator(totalAmount)}</Text>
                             </View>
                             <View style={styles.divider} />
                             <TouchableOpacity 
@@ -202,7 +209,7 @@ const BetterProductSaleScreen = () => {
                                     <Text style={styles.itemName}>{item.name}</Text>
                                     <Text style={styles.itemSub}>Stock: {item.quantity} | PN: {item.part_number}</Text>
                                 </View>
-                                <Text style={styles.itemPrice}>${parseFloat(item.price).toFixed(0)}</Text>
+                                <Text style={styles.itemPrice}>{thousandSeparator(parseFloat(item.price).toFixed(0))}</Text>
                             </TouchableOpacity>
                         )}
                     />

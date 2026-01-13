@@ -1,7 +1,6 @@
-// CombinedAuthComponent.js
 import { Feather, SimpleLineIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Google from "expo-auth-session/providers/google";
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin'; // NEW NATIVE GOOGLE LIBRARY
 import { router, useNavigation } from 'expo-router';
 import * as WebBrowser from "expo-web-browser";
 import { useEffect, useState } from "react";
@@ -9,52 +8,47 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useApp } from "../../context/AppProvider";
 
-// Complete auth session if needed
+// Complete auth session if needed (Good practice, but less relevant for the native flow)
 WebBrowser.maybeCompleteAuthSession();
 
-// Your Google OAuth client IDs
-const iosClientId = '767126589910-1dkq7e4p4f92aufiv7h01pkjn9ouhtmn.apps.googleusercontent.com';
-const androidClientId = '767126589910-1dkq7e4p4f92aufiv7h01pkjn9ouhtmn.apps.googleusercontent.com';
-const webClientId = '767126589910-1dkq7e4p4f92aufiv7h01pkjn9ouhtmn.apps.googleusercontent.com';
+// 1. Google OAuth Client IDs (Ensure these are your actual IDs)
+// The webClientId is crucial here for requesting the ID token for backend authentication.
+const iosClientId = '767126589910-se67tnks7gsv2vrpjf7hl9lv9k9dbkq6.apps.googleusercontent.com';
+const androidClientId = '767126589910-bpjljs2h4h4bipspltq6mknt2lr08bru.apps.googleusercontent.com';
+const webClientId = '767126589910-1dkq7e4p4f92aufiv7h01pkjn9ouhtmn.apps.googleusercontent.com'; // This is the Server Client ID
 
+// 2. Configure the Google Sign-In Library globally
+GoogleSignin.configure({
+  scopes: ['email', 'profile'], 
+  webClientId: webClientId, // Server client ID
+  iosClientId: iosClientId,
+  offlineAccess: true, // Request offline access for refresh tokens
+});
 export default function CombinedAuthComponent() {
-    const navigation = useNavigation();
+  const navigation = useNavigation();
 
   useEffect(() => {
     navigation.setOptions({ headerShown: false });
   }, [navigation]);
+
   const [showPassword, setShowPassword] = useState(false);
   const [userCredentials, setUserCredentials] = useState({ username: "", password: "" });
-  const [userInfo, setUserInfo] = useState(null);
-  const [signNewUser, setSignNewUser] = useState(false);
+  const [signingIn, setSigningIn] = useState(false); // Renamed from signNewUser for clarity
   const [loading, setLoading] = useState(true);
-  const { is_logged_in, set_is_logged_in } = useApp();
-console.log(is_logged_in);
-
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    iosClientId,
-    androidClientId,
-    webClientId,
-  });
-
-  useEffect(() => {
-    if (response?.type === "success") {
-      const { authentication } = response;
-      if (authentication) {
-        getUserInfo(authentication.accessToken);
-      }
-    }
-  }, [response]);
+  const { userInfo, setUserInfo,set_is_logged_in } = useApp();
+  
+  // NOTE: Removed Google.useAuthRequest and its related useEffect
 
   useEffect(() => {
     checkUserLoggedIn();
@@ -65,49 +59,138 @@ console.log(is_logged_in);
     if (user) setUserInfo(JSON.parse(user));
     setLoading(false);
   };
-
-  const getUserInfo = async (token) => {
-    try {
-      const res = await fetch("https://www.googleapis.com/userinfo/v2/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const user = await res.json();
-      await AsyncStorage.setItem("@user", JSON.stringify(user));
-      setUserInfo(user);
-    } catch (err) {
-      console.error("Google user info error:", err);
-    }
-  };
-
+  
+  // 3. Native Google Sign-In Handler
   const handleGoogleLogin = async () => {
-    setSignNewUser(true);
-    await promptAsync();
-    setSignNewUser(false);
+    setSigningIn(true);
+    try {
+      // 1. Check if Google Play Services is available (Android only)
+      if (Platform.OS === 'android') {
+        await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      }
+
+      // 2. Start the native sign-in flow
+		const result = await GoogleSignin.signIn();
+     	console.log('Google sign-in result:', result);
+
+		const { data,type } = result;
+      if (type !== 'success') {
+        throw new Error('Google Sign-In was not successful');
+      }else {
+
+      setUserInfo(data)
+      await AsyncStorage.setItem('@user', JSON.stringify(data));
+      await AsyncStorage.setItem('@authToken', data.idToken);
+
+      
+      // OPTIONAL: Send idToken to your backend for verification and session creation
+      // const backendResponse = await fetch('YOUR_BACKEND_URL/api/google-login', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ idToken }),
+      // });
+      // const backendUser = await backendResponse.json();
+
+      // 3. Store user info and navigate
+      // await AsyncStorage.setItem("@user", JSON.stringify(user));
+      setUserInfo(data);
+      set_is_logged_in(true);
+      router.navigate("/");
+      
+    }} catch (error) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        // User cancelled the login flow (e.g., hit back button)
+        console.log('Google Sign-In cancelled');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        // Operation (e.g. sign in) is in progress already
+        console.log('Google Sign-In in progress');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        Alert.alert('Error', 'Google Play Services not available or outdated.');
+      } else if (error.code === statusCodes.SIGN_IN_REQUIRED) {
+        Alert.alert('Error', 'Sign-in required. Try again.');
+      } else {
+		  if (error.code === statusCodes.DEVELOPER_ERROR) {
+			  // This confirms the issue is definitely the SHA-1 or Bundle ID mismatch
+			  Alert.alert('Configuration Error', 'The app identifiers do not match the Google Cloud Console settings.');}
+		  }
+    } finally {
+      setSigningIn(false);
+    }
   };
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem("@user");
-    setUserInfo(null);
+    try {
+      // Sign out from Google as well
+      await GoogleSignin.signOut();
+      await AsyncStorage.removeItem("@user");
+      setUserInfo(null);
+      set_is_logged_in(false);
+      
+    } catch (error) {
+      console.error("Logout Error:", error);
+    }
   };
 
   const handleCredentialSignIn = async () => {
-    setLoading(true);
-    // TODO: Replace this with actual backend authentication
-    if (userCredentials.password == "password" && userCredentials.username == "nsaro" || userCredentials.username == "Nsaro" && userCredentials.password == "password") {
-      const fakeUser = {
-        name: "testuser",
-        username: userCredentials.username,
-      };
-      await AsyncStorage.setItem("@user", JSON.stringify(fakeUser));
-      setUserInfo(fakeUser);
-      set_is_logged_in(true)
-      router.navigate("/");
-    } else {
-      Alert.alert("Login Failed", "Invalid username or password.");
-    }
-    setLoading(false);
+  setLoading(true);
+
+  // Prepare data to send to server
+  const credentials = {
+    username: userCredentials.username,
+    password: userCredentials.password,
   };
 
+  try {
+    // Send the credentials to the server for authentication
+    const response = await fetch('https://msaidizi.nsaro.com/login_api/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    const data = await response.json();
+
+      console.log('====================================');
+      console.log(data);
+      console.log('====================================');
+    if (response.ok) {
+      // If authentication is successful
+      const { access } = data;
+
+      // Store user info and token in AsyncStorage
+      await AsyncStorage.setItem('@user', JSON.stringify(userCredentials.username));
+      await AsyncStorage.setItem('@authToken', access); // Store token as well
+
+      // Set user info and mark user as logged in
+      setUserInfo(userCredentials.username);
+      set_is_logged_in(true);
+      
+      // Navigate to the home screen
+      router.navigate('/');
+    } else {
+      // Handle login failure (invalid username/password)
+      Alert.alert('Login Failed', data.message || 'Invalid username or password.');
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    Alert.alert('Login Failed', 'An error occurred during login. Please try again.');
+  }
+
+  setLoading(false);
+};
+
+
+  if (loading) {
+      return (
+          <View style={[styles.safeArea, {justifyContent: 'center', alignItems: 'center'}]}>
+              <ActivityIndicator size="large" color="#007bff" />
+          </View>
+      );
+  }
+
+  // --- Render Logic ---
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -124,7 +207,8 @@ console.log(is_logged_in);
               <TextInput
                 placeholder="username"
                 style={styles.input}
-                keyboardType="username-address"
+                keyboardType="email-address"
+                autoCapitalize="none"
                 value={userCredentials.username}
                 onChangeText={(text) =>
                   setUserCredentials({ ...userCredentials, username: text })
@@ -151,11 +235,11 @@ console.log(is_logged_in);
 
             {/* Login Button */}
             <TouchableOpacity
-              disabled={signNewUser}
-              style={[styles.loginButton, signNewUser && styles.disabled]}
+              disabled={signingIn || loading}
+              style={[styles.loginButton, (signingIn || loading) && styles.disabled]}
               onPress={handleCredentialSignIn}
             >
-              {loading?
+              {loading ?
               <ActivityIndicator size="large" color="white" />:
               <Text style={styles.loginText}>Login</Text>
               }
@@ -170,15 +254,21 @@ console.log(is_logged_in);
 
             {/* Google Login Button */}
             <TouchableOpacity
-              disabled={signNewUser || !request}
-              style={[styles.googleButton, signNewUser && styles.disabled]}
-              onPress={handleGoogleLogin}
+              disabled={signingIn || loading}
+              style={[styles.googleButton, (signingIn || loading) && styles.disabled]}
+              onPress={handleGoogleLogin} // NEW HANDLER
             >
-              <Image
-                source={require("../../assets/images/googleImg.png")}
-                style={styles.socialIcon}
-              />
-              <Text style={styles.googleText}>Continue with Google</Text>
+              {signingIn ? (
+                <ActivityIndicator size="small" color="#000" />
+              ) : (
+                <>
+                  <Image
+                    source={require("../../assets/images/googleImg.png")}
+                    style={styles.socialIcon}
+                  />
+                  <Text style={styles.googleText}>Continue with Google</Text>
+                </>
+              )}
             </TouchableOpacity>
           </>
       </ScrollView>

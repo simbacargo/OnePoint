@@ -84,10 +84,9 @@ function AppProvider({ children }: AppProviderProps) {
   const [total_profit_value, set_total_profit_value] = useState<number>(0);
 
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-  const USER_STORAGE_KEY = '@user';
+  const [password_user_session, set_password_user_session] = useState<string | null>(null);
 
-  // --- Load user info on mount ---
-  useEffect(() => {
+  const USER_STORAGE_KEY = '@user';
     const loadUser = async () => {
       try {
         const storedUser = await AsyncStorage.getItem(USER_STORAGE_KEY);
@@ -99,6 +98,10 @@ function AppProvider({ children }: AppProviderProps) {
         console.error('Error loading user from storage:', error);
       }
     };
+
+    loadUser();
+  // --- Load user info on mount ---
+  useEffect(() => {
     loadUser();
   }, []);
 
@@ -219,7 +222,8 @@ function AppProvider({ children }: AppProviderProps) {
     total_sales_value,
     total_profit_value,
     userInfo,
-    setUserInfo, // <--- New
+    setUserInfo, 
+    password_user_session, set_password_user_session
   };
 
   return (

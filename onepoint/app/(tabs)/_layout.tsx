@@ -92,7 +92,7 @@ export default function TabLayout() {
 
 
               <Tabs.Screen
-        name="Products/[id]"
+        name="Products/id"
         options={{
           href: null, // <-- Hides the tab button
           headerShown: false,

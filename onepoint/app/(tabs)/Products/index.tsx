@@ -90,7 +90,7 @@ function Products() {
     const renderProduct = ({ item }: { item: Product }) => (
         <TouchableOpacity 
             style={styles.productCard} 
-            onPress={() => router.push(`/Products/${item.id}`)} 
+            onPress={() => router.push(`/Products/id?id=${item.id}`)} 
         >
             <View style={styles.productDetails}>
                 <Text style={styles.productName}>{item.name}</Text>
@@ -101,7 +101,7 @@ function Products() {
             </View>
             
             <View style={styles.priceTag}>
-                <Text style={styles.productPriceText}>${thousandSeparator(item.price)}</Text>
+                <Text style={styles.productPriceText}>{thousandSeparator(item.price)}</Text>
             </View>
         </TouchableOpacity>
     );

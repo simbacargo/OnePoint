@@ -7,12 +7,12 @@ import {
     FlatList,
     Platform,
     RefreshControl,
-    SafeAreaView,
     StyleSheet,
     Text,
     TouchableOpacity,
     View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const SALES_LIST_API_URL = 'https://msaidizi.nsaro.com/api/sales/'; 
 
@@ -69,6 +69,13 @@ const SalesListScreen = () => {
         fetchSales(false);
     };
 
+
+function thousandSeparator(value: string | number) {
+  if (!value) return "0";
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  return num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
     // --- Helper Components ---
 
     const SalesStatistics = ({ stats }) => (
@@ -100,12 +107,12 @@ const SalesListScreen = () => {
             <View style={listStyles.detailRow}>
                 {/* Updated to use item.quantity_sold and item.price_per_unit from your API */}
                 <Text style={listStyles.detailText}>Qty: {item.quantity_sold}</Text>
-                <Text style={listStyles.detailText}>Price: ${parseFloat(item.price_per_unit).toFixed(0)}</Text>
+                <Text style={listStyles.detailText}>Price: {parseFloat(item.price_per_unit).toFixed(0)}</Text>
             </View>
             
             <View style={listStyles.totalRow}>
                 <Text style={listStyles.totalLabel}>TOTAL:</Text>
-                <Text style={listStyles.totalValue}>${parseFloat(item.total_amount).toFixed(0)}</Text>
+                <Text style={listStyles.totalValue}>{thousandSeparator(parseFloat(item.total_amount).toFixed(0))}</Text>
             </View>
         </View>
     );

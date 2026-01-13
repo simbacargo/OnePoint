@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "onepoint",
+    "scheme": "com.onepoint.dukamoja",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -18,9 +18,17 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "config": {
+        "googleSignIn": {
+          "clientIds": [
+            "767126589910-bpjljs2h4h4bipspltq6mknt2lr08bru.apps.googleusercontent.com",
+            "767126589910-1dkq7e4p4f92aufiv7h01pkjn9ouhtmn.apps.googleusercontent.com" 
+          ]
+        }
+      },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.simba.one_point"
+      "package": "com.onepoint.dukamoja"
     },
     "web": {
       "bundler": "metro",
@@ -28,7 +36,16 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+      "iosUrlScheme": "com.googleusercontent.apps.767126589910-se67tnks7gsv2vrpjf7hl9lv9k9dbkq6",
+      "iosClientId": "767126589910-se67tnks7gsv2vrpjf7hl9lv9k9dbkq6.apps.googleusercontent.com",
+      "androidClientId": "767126589910-bpjljs2h4h4bipspltq6mknt2lr08bru.apps.googleusercontent.com",
+      "webClientId": "767126589910-1dkq7e4p4f92aufiv7h01pkjn9ouhtmn.apps.googleusercontent.com"
+    }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
@@ -42,8 +59,20 @@
     "ios": {
       "bundleIdentifier": "com.onepoint.dukamoja",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
+        "ITSAppUsesNonExemptEncryption": false,
+		"CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": ["com.googleusercontent.apps.767126589910-se67tnks7gsv2vrpjf7hl9lv9k9dbkq6"]
+          }
+        ]
+      },
+	  "entitlements": {
+      "com.apple.developer.applesignin": ["Default"]
+    }
+    },
+    "runtimeVersion": "1.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/31fcf4af-29f5-4a98-beac-a016d10753b5"
     }
   }
 }

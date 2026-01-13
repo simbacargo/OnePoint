@@ -1,3 +1,4 @@
+import { useApp } from '@/context/AppProvider';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -140,10 +141,12 @@ const chartConfig = {
 // --- MAIN COMPONENT ---
 
 const SalesDashboardScreen = () => {
-
+    const { userInfo } = useApp()
     const [recentActivities, setRecentActivities] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    console.log('User Info:', userInfo);
 
     useEffect(() => {
         const fetchRecentSales = async () => {

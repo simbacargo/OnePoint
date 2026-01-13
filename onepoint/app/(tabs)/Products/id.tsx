@@ -1,7 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import React from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import {
+    ActivityIndicator,
+    Alert // Added Alert for error display
+    , // Added ActivityIndicator for loading state
     Platform,
     SafeAreaView,
     ScrollView,
@@ -12,23 +15,43 @@ import {
 } from 'react-native';
 
 const ProductDetailScreen = () => {
-    // This would typically come from route params: const { product } = useLocalSearchParams();
-    const product = {
-        "id": 820,
-        "name": "4PK 925",
-        "description": "No description provided.",
-        "brand": "N/A",
-        "price": "3000.00",
-        "part_number": "PN-820-X",
-        "quantity": 5,
-        "quantity_in_store": 0,
-        "amount": "0.00",
-        "sold_units": 0,
-        "amount_collected": "0.00",
-        "created_at": "2025-11-22T13:27:10.966214Z",
-        "deleted": false,
-        "vehicles": ["Toyota Hilux", "Nissan Navara"] // Mocked for demonstration
-    };
+    // You might use the id from useLocalSearchParams() to construct the URL dynamically
+    const { id } = useLocalSearchParams();
+    const url = `https://msaidizi.nsaro.com/api/productdetails/${id}/`;
+    
+    // 1. Add state for the product data, loading, and error
+    const [product, setProduct] = useState(null); // Initialize as null to handle loading
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // 2. useEffect hook to fetch data
+    useEffect(() => {
+        const fetchProductDetails = async () => {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    // Throw an error if the response status is not 2xx
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                // Ensure data structure matches expected properties before setting state
+                // This adds a simple check for missing vehicle data from the API
+                setProduct({
+                    ...data,
+                    vehicles: data.vehicles || [] // Default to an empty array if 'vehicles' is missing
+                });
+            } catch (err) {
+                console.error("Failed to fetch product details:", err);
+                setError(err.message || "An unknown error occurred");
+                Alert.alert("Error", `Could not load product details. ${err.message}`);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchProductDetails();
+    }, [url]); // Depend on 'url' (though it's constant here)
 
     const InfoRow = ({ label, value, icon, color = "#555" }) => (
         <View style={styles.infoRow}>
@@ -40,11 +63,52 @@ const ProductDetailScreen = () => {
         </View>
     );
 
+    // 3. Handle loading and error states in the return
+    if (isLoading) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color="#007AFF" />
+                    <Text style={styles.loadingText}>Loading product details...</Text>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    if (error || !product) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={styles.loadingContainer}>
+                    <Text style={styles.errorText}>
+                        {error ? `Error: ${error}` : "Product data is missing."}
+                    </Text>
+                    <TouchableOpacity style={styles.retryButton} onPress={() => router.back()}>
+                        <Text style={styles.retryButtonText}>Go Back</Text>
+                    </TouchableOpacity>
+                    {/* Add a retry mechanism if appropriate */}
+                </View>
+            </SafeAreaView>
+        );
+    }
+    
+    // Once product is successfully loaded, the rest of the component renders.
+
+    // 4. Helper function to safely format data
+    const safeParseFloat = (value) => parseFloat(value || '0').toFixed(2);
+    const safeDate = (dateString) => dateString ? new Date(dateString).toLocaleDateString() : 'N/A';
+    
+    // Destructure for cleaner access
+    const { 
+        name, brand, price, quantity, sold_units, quantity_in_store, 
+        part_number, created_at, amount_collected, vehicles, description,vehicle_list
+    } = product;
+
+
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                <TouchableOpacity onPress={() => router.navigate("/Products")} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color="#333" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Product Details</Text>
@@ -56,26 +120,28 @@ const ProductDetailScreen = () => {
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 {/* Main Product Card */}
                 <View style={styles.card}>
-                    <Text style={styles.productName}>{product.name}</Text>
-                    <Text style={styles.brandText}>{product.brand || 'Generic Brand'}</Text>
+                    <Text style={styles.productName}>{name || 'Unknown Product'}</Text>
+                    <Text style={styles.brandText}>{brand || 'Generic Brand'}</Text>
                     
                     <View style={styles.priceBadge}>
-                        <Text style={styles.priceText}>${parseFloat(product.price).toLocaleString()}</Text>
+                        <Text style={styles.priceText}>
+                            {parseFloat(price || '0').toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </Text>
                     </View>
                 </View>
 
                 {/* Inventory Stats */}
                 <View style={styles.statsGrid}>
                     <View style={styles.statBox}>
-                        <Text style={styles.statNumber}>{product.quantity}</Text>
+                        <Text style={styles.statNumber}>{quantity || 0}</Text>
                         <Text style={styles.statLabel}>Total Stock</Text>
                     </View>
                     <View style={styles.statBox}>
-                        <Text style={styles.statNumber}>{product.sold_units}</Text>
+                        <Text style={styles.statNumber}>{sold_units || 0}</Text>
                         <Text style={styles.statLabel}>Sold</Text>
                     </View>
                     <View style={styles.statBox}>
-                        <Text style={styles.statNumber}>{product.quantity_in_store}</Text>
+                        <Text style={styles.statNumber}>{quantity_in_store || 0}</Text>
                         <Text style={styles.statLabel}>In Store</Text>
                     </View>
                 </View>
@@ -83,11 +149,11 @@ const ProductDetailScreen = () => {
                 {/* Detailed Information */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>General Information</Text>
-                    <InfoRow label="Part Number" value={product.part_number || 'N/A'} icon="barcode-outline" />
-                    <InfoRow label="Created At" value={new Date(product.created_at).toLocaleDateString()} icon="calendar-outline" />
+                    <InfoRow label="Part Number" value={part_number || 'N/A'} icon="barcode-outline" />
+                    <InfoRow label="Created At" value={safeDate(created_at)} icon="calendar-outline" />
                     <InfoRow 
                         label="Revenue" 
-                        value={`$${parseFloat(product.amount_collected).toFixed(0)}`} 
+                        value={`$${safeParseFloat(amount_collected)}`} 
                         icon="cash-outline" 
                         color="#28a745" 
                     />
@@ -96,12 +162,12 @@ const ProductDetailScreen = () => {
                 {/* Vehicles Section */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Compatible Vehicles</Text>
-                    {product.vehicles.length > 0 ? (
+                    {vehicles && vehicles.length > 0 ? (
                         <View style={styles.vehicleList}>
-                            {product.vehicles.map((vehicle, index) => (
+                            {vehicle_list.map((vehicle, index) => (
                                 <View key={index} style={styles.vehicleChip}>
                                     <Ionicons name="car-sport-outline" size={14} color="#007AFF" />
-                                    <Text style={styles.vehicleText}>{vehicle}</Text>
+									<Text style={styles.vehicleText}>{vehicle}</Text>
                                 </View>
                             ))}
                         </View>
@@ -114,7 +180,7 @@ const ProductDetailScreen = () => {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Description</Text>
                     <Text style={styles.descriptionText}>
-                        {product.description || "No additional description provided for this part."}
+                        {description || "No additional description provided for this part."}
                     </Text>
                 </View>
             </ScrollView>
@@ -124,6 +190,7 @@ const ProductDetailScreen = () => {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#F8F9FA' },
+    // ... existing styles ...
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -195,9 +262,39 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#D0E3FF',
     },
-    vehicleText: { fontSize: 13, color: '#007AFF', marginLeft: 4, fontWeight: '500' },
+    vehicleText: { fontSize: 15, color: '#007AFF', marginLeft: 4, fontWeight: '600' },
     descriptionText: { fontSize: 14, color: '#555', lineHeight: 20 },
     emptyText: { fontSize: 14, color: '#999', fontStyle: 'italic' },
+    
+    // New styles for loading and error states
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F8F9FA',
+    },
+    loadingText: {
+        marginTop: 10,
+        fontSize: 16,
+        color: '#666',
+    },
+    errorText: {
+        fontSize: 16,
+        color: '#D9534F',
+        marginBottom: 20,
+        textAlign: 'center',
+        paddingHorizontal: 30,
+    },
+    retryButton: {
+        backgroundColor: '#007AFF',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        borderRadius: 8,
+    },
+    retryButtonText: {
+        color: '#FFF',
+        fontWeight: 'bold',
+    }
 });
 
 export default ProductDetailScreen;
