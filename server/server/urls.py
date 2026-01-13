@@ -7,6 +7,7 @@ from django.contrib.auth.views import LogoutView, LoginView
 router = routers.DefaultRouter()
 #router.register(r'users', views.UserViewSet)
 router.register(r'products', views.ProductViewSet) # 'products' will be the base URL for the API
+router.register(r'customers', views.CustomerViewSet)
 router.register(r'sales', views.SaleViewSet) # router.register(r'api', views.UserViewSet)
 #router.register(r'groups', views.GroupViewSet)
 

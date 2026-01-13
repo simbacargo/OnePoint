@@ -9,7 +9,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group, User
 from rest_framework import permissions, viewsets
 
-from ..serializers import UserSerializer,SaleSerializer, Sale
+from ..serializers import TransactionSerializer, UserSerializer,SaleSerializer, Sale,CustomerSerializer
 
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
@@ -84,7 +84,7 @@ from django.views.decorators.cache import cache_page
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets
-from ..models import Product
+from ..models import Customer, Product
 from ..serializers import ProductSerializer
 from django.core.cache import cache
 
@@ -256,12 +256,14 @@ class SaleListView(APIView):
 
     # POST method - Create a new sale
     def post(self, request, *args, **kwargs):
-        serializer = SaleSerializer(data=request.data)
+        serializer = TransactionSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({
+                "message": "Transaction recorded successfully",
+                "data": serializer.data
+            }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     
 class SaleDetailView(APIView):
     permission_classes = [IsAuthenticated]  # Optional: Only authenticated users can access the API
@@ -316,3 +318,8 @@ class SaleViewSet(viewsets.ModelViewSet):
     queryset = Sale.objects.select_related('product').order_by('-date_sold')
     serializer_class = SaleSerializer
 
+
+
+class CustomerViewSet(viewsets.ModelViewSet):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializer

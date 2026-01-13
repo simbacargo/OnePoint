@@ -1,8 +1,9 @@
 from django.contrib import admin
-from .models import Product, Vehicle, Sale
+from .models import Product, Vehicle, Sale, Customer
 
 admin.site.register(Vehicle)
 admin.site.register(Sale)
+admin.site.register(Customer)
 
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'brand', 'price', 'part_number', 'quantity', 'deleted')

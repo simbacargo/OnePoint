@@ -78,7 +78,7 @@ class Sale(models.Model):
 
 class Customer(models.Model):
     name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=False,blank=True)
     phone = models.CharField(max_length=15, blank=True)
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE, null=1,blank=1, related_name="customers")
     remaining_balance = models.IntegerField(default=0)
