@@ -39,9 +39,9 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    # 'django.middleware.cache.UpdateCacheMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.cache.FetchFromCacheMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
     #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -154,12 +154,6 @@ CORS_ALLOW_CREDENTIALS = True
 APPEND_SLASH=False
 
 # settings.py
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'TIMEOUT': 60 * 15,  # Cache timeout in seconds (15 minutes in this case)
-    }
-}
 
 CACHES = {
     'default': {
@@ -169,6 +163,12 @@ CACHES = {
     }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'TIMEOUT': 60 * 15,  # Cache timeout in seconds (15 minutes in this case)
+    }
+}
 import os
 STATIC_URL = '/assets/'
 STATIC_ROOT = os.path.join(BASE_DIR, "asset")

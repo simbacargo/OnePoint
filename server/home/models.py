@@ -66,14 +66,16 @@ class Sale(models.Model):
         self.product.update_stock(self.quantity_sold, self.total_amount)
 
 
-# @receiver(post_save, sender=Product)
-# @receiver(post_delete, sender=Product)
-# def clear_product_cache(sender, instance, **kwargs):
-#     cache.delete('product_list')
-# @receiver(post_save, sender=Sale)
-# @receiver(post_delete, sender=Sale)
-# def clear_sales_cache(sender, instance, **kwargs):
-#     cache.delete('sales_summary')
+@receiver(post_save, sender=Product)
+@receiver(post_delete, sender=Product)
+def clear_product_cache(sender, instance, **kwargs):
+    cache.delete('product_list')
+    print("Product cache cleared.")
+@receiver(post_save, sender=Sale)
+@receiver(post_delete, sender=Sale)
+def clear_sales_cache(sender, instance, **kwargs):
+    cache.delete('sales_summary')
+    print("Product cache cleared.")
 
 
 class Customer(models.Model):
