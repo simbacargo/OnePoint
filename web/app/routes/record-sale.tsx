@@ -20,7 +20,7 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
   useEffect(() => {
     if (!isAuthenticated) {
-      navigate("/login", { replace: true });
+      navigate("/login?next=/record-sale", { replace: true });
     }
   }, [isAuthenticated, navigate]);
   const allProducts = loaderData || [];
@@ -84,14 +84,14 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
     setServerResponse(null);
 
     const saleObject = {
-      // customer_name: customerName || "Walking Customer",
+      customer_name: customerName || "Walking Customer",
       items: cart.map((item) => ({
         product: item.id,
         quantity_sold: item.qty,
         price_per_unit: parseFloat(item.price),
       })),
-      // total_amount: total,
-      // transaction_date: new Date().toISOString(),
+      total_amount: total,
+      transaction_date: new Date().toISOString(),
     };
 
     try {
@@ -100,7 +100,7 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
         headers: { "Content-Type": "application/json", 
           // "Authorization": `Bearer ${accessToken}` 
         },
-        body: JSON.stringify(saleObject.items[0]),
+        body: JSON.stringify(saleObject),
       });
 
       const data = await response.json(); // ✅ READ SERVER RESPONSE

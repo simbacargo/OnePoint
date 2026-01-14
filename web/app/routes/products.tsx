@@ -36,13 +36,13 @@ export async function clientLoader({}: Route.ClientLoaderArgs) {
 
   return freshData;
 }
-export async function loader({ request }: Route.LoaderArgs) {
+// export async function loader({ request }: Route.LoaderArgs) {
   //   const {isAuthenticated} = useAuth(); // Replace with real authentication logic
   //   alert(isAuthenticated);
   // if (!isAuthenticated(request)){
   //   throw redirect("/login");
   // }
-}
+// }
 
 export default function Products({ loaderData }: Route.ComponentProps) {
     const {isAuthenticated} = useAuth(); // Replace with real authentication logic
@@ -78,7 +78,7 @@ useEffect(() => {
 
   const filteredProducts = products.filter((p: any) =>
     p.name.toLowerCase().includes(filter.toLowerCase()) ||
-    p.part_number.toLowerCase().includes(filter.toLowerCase())
+    p.part_number?.toLowerCase().includes(filter.toLowerCase())
   );
 
   return (

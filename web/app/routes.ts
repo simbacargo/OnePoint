@@ -8,7 +8,10 @@ export default [
     route("record-sale", "routes/record-sale.tsx"),
     route("verify", "routes/verify-sales.tsx"),
 	route("customers", "routes/customers.tsx"),
+	route("customers/new", "routes/newCustomers.tsx"),
 	route("profile", "routes/profile.tsx"),
 	route("login", "routes/auth/login.tsx"),
 	route("signup", "routes/signup.tsx"),
+	route("upgrade-subscription", "routes/UpgradeSubscription.tsx"),
+	route("payment-history", "routes/PaymentHistory.tsx"),
 ] satisfies RouteConfig;

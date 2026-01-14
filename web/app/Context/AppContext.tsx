@@ -57,7 +57,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     const accessToken = localStorage.getItem("access_token");
-    alert(accessToken);
     const savedUser = localStorage.getItem("msaidizi_user");
     if (accessToken && savedUser) {
       try {
