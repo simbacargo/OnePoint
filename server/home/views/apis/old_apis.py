@@ -78,13 +78,11 @@ def login(request):
             })
         return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
-from ..serializers import ProductSerializer
 from django.views.decorators.cache import cache_page
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import viewsets
-from ..models import Customer, Product
-from ..serializers import ProductSerializer
+from ...models import Customer, Product
 from django.core.cache import cache
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -125,8 +123,8 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from ..models import Product
-from ..serializers import ProductSerializer
+from ...models import Product
+from ...serializers import ProductSerializer
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 
@@ -238,7 +236,7 @@ def low_stock_view(request):
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from ..serializers import SaleSerializer
+from ...serializers import SaleSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import NotFound
 
