@@ -18,7 +18,8 @@ from django.db.models import Sum, Count
 from django.http import JsonResponse
 from django import forms
 from ..models import Customer
-
+from rest_framework.response import Response
+from rest_framework import status
 
 class ProductForm(forms.ModelForm):
     class Meta:
