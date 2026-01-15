@@ -326,7 +326,7 @@ def list_unverified_sales(request):
     return render(request, 'sales/unverified.html', {'sales': sales})
 
 
-@login_required
+# @login_required
 def verify_sale(request, pk):
     sales = Sale.objects.select_related('product').filter(aproved=False).order_by('-date_sold')
     sale = get_object_or_404(Sale, pk=pk)
