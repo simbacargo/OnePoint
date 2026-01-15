@@ -15,7 +15,6 @@ from django.urls import reverse_lazy
 from ..serializers import SaleSerializer
 from django.shortcuts import render
 from django.db.models import Sum, Count
-from django.http import JsonResponse
 from django import forms
 from ..models import Customer
 from rest_framework.response import Response
@@ -40,7 +39,6 @@ class ProductForm(forms.ModelForm):
         }
 
 
-from django import forms
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -53,7 +51,6 @@ class ProductForm(forms.ModelForm):
         }
 
 # views.py
-from django.http import JsonResponse
 
 def search_vehicles(request):
     query = request.GET.get('q', '')
@@ -331,14 +328,6 @@ def list_verified_sales(request):
     sales = Sale.objects.select_related('product').filter(aproved=True).order_by('-date_sold')
     return render(request, 'sales/verified.html', {'sales': sales})
 
-
-
-@cache_control(no_cache=True, must_revalidate=True, no_store=True)
-@api_view(['GET'])
-def list_unverified_sales_api(request):
-    sales = Sale.objects.select_related('product').filter(aproved=False).order_by('-date_sold')
-    serializer = SaleSerializer(sales, many=True)
-    return Response(serializer.data)
 
 
 # @login_required

@@ -66,7 +66,7 @@ urlpatterns += [
     path('index/sales/<int:pk>/delete/', views.delete_sale, name='delete_sale'),
     path('index/sales/list_unverified_sales/', views.list_unverified_sales, name='list_unverified_sales'),
     path('index/sales/list_verified_sales/', views.list_verified_sales, name='list_verified_sales'),
-    path('index/sales/list_unverified_sales_api/', views.list_unverified_sales_api, name='list_unverified_sales_api'),
+    path('index/sales/list_unverified_sales_api/', views.list_unverified_sales, name='list_unverified_sales_api'),
     path("index/dashboard/", views.dashboard, name="dashboard"),
     path('index/sales/<int:pk>/verify_sale/', views.verify_sale, name='verify_sale'),
 ]

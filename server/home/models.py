@@ -54,6 +54,7 @@ class Sale(models.Model):
     date_sold = models.DateTimeField(auto_now_add=True)
     aproved = models.BooleanField(default=False,)
     deleted = models.BooleanField(default=False,)
+    rejected = models.BooleanField(default=False,)
 
     def __str__(self):
         return f"Sale of {self.product.name} - {self.quantity_sold} units"
