@@ -19,6 +19,15 @@ from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from rest_framework.authtoken.views import obtain_auth_token
 from authentication.models import User
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from ...models import Product
+from ...serializers import ProductSerializer
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+
 @api_view(['POST'])
 def signup(request):
     if request.method == 'POST':
@@ -120,13 +129,6 @@ class ProductViewSet(viewsets.ModelViewSet):
     # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from ...models import Product
-from ...serializers import ProductSerializer
-from django.views.decorators.cache import cache_page
-from django.utils.decorators import method_decorator
 
 class ProductListView(APIView):
     @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
