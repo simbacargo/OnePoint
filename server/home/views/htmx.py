@@ -20,7 +20,8 @@ from django import forms
 from ..models import Customer
 from rest_framework.response import Response
 from rest_framework import status
-
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
@@ -329,7 +330,7 @@ def list_unverified_sales(request):
 def list_verified_sales(request):
     sales = Sale.objects.select_related('product').filter(aproved=True).order_by('-date_sold')
     return render(request, 'sales/verified.html', {'sales': sales})
-
+@api_view
 def list_unverified_sales_api(request):
     sales = Sale.objects.select_related('product').filter(aproved=False).order_by('-date_sold')
     serializer = SaleSerializer(sales, many=True)
