@@ -9,7 +9,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group, User
 from rest_framework import permissions, viewsets
 
-from ..serializers import TransactionSerializer, UserSerializer,SaleSerializer, Sale,CustomerSerializer
+from ../..serializers import TransactionSerializer, UserSerializer,SaleSerializer, Sale,CustomerSerializer
 
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
@@ -17,7 +17,6 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from django.contrib.auth.hashers import make_password
-from ..serializers import UserSerializer  # If you have a custom serializer for User
 from rest_framework.authtoken.views import obtain_auth_token
 from authentication.models import User
 @api_view(['POST'])
