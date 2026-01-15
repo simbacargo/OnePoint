@@ -9,7 +9,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Group, User
 from rest_framework import permissions, viewsets
 
-from ../../serializers import TransactionSerializer, UserSerializer,SaleSerializer, Sale,CustomerSerializer
+from ...serializers import TransactionSerializer, UserSerializer,SaleSerializer, Sale,CustomerSerializer
 
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
