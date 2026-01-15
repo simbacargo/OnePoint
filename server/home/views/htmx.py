@@ -325,6 +325,15 @@ def list_unverified_sales(request):
     print(sales)
     return render(request, 'sales/unverified.html', {'sales': sales})
 
+def list_verified_sales(request):
+    sales = Sale.objects.select_related('product').filter(aproved=True).order_by('-date_sold')
+    return render(request, 'sales/verified.html', {'sales': sales})
+
+def list_unverified_sales_api(request):
+    sales = Sale.objects.select_related('product').filter(aproved=False).order_by('-date_sold')
+    serializer = SaleSerializer(sales, many=True)
+    return Response(serializer.data)
+
 
 # @login_required
 def verify_sale(request, pk):
