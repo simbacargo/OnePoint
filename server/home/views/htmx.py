@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect, render
 from ..models import Product,Sale, Vehicle
-from django.views.decorators.cache import never_cache
+from django.views.decorators.cache import never_cache, cache_control
 from django import forms
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
@@ -332,6 +332,8 @@ def list_verified_sales(request):
     return render(request, 'sales/verified.html', {'sales': sales})
 
 
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def list_unverified_sales_api(request):
     sales = Sale.objects.select_related('product').filter(aproved=False).order_by('-date_sold')
