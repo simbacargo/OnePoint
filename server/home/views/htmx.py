@@ -12,7 +12,7 @@ from django import forms
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-
+from ..serializers import SaleSerializer
 from django.shortcuts import render
 from django.db.models import Sum, Count
 from django.http import JsonResponse
