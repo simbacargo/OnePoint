@@ -254,7 +254,8 @@ class SaleListView(APIView):
 
     # POST method - Create a new sale
     def post(self, request, *args, **kwargs):
-        serializer = TransactionSerializer(data=request.data)
+        #serializer = TransactionSerializer(data=request.data)
+        serializer = SaleSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({

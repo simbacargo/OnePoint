@@ -123,3 +123,6 @@ rlpatterns = [
     # 2. URL called by M-Pesa to report the FINAL transaction status (This is your CALLBACK/WEBHOOK)
     path('callback/', MpesaCallbackView.as_view(), name='mpesa_callback'),
 ]
+
+from home.urls import urlpatterns as home_urlpatterns
+urlpatterns += home_urlpatterns 
