@@ -124,5 +124,5 @@ rlpatterns = [
     path('callback/', MpesaCallbackView.as_view(), name='mpesa_callback'),
 ]
 
-from home.urls import urlpatterns as home_urlpatterns
+from home.urls import url_patterns as home_urlpatterns
 urlpatterns += home_urlpatterns 

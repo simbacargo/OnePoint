@@ -1,4 +1,4 @@
-from views.apis.sales_apis import (list_unverified_sales_api,
+from .views.apis.sales_apis import (list_unverified_sales_api,
 approve_sale_api,
 reject_sale_api,
 list_approved_sales_api,
