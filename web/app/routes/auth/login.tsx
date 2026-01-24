@@ -41,13 +41,17 @@ function FacebookSignInButton({ socialBtnClass, }: { socialBtnClass: string }) {
 
 
 export async function action({ request }: Route.ActionArgs) {
-  console.clear();
   console.log("Login action triggered");
   // const {login} = useAuth(); // Replace with real authentication logic
   let formData = await request.formData();
   const intent = formData.get("intent");
   const username = formData.get("username");
   const password = formData.get("password");
+  console.log('====================================');
+  console.log('Intent:', intent);
+  console.log('Username:', username);
+  console.log('Password:', password);
+  console.log('====================================');
 
   let payload = {};
   let endpoint = "https://msaidizi.nsaro.com/login_api/";
@@ -67,16 +71,17 @@ export async function action({ request }: Route.ActionArgs) {
   } else {
     payload = { username, password };
   }
-console.clear();
 try {
+  console.log('====================================');
+  console.log(payload);
+  console.log('====================================');
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: payload,
   });
 
   const data = await response.json();
-  console.clear();
   console.log(data);
   if (response.ok) {
       // Return the data to the component
@@ -177,7 +182,6 @@ const isSubmitting = navigation.state === "submitting";// Inside your Login comp
 useEffect(() => {
   if (actionData && 'success' in actionData) {
     // 1. Prepare the user object
-    console.clear();
     const userToSave = actionData.user.username;
     console.log('====================================');
     console.log(userToSave);

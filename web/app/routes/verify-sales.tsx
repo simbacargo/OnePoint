@@ -17,8 +17,10 @@ export async function clientLoader({}: Route.ClientLoaderArgs) {
     {
       headers: {
         "Cache-Control": "no-cache",
-        "authorization": `Bearer ${localStorage.getItem("msaidizi_token") || ""}`,
+        "authorization": `Token ${localStorage.getItem("access_token") || ""}`,
       },
+      method: "GET",
+      mode: "cors",
     }
   );
   if (!res.ok) throw new Error("Failed to fetch sales");
