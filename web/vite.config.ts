@@ -10,7 +10,7 @@ export default defineConfig({
       "localhost",
       "monochromically-oversentimental-donita.ngrok-free.dev",
     ],
-    port: 3000,
+    port: 5173,
     watch: {
       usePolling: true,
     },

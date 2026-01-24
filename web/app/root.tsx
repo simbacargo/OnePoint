@@ -53,6 +53,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+function LoadingSpinner() {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <span className="h-10 w-10 animate-spin rounded-full border-4 border-t-transparent border-indigo-600" />
+    </div>
+  );
+}
+
 export default function App() {
   const navigation = useNavigation();
   const isLoading = navigation.state === "loading";
@@ -61,7 +69,7 @@ export default function App() {
     <AuthProvider>
       <GoogleOAuthProvider clientId="767126589910-1dkq7e4p4f92aufiv7h01pkjn9ouhtmn.apps.googleusercontent.com">
         {isLoading && (
-          <div className="fixed top-0 left-0 right-0 h-1 bg-blue-500 animate-pulse z-50" />
+          <LoadingSpinner size={6} color="border-green-500" />
         )}
         <div className="relative flex-1">
           {navigation.state === "loading" ? (

@@ -5,30 +5,52 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Platform, // Added missing import
 } from 'react-native';
 import * as Linking from 'expo-linking';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Device from 'expo-device';
 
-const WHATSAPP_NUMBER = '255746297197';
-const DEFAULT_MESSAGE = 'Hello Support Team, I need help with your app.';
+// Configuration
+const WHATSAPP_NUMBER = '+255746297197';
+const APP_VERSION = '1.2.0';
 
 const SupportPage = () => {
   const handleWhatsApp = async () => {
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-      DEFAULT_MESSAGE
-    )}`;
+    // 1. Define the message to be sent
+    const msg = 'Hello Support Team, I need help with your app.';
+    
+    // 2. Prepare Debug Info
+    const debugInfo = `
+--- Debug Info ---
+App Version: ${APP_VERSION}
+Device: ${Device.modelName || 'Unknown'}
+OS: ${Platform.OS} ${Device.osVersion || ''}`;
 
-    const canOpen = await Linking.canOpenURL(url);
-    if (!canOpen) {
-      Alert.alert(
-        'WhatsApp Not Available',
-        'Please install WhatsApp to contact support.'
-      );
-      return;
+    // 3. Combine and Encode
+    const fullText = `${msg}${debugInfo}`;
+    const encodedText = encodeURIComponent(fullText);
+
+    // 4. Construct URL (Use the variable name defined above)
+    const url = `whatsapp://send?phone=${WHATSAPP_NUMBER}&text=${encodedText}`;
+
+    try {
+      const canOpen = await Linking.canOpenURL(url);
+      
+      if (!canOpen) {
+        Alert.alert(
+          'WhatsApp Not Available',
+          'Please install WhatsApp to contact support directly from the app.'
+        );
+        return;
+      }
+
+      await Linking.openURL(url);
+    } catch (error) {
+      Alert.alert('Error', 'An unexpected error occurred while trying to open WhatsApp.');
+      console.error(error);
     }
-
-    Linking.openURL(url);
   };
 
   return (
@@ -41,7 +63,11 @@ const SupportPage = () => {
           Our support team is available on WhatsApp and ready to assist you.
         </Text>
 
-        <TouchableOpacity style={styles.button} onPress={handleWhatsApp}>
+        <TouchableOpacity 
+          style={styles.button} 
+          onPress={handleWhatsApp}
+          activeOpacity={0.8}
+        >
           <Ionicons name="logo-whatsapp" size={22} color="#fff" />
           <Text style={styles.buttonText}>Chat on WhatsApp</Text>
         </TouchableOpacity>
@@ -68,6 +94,12 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 30,
     alignItems: 'center',
+    // Shadow for iOS
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    // Elevation for Android
     elevation: 4,
   },
   title: {
@@ -80,6 +112,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#666',
     marginVertical: 15,
+    lineHeight: 22,
   },
   button: {
     flexDirection: 'row',
@@ -102,4 +135,3 @@ const styles = StyleSheet.create({
     color: '#888',
   },
 });
-

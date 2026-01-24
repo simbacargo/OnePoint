@@ -36,6 +36,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+        #        "django.middleware.cache.UpdateCacheMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -244,3 +245,22 @@ MPESA_API_TOKEN_URL = f'{MPESA_BASE_HOST}/sandbox/ipg/v2/vodafoneGHA/getSession/
 # 2. C2B PUSH INITIATION URL
 # The singleStage path is common for USSD/STK Push across M-Pesa markets.
 MPESA_API_INITIATE_URL = f'{MPESA_BASE_HOST}/sandbox/ipg/v2/vodacomTZN/c2bPayment/singleStage'
+
+
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+
+ALLOWED_HOSTS = ['*']
+
+REST_FRAMEWORK = {
+     'DEFAULT_AUTHENTICATION_CLASSES': [
+         'knox.auth.TokenAuthentication',
+    ],
+     'DEFAULT_PERMISSION_CLASSES': [
+         'rest_framework.permissions.IsAuthenticated',
+     ]
+} 
+
+INSTALLED_APPS += ['knox']
+

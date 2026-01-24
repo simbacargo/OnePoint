@@ -37,6 +37,7 @@
     },
     "plugins": [
       "expo-router",
+      "expo-apple-authentication",
       [
         "@react-native-google-signin/google-signin",
         {
@@ -58,6 +59,7 @@
     },
     "ios": {
       "bundleIdentifier": "com.onepoint.dukamoja",
+      "usesAppleSignIn": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
 		"CFBundleURLTypes": [

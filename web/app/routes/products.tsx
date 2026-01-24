@@ -1,156 +1,233 @@
 import { useState, useEffect } from "react";
 import type { Route } from "./+types/products";
 import { useAuth } from "~/Context/AppContext";
-import { redirect, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
-const PRODUCTS_API_URL = "https://msaidizi.nsaro.com/api/products/"; // Replace with your actual API endpoint from https://api.juma.com/products/";
+// --- CONFIGURATION ---
+const PRODUCTS_API_URL = "https://msaidizi.nsaro.com/api/products/";
 const CACHE_KEY = "msaidizi_products_cache";
-const CACHE_EXPIRY = 1000 * 60 * 60; // 1 hour in milliseconds
+const CACHE_EXPIRY = 1000 * 60 * 60; // 1 hour
 
+// --- DATA LOADING ---
 export async function clientLoader({}: Route.ClientLoaderArgs) {
-  // 1. Check for existing cache
   const cachedData = localStorage.getItem(CACHE_KEY);
-  
   if (cachedData) {
     const { data, timestamp } = JSON.parse(cachedData);
-    const isExpired = Date.now() - timestamp > CACHE_EXPIRY;
-
-    if (!isExpired) {
-      console.log("Loading from cache...");
-      return data;
-    }
+    if (Date.now() - timestamp < CACHE_EXPIRY) return data;
   }
 
-  
-  // 2. If no cache or expired, fetch fresh data
-  console.log("Fetching fresh data from API...");
   const res = await fetch(PRODUCTS_API_URL);
   if (!res.ok) throw new Error("Failed to fetch products");
   const freshData = await res.json();
 
-  // 3. Save to localStorage
-  localStorage.setItem(CACHE_KEY, JSON.stringify({
-    data: freshData,
-    timestamp: Date.now()
-  }));
-
+  localStorage.setItem(CACHE_KEY, JSON.stringify({ data: freshData, timestamp: Date.now() }));
   return freshData;
 }
-// export async function loader({ request }: Route.LoaderArgs) {
-  //   const {isAuthenticated} = useAuth(); // Replace with real authentication logic
-  //   alert(isAuthenticated);
-  // if (!isAuthenticated(request)){
-  //   throw redirect("/login");
-  // }
-// }
 
 export default function Products({ loaderData }: Route.ComponentProps) {
-    const {isAuthenticated} = useAuth(); // Replace with real authentication logic
-const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
-useEffect(() => {
-  if (!isAuthenticated) {
-    navigate("/login", { replace: true });
-  }
-}, [isAuthenticated, navigate]);
+  // --- STATE ---
   const [filter, setFilter] = useState("");
   const [isSyncing, setIsSyncing] = useState(false);
-  
-  const products = loaderData?.results || [];
+  const [localProducts, setLocalProducts] = useState(loaderData?.results || []);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
 
-  // Manual Cache Refresh Function
+  useEffect(() => {
+    if (!isAuthenticated) navigate("/login", { replace: true });
+  }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    setLocalProducts(loaderData?.results || []);
+  }, [loaderData]);
+
+  // --- ACTIONS ---
+
   const handleSync = async () => {
     setIsSyncing(true);
     try {
       const res = await fetch(PRODUCTS_API_URL);
       const data = await res.json();
-      localStorage.setItem(CACHE_KEY, JSON.stringify({
-        data: data,
-        timestamp: Date.now()
-      }));
-      window.location.reload(); // Refresh to show new data
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ data, timestamp: Date.now() }));
+      setLocalProducts(data.results);
     } catch (err) {
-      alert("Sync failed. Check connection.");
+      alert("Sync failed.");
     } finally {
       setIsSyncing(false);
     }
   };
 
-  const filteredProducts = products.filter((p: any) =>
+  const handleSell = async (product: any) => {
+    if (product.quantity <= 0) return alert("Out of stock!");
+    const newQty = product.quantity - 1;
+    
+    try {
+      setLocalProducts(prev => prev.map(p => p.id === product.id ? { ...p, quantity: newQty } : p));
+      await fetch(`${PRODUCTS_API_URL}${product.id}/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quantity: newQty }),
+      });
+    } catch (err) {
+      alert("Sale failed. Reverting...");
+      handleSync();
+    }
+  };
+
+  const handleSaveUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(`${PRODUCTS_API_URL}${editingProduct.id}/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          price: editingProduct.price,
+          quantity: editingProduct.quantity
+        }),
+      });
+      if (res.ok) {
+        setEditingProduct(null);
+        handleSync();
+      }
+    } catch (err) {
+      alert("Update failed.");
+    }
+  };
+
+  const handleDelete = async (productId: number) => {
+    if (!window.confirm("Are you sure you want to delete this product?")) return;
+    try {
+      const res = await fetch(`${PRODUCTS_API_URL}${productId}/`, { method: "DELETE" });
+      if (res.ok) {
+        setLocalProducts(prev => prev.filter(p => p.id !== productId));
+      }
+    } catch (err) {
+      alert("Delete failed.");
+    }
+  };
+
+  const filteredProducts = localProducts.filter((p: any) =>
     p.name.toLowerCase().includes(filter.toLowerCase()) ||
     p.part_number?.toLowerCase().includes(filter.toLowerCase())
   );
 
   return (
-    <div className="p-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <div className="p-6 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Product Inventory</h1>
-          <div className="flex items-center gap-2 mt-1">
-            <span className="text-xs text-gray-500">Total: {loaderData?.count}</span>
-            <span className="text-gray-300">|</span>
-            <button 
-              onClick={handleSync}
-              className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1"
-            >
-              <i className={`bi bi-arrow-clockwise ${isSyncing ? 'animate-spin' : ''}`}></i>
-              {isSyncing ? 'Syncing...' : 'Sync Fresh Data'}
-            </button>
-          </div>
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight">Product Inventory</h1>
+          <button onClick={handleSync} className="text-sm font-bold text-blue-600 flex items-center gap-2 mt-1">
+            <i className={`bi bi-arrow-clockwise ${isSyncing ? 'animate-spin' : ''}`}></i>
+            {isSyncing ? "Syncing..." : "Refresh Data"}
+          </button>
         </div>
 
         <div className="relative">
           <i className="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
           <input
             type="text"
-            placeholder="Search by name or part #..."
-            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none w-full md:w-80"
+            placeholder="Search name or part #..."
+            className="pl-10 pr-4 py-3 border border-gray-200 rounded-2xl w-full md:w-96 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
           />
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+      {/* Table */}
+      <div className="bg-white border border-gray-200 rounded-3xl overflow-hidden shadow-sm">
         <table className="w-full text-left">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-100">
-              <th className="px-6 py-4 text-xs font-bold text-gray-600 uppercase">Product & Brand</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-600 uppercase">Part Number</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-600 uppercase text-right">Price</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-600 uppercase text-center">Stock</th>
-              <th className="px-6 py-4 text-xs font-bold text-gray-600 uppercase text-center">Actions</th>
+            <tr className="bg-gray-50/50 border-b border-gray-100">
+              <th className="px-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Product & Brand</th>
+              <th className="px-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest">Part Number</th>
+              <th className="px-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest text-right">Price</th>
+              <th className="px-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest text-center">Stock</th>
+              <th className="px-6 py-4 text-[11px] font-black text-gray-400 uppercase tracking-widest text-center">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {filteredProducts.map((product: any) => (
-              <tr key={product.id} className="odd:bg-gray-50/50 even:bg-white hover:bg-blue-50/30">
-                <td className="px-6 py-4">
+              <tr key={product.id} className="hover:bg-blue-50/20 transition-colors">
+                <td className="px-6 py-5">
                   <div className="font-bold text-gray-900">{product.name}</div>
-                  <div className="text-[10px] text-gray-500">{product.brand}</div>
+                  <div className="text-[10px] text-gray-500">{product.brand || "Generic"}</div>
                 </td>
-                <td className="px-6 py-4 text-sm font-mono text-gray-600">{product.part_number}</td>
-                <td className="px-6 py-4 text-sm font-bold text-gray-900 text-right">
+                <td className="px-6 py-5 text-sm font-mono text-gray-600">
+                  {product.part_number || "—"}
+                </td>
+                <td className="px-6 py-5 text-right font-black text-gray-900">
                   {Number(product.price).toLocaleString()} TZS
                 </td>
-                <td className="px-6 py-4 text-center">
-                  <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${
+                <td className="px-6 py-5 text-center">
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${
                     product.quantity > 5 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                   }`}>
                     {product.quantity} In Stock
                   </span>
                 </td>
-                <td className="px-6 py-4 text-center">
-                   <div className="flex justify-center gap-2 text-gray-400">
-                      <button className="hover:text-blue-600"><i className="bi bi-pencil"></i></button>
-                      <button className="hover:text-red-600"><i className="bi bi-trash"></i></button>
-                   </div>
+                <td className="px-6 py-5">
+                  <div className="flex justify-center gap-2">
+                    <button 
+                      onClick={() => handleSell(product)}
+                      className="bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-green-700"
+                    >
+                      Sell
+                    </button>
+                    <button 
+                      onClick={() => setEditingProduct(product)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                    >
+                      <i className="bi bi-pencil-square"></i>
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(product.id)}
+                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                    >
+                      <i className="bi bi-trash"></i>
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* Edit Modal */}
+      {editingProduct && (
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
+            <h2 className="text-2xl font-black text-gray-900 mb-6">Update Stock</h2>
+            <form onSubmit={handleSaveUpdate} className="space-y-5">
+              <div>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Price (TZS)</label>
+                <input 
+                  type="number" 
+                  className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-bold"
+                  value={editingProduct.price}
+                  onChange={(e) => setEditingProduct({...editingProduct, price: e.target.value})}
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Quantity</label>
+                <input 
+                  type="number" 
+                  className="w-full border border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-bold"
+                  value={editingProduct.quantity}
+                  onChange={(e) => setEditingProduct({...editingProduct, quantity: e.target.value})}
+                />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button type="button" onClick={() => setEditingProduct(null)} className="flex-1 py-3 text-sm font-bold text-gray-500">Cancel</button>
+                <button type="submit" className="flex-1 py-3 bg-blue-600 text-white text-sm font-bold rounded-xl">Save</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

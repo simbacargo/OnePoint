@@ -11,7 +11,8 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Settings() {
-  const { isAuthenticated, user } = useAuth();
+  // Destructured 'logout' from useAuth
+  const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,6 +22,13 @@ export default function Settings() {
   }, [isAuthenticated, navigate]);
 
   const [loading, setLoading] = useState(false);
+
+  const handleLogout = async () => {
+    if (window.confirm("Are you sure you want to log out?")) {
+      await logout();
+      navigate("/login");
+    }
+  };
 
   const inputClass = "w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all bg-white text-gray-800 text-sm";
   const labelClass = "block text-xs font-bold text-gray-500 uppercase mb-1.5 tracking-wider";
@@ -34,7 +42,7 @@ export default function Settings() {
 
       <div className="space-y-6">
         
-        {/* NEW: Subscription Section */}
+        {/* Subscription Section */}
         <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden border-l-4 border-l-blue-600">
           <div className="p-6 border-b border-gray-100 bg-blue-50/30">
             <div className="flex justify-between items-center">
@@ -75,8 +83,6 @@ export default function Settings() {
                 </button>
               </div>
             </div>
-
-            {/* Plan Progress/Usage (Optional addition) */}
             <div className="mt-6 pt-6 border-t border-gray-100">
               <div className="flex justify-between text-[10px] font-bold uppercase text-gray-400 mb-2">
                 <span>Inventory Limit</span>
@@ -180,19 +186,30 @@ export default function Settings() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end gap-3 pt-4">
-          <button className="px-6 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:bg-gray-100 transition-colors">
-            Discard Changes
-          </button>
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4">
+          {/* Logout Button */}
           <button 
-            onClick={() => {setLoading(true); setTimeout(() => setLoading(false), 1500); alert("Something Went Wrong! 😔")}}
-            className="px-8 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-md shadow-blue-100 hover:bg-blue-700 transition-all flex items-center gap-2"
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors"
           >
-            {loading ? (
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-            ) : <i className="bi bi-cloud-check"></i>}
-            Save Settings
+            <i className="bi bi-box-arrow-right text-lg"></i>
+            Logout Account
           </button>
+
+          <div className="flex gap-3 w-full sm:w-auto">
+            <button className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:bg-gray-100 transition-colors">
+              Discard
+            </button>
+            <button 
+              onClick={() => {setLoading(true); setTimeout(() => setLoading(false), 1500); alert("Something Went Wrong! 😔")}}
+              className="flex-1 sm:flex-none px-8 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-md shadow-blue-100 hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              ) : <i className="bi bi-cloud-check"></i>}
+              Save Settings
+            </button>
+          </div>
         </div>
       </div>
     </div>

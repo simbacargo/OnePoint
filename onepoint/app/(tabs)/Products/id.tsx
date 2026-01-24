@@ -6,13 +6,13 @@ import {
     Alert // Added Alert for error display
     , // Added ActivityIndicator for loading state
     Platform,
-    SafeAreaView,
     ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
     View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ProductDetailScreen = () => {
     // You might use the id from useLocalSearchParams() to construct the URL dynamically

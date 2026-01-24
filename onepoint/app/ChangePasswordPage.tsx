@@ -12,26 +12,26 @@ const GoogleAccountPasswordInfoPage = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.card}>
-        <Ionicons name="logo-google" size={72} color="#DB4437" />
+        <Ionicons name="logo-apple" size={72} color="#aaa"/>
 
         <Text style={styles.title}>No Password to Change</Text>
 
         <Text style={styles.description}>
-          You signed up using your Google account. For security reasons,
-          accounts created with Google do not have a separate password in this
+          You signed up using your Apple account. For security reasons,
+          accounts created with Apple do not have a separate password in this
           app.
         </Text>
 
         <View style={styles.infoBox}>
           <Ionicons name="shield-checkmark-outline" size={20} color="#4A90E2" />
           <Text style={styles.infoText}>
-            Your account security is managed directly by Google.
+            Your account security is managed directly by Apple.
           </Text>
         </View>
 
         <Text style={styles.hint}>
           If you want to update your login security, you can change your
-          password directly in your Google account settings.
+          password directly in your Apple account settings.
         </Text>
 
         <TouchableOpacity

@@ -145,6 +145,7 @@ const SalesDashboardScreen = () => {
     const [recentActivities, setRecentActivities] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+	const [totalSales, setTotalSales] = useState(0);
 
     console.log('User Info:', userInfo);
 
@@ -160,6 +161,10 @@ const SalesDashboardScreen = () => {
                 const data = await response.json();
                 
                 const transformedData = data.results.map(transformSaleData);
+				const totalSum = transformedData.reduce((accumulator, currentItem) => {
+					    return accumulator + (currentItem.amount || 0);
+						}, 0);
+						setTotalSales(totalSum);
                 setRecentActivities(transformedData);
 
             } catch (e) {
@@ -250,7 +255,7 @@ const SalesDashboardScreen = () => {
                     <MetricCard 
                         iconName="wallet-outline" 
                         title="Total Revenue" 
-                        value={`$${DUMMY_SALES_DATA.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+                        value={`${totalSales.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
                         color={COLORS.success}
                         // subtitle="2.5% increase from last month"
                     />

@@ -27,7 +27,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const handleRateUs = () => {
   const iosAppStoreUrl =
-    "itms-apps://apps.apple.com/app/idYOUR_APP_ID?action=write-review";
+    "itms-apps://apps.apple.com/us/app/onepoint-cca90e/id6756537215";
   const androidPlayStoreUrl = "market://details?id=com.yourcompany.yourapp";
 
   const url = Platform.OS === "ios" ? iosAppStoreUrl : androidPlayStoreUrl;
@@ -44,8 +44,8 @@ const handleRateUs = () => {
 };
 
 const handleLogout = async () => {
-  await AsyncStorage.multiRemove(["@user", "@accessToken", "@refreshToken"]);
-  router.replace("/(auth)/sign-in");
+  await AsyncStorage.multiRemove(["@user", "@accessToken", "@refreshToken","@authToken"]);
+  router.replace("/sign-in");
 };
 
 const ProfilePage = () => {
@@ -451,6 +451,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 3,
+	display:"none"
   },
   avatar: {
     width: 80,
