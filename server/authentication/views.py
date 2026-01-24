@@ -209,6 +209,7 @@ class LoginView(APIView):
         if serializer.is_valid():
             return Response(serializer.validated_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    permission_classes = [permissions.AllowAny]
 
 # Logout view (to blacklist JWT)
 class LogoutView(APIView):
