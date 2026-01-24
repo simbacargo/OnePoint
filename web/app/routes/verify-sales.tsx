@@ -13,7 +13,7 @@ const SALES_API_URL = "https://msaidizi.nsaro.com/index/sales/list_unverified_sa
 
 export async function clientLoader({}: Route.ClientLoaderArgs) {
   const cacheBuster = new Date().getTime();
-  const res = await fetch(`${SALES_API_URL}`,
+  const res = await fetch(`${SALES_API_URL}&cache_buster=${cacheBuster}`,
     {
       headers: {
         "Cache-Control": "no-cache",
