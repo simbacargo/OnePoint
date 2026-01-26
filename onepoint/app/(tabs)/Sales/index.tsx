@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const SALES_LIST_API_URL = 'https://msaidizi.nsaro.com/api/sales/'; 
+const SALES_LIST_API_URL = 'http://localhost:8080/api/sales/'; 
 
 const SalesListScreen = () => {
     // Initial state is an empty array
