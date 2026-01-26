@@ -266,7 +266,7 @@ REST_FRAMEWORK = {
      ]
 } 
 
-NSTALLED_APPS += ['knox']
+# NSTALLED_APPS += ['knox']
 
 CORS_ALLOW_HEADERS = [
     "accept",
