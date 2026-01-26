@@ -254,7 +254,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 ALLOWED_HOSTS = ['*']
 
 REST_FRAMEWORK = {
-     'sDEFAULT_AUTHENTICATION_CLASSES': [
+     'DEFAULT_AUTHENTICATION_CLASSES': [
          'knox.auth.TokenAuthentication',
          'rest_framework.authentication.SessionAuthentication',
          'rest_framework.authentication.TokenAuthentication',
@@ -262,11 +262,12 @@ REST_FRAMEWORK = {
          'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
      'DEFAULT_PERMISSION_CLASSES': [
+         'rest_framework.permissions.AllowAny',
          'rest_framework.permissions.IsAuthenticated',
      ]
 } 
 
-# NSTALLED_APPS += ['knox']
+INSTALLED_APPS += ['knox']
 
 CORS_ALLOW_HEADERS = [
     "accept",
