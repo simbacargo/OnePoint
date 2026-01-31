@@ -33,8 +33,9 @@ export default function RegisterCustomer() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Add Authorization header here if your API requires it
-          // "Authorization": `Token ${localStorage.getItem('token')}`
+          "Cache-Control": "no-cache",
+          Accept: "application/json",
+          Authorization: `Bearer ${localStorage.getItem("access_token") || ""}`,
         },
         body: JSON.stringify(formData),
       });

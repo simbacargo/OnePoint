@@ -5,7 +5,7 @@ import { QRCodeCanvas } from "qrcode.react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useAuth } from "~/Context/AppContext";
 import { Form } from "react-router";
-
+import { GoogleLogin } from '@react-oauth/google';
 const inputClass = "w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all bg-gray-50 text-gray-800 text-sm";
 const socialBtnClass = "flex items-center justify-center py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-xl";
 
@@ -54,16 +54,16 @@ export async function action({ request }: Route.ActionArgs) {
   console.log('====================================');
 
   let payload = {};
-  let endpoint = "https://msaidizi.nsaro.com/login_api/";
+  let endpoint = "http://127.0.0.1:8080/login_api/";
 
   if (intent === "google") {
-    endpoint = "https://msaidizi.com/google_login_api/";
+    endpoint = "http://127.0.0.1:8080/google_login_api/";
     payload = { token: formData.get("credential") };
   } else if (intent === "facebook") {
-    endpoint = "https://msaidizi.com/facebook_login_api/";
+    endpoint = "http://127.0.0.1:8080/facebook_login_api/";
     payload = { token: formData.get("credential") };
 } else if (intent === "apple") {
-    endpoint = "https://msaidizi.com/apple_login_api/"; // Your Apple endpoint
+    endpoint = "http://127.0.0.1:8080/apple_login_api/"; // Your Apple endpoint
     payload = { 
       token: formData.get("credential"),
       user: formData.get("user") // Apple only sends user info (name/email) on the FIRST login
@@ -78,9 +78,14 @@ try {
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: payload,
+    body: JSON.stringify(payload),
   });
-
+if (!response.ok) {
+      // This will tell you if the server is alive but hates the data
+      const errorText = await response.text();
+      console.error("Server responded with error:", errorText);
+      return { error: `Server Error: ${response.status}` };
+    }
   const data = await response.json();
   console.log(data);
   if (response.ok) {
@@ -173,6 +178,22 @@ function PrettyGoogleButton() {
     </button>
   );
 }
+function PrettyOldGoogleButton() {
+  const submit = useSubmit();
+
+  return (
+    <GoogleLogin
+      onSuccess={(credentialResponse) => {
+        const formData = new FormData();
+        formData.append("intent", "google");
+        // .credential IS the ID Token
+        formData.append("credential", credentialResponse.credential || "");
+        submit(formData, { method: "post" });
+      }}
+      onError={() => console.log('Login Failed')}
+    />
+  );
+}
 export default function Login() {
   const actionData = useActionData<typeof action>();
   const { login, isAuthenticated } = useAuth(); // Context hook works here!
@@ -189,6 +210,7 @@ useEffect(() => {
     // 2. Persistent Storage (CRITICAL: Must be stringified)
     localStorage.setItem("msaidizi_user", JSON.stringify(userToSave));
     localStorage.setItem("access_token", actionData.accessToken);
+    localStorage.setItem("refreshToken", actionData.refreshToken);
     login(userToSave); 
     
     // navigate("/"); 
@@ -244,7 +266,7 @@ useEffect(() => {
       (window as any).AppleID.auth.init({
         clientId: 'com.msaidizi.client', 
         scope: 'name email',
-        redirectURI: 'https://msaidizi.com/login',
+        redirectURI: 'http://127.0.0.1:8080/login',
         usePopup: true,
       });
       console.log("Apple SDK Initialized");
@@ -263,7 +285,7 @@ useEffect(() => {
     setQrSessionId(Math.random().toString(36).substring(2, 15));
   }, []);
 
-  const qrValue = `https://msaidizi.com/qr_login/?session=${qrSessionId}`;
+  const qrValue = `http://127.0.0.1:8080/qr_login/?session=${qrSessionId}`;
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">

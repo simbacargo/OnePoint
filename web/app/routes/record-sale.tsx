@@ -3,16 +3,55 @@ import type { Route } from "./+types/record-sale";
 import { useAuth } from "~/Context/AppContext";
 import { useNavigate } from "react-router";
 
-//const PRODUCTS_API_URL = "https://api.juma.com/products/";
-//const CREATE_SALE_URL = "https://api.juma.com/sales/create/";
+const PRODUCTS_API_URL = "http://127.0.0.1:8080/api/products/";
+const CREATE_SALE_URL = "http://127.0.0.1:8080/sales/";
 
-const PRODUCTS_API_URL = "https://msaidizi.nsaro.com/api/products/";
-const CREATE_SALE_URL = "https://msaidizi.nsaro.com/sales/";
+export async function refreshAccessToken() {
+  const refreshToken = localStorage.getItem("refresh_token");
+  if (!refreshToken) throw new Error("No refresh token available");
+
+  const response = await fetch("http://127.0.0.1:8080/api/token/refresh/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh: refreshToken }),
+  });
+
+  if (!response.ok) throw new Error("Refresh failed");
+
+  const data = await response.json();
+  localStorage.setItem("access_token", data.access);
+  return data.access;
+}
+
 export async function clientLoader({}: Route.ClientLoaderArgs) {
-  const res = await fetch(PRODUCTS_API_URL);
-  if (!res.ok) throw new Error("Failed to fetch products");
-  const data = await res.json();
-  return data.results || [];
+  try {
+    const token = localStorage.getItem("access_token");
+    
+    // If no token exists, don't even try to fetch; return empty to avoid the crash
+    if (!token) return [];
+
+    const res = await fetch(PRODUCTS_API_URL, {
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache",
+        Accept: "application/json",
+        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+      },
+    });
+
+    if (!res.ok) {
+      // If the token is expired (401), you might want to handle refresh here later,
+      // but for now, let's just return empty to prevent the "Oops!" screen.
+      console.warn("Product fetch failed with status:", res.status);
+      return [];
+    }
+
+    const data = await res.json();
+    return data.results || data || []; // Handle cases where data might not be in .results
+  } catch (error) {
+    console.error("Network error in clientLoader:", error);
+    return []; // Return empty array so the component still renders
+  }
 }
 
 export default function RecordSale({ loaderData }: Route.ComponentProps) {
@@ -36,8 +75,8 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
   const [customerName, setCustomerName] = useState("");
 
   const filteredResults = useMemo(() => {
-    if (searchTerm.length < 2) return [];
-    const term = searchTerm.toLowerCase();
+    if (searchTerm.length < 1) return [];
+    const term = searchTerm.trim().toLowerCase();
     return allProducts.filter(
       (p: any) =>
         p.name.toLowerCase().includes(term) ||
@@ -97,13 +136,16 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
     try {
       const response = await fetch(CREATE_SALE_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json", 
-          // "Authorization": `Bearer ${accessToken}` 
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache",
+          Accept: "application/json",
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
         body: JSON.stringify(saleObject),
       });
 
-      const data = await response.json(); // ✅ READ SERVER RESPONSE
+      const data = await response.json(); 
 
       if (!response.ok) {
         throw new Error(data?.message || "Server failed to record sale");
@@ -156,7 +198,7 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search name or part number..."
-                className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all  text-gray-800 text-xl font-bold"
               />
             </div>
 

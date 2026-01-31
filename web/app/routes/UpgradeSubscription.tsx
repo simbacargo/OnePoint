@@ -25,20 +25,22 @@ export default function UpgradeSubscription() {
       icon: "bi-shield-check",
       color: "blue",
       features: [
-        "Up to 500 Products",
-        "Daily Email Summaries",
+        "Up to 200 Products",
         "1 Admin Account",
+        "2 Admin Account",
         "Basic Reports",
       ],
     },
     {
       id: "premium",
       name: "Premium Plan",
-      price: 17000,
+      price: 19000,
       icon: "bi-gem",
       color: "purple",
       features: [
         "Unlimited Products",
+        "Daily Email Summaries",
+        "5 Admin Account",
         "Advanced Analytics",
         "Multiple Staff Accounts",
         "Priority Support",
@@ -74,7 +76,7 @@ export default function UpgradeSubscription() {
 
     const response = await fetch(API_URL, {
       method: "POST",
-      body: formData, // 🚫 NO Content-Type header
+      body: formData, 
     });
 
     const data = await response.json();
@@ -263,7 +265,7 @@ export default function UpgradeSubscription() {
                   <p className="text-sm text-gray-700 font-medium">
                     Send amount to: <br />
                     <span className="text-xl font-black text-gray-900 tracking-wider">
-                      0754 728 137
+                      0749 418 888
                     </span>
                   </p>
                 </div>

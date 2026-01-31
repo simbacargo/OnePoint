@@ -39,7 +39,14 @@ export default function Customers() {
     const fetchCustomers = async () => {
       try {
         setLoading(true);
-        const response = await fetch("https://msaidizi.nsaro.com/api/customers/");
+        const response = await fetch("http://127.0.0.1:8080/api/customers/",{
+          headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache",
+          Accept: "application/json",
+          Authorization: `Bearer ${localStorage.getItem("access_token") || ""}`,
+        }
+        });
         
         if (!response.ok) {
           throw new Error(`Error: ${response.status} - Failed to fetch customers`);
@@ -47,7 +54,7 @@ export default function Customers() {
 
         const data = await response.json();
         // Since your API returns a paginated object, we access .results
-        setCustomers(data.results || []);
+        setCustomers(data || []);
         setError(null);
       } catch (err: any) {
         setError(err.message || "Something went wrong while fetching data.");
@@ -79,7 +86,7 @@ export default function Customers() {
             <input
               type="text"
               placeholder="Search customers..."
-              className="pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none w-full md:w-80 bg-white shadow-sm"
+              className="pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none w-full md:w-80 bg-white shadow-sm  text-gray-800 text-xl font-bold"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
             />

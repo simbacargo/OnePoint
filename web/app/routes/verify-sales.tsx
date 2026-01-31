@@ -9,16 +9,18 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const SALES_API_URL = "https://msaidizi.nsaro.com/index/sales/list_unverified_sales_api/?format=json";
+const SALES_API_URL = "http://127.0.0.1:8080/sales/list_unverified_sales_api/?format=json";
 
 export async function clientLoader({}: Route.ClientLoaderArgs) {
   const cacheBuster = new Date().getTime();
   const res = await fetch(`${SALES_API_URL}&cache_buster=${cacheBuster}`,
     {
       headers: {
-        "Cache-Control": "no-cache",
-        "authorization": `Token ${localStorage.getItem("access_token") || ""}`,
-      },
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache",
+          Accept: "application/json",
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
       method: "GET",
       mode: "cors",
     }
@@ -45,7 +47,7 @@ export default function VerifySales({ loaderData }: Route.ComponentProps) {
   const handleVerify = async (saleId: number) => {
     setIsProcessing(saleId); // Show loading state on the button
     try {
-      const res = await fetch(`https://msaidizi.nsaro.com/index/sales/${saleId}/verify_sale/`, {
+      const res = await fetch(`http://127.0.0.1:8080/index/sales/${saleId}/verify_sale/`, {
         method: "POST",
       });
 
@@ -85,7 +87,7 @@ export default function VerifySales({ loaderData }: Route.ComponentProps) {
             <input
               type="text"
               placeholder="Search sales..."
-              className="pl-12 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-amber-100 outline-none w-full md:w-80 bg-white transition-all shadow-sm"
+              className="pl-12 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-amber-100 outline-none w-full md:w-80 bg-white transition-all shadow-sm  text-gray-800 text-xl font-bold"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
             />
