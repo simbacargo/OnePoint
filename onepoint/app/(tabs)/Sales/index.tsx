@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const SALES_LIST_API_URL = 'http://localhost:8080/api/sales/'; 
+const SALES_LIST_API_URL = 'https://msaidizi.nsaro.com/api/sales/'; // 'http://localhost:8080/api/sales/'; 
 
 const SalesListScreen = () => {
     // Initial state is an empty array
@@ -42,10 +42,9 @@ const SalesListScreen = () => {
         try {
             const response = await fetch(SALES_LIST_API_URL);
             const json = await response.json();
-            
             // Your API returns data in a "results" array
-            if (json && json.results) {
-                setSales(json.results);
+            if (json && json) {
+                setSales(json);
             } else {
                 setSales([]);
             }

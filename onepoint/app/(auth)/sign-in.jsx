@@ -196,13 +196,13 @@ export default function CombinedAuthComponent() {
           <Text style={styles.socialText}>Continue with Google</Text>
         </TouchableOpacity>
 
-        {Platform.OS === 'ios' && (
+        {Platform.OS == 'ios' && (
           <TouchableOpacity 
             style={[styles.socialButton, styles.appleButton]} 
             onPress={handleAppleLogin}
             disabled={signingIn}
           >
-            <AntDesign name="apple1" size={20} color="white" />
+            <AntDesign name="apple" size={20} color="white" />
             <Text style={[styles.socialText, { color: 'white' }]}>Continue with Apple</Text>
           </TouchableOpacity>
         )}

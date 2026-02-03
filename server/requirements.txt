@@ -36,3 +36,6 @@ django-rest-framework==0.1.0
 djangorestframework==3.16.0
 djangorestframework_simplejwt==5.5.0
 psycopg2-binary==2.9.11
+google-auth
+msgpack
+lz4

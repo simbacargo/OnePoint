@@ -160,7 +160,10 @@ const SalesDashboardScreen = () => {
                 }
                 const data = await response.json();
                 
-                const transformedData = data.results.map(transformSaleData);
+                const transformedData = data.map(transformSaleData);
+                console.log('====================================');
+                console.log("transformedData: ",data);
+                console.log('====================================');
 				const totalSum = transformedData.reduce((accumulator, currentItem) => {
 					    return accumulator + (currentItem.amount || 0);
 						}, 0);

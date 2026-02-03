@@ -6,23 +6,23 @@ from authentication import views as bootcamp_auth_views
 from django.contrib.auth.views import LogoutView, LoginView
 router = routers.DefaultRouter()
 #router.register(r'users', views.UserViewSet)
-router.register(r'products', views.ProductViewSet) # 'products' will be the base URL for the API
+router.register(r'products', views.ProductViewSet) 
 router.register(r'customers', views.CustomerViewSet)
-router.register(r'sales', views.SaleViewSet) # router.register(r'api', views.UserViewSet)
-#router.register(r'groups', views.GroupViewSet)
-
+router.register(r'sales', views.SaleViewSet) 
+from home.views import redis_status_view
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
      path('api/', include(router.urls)),
-#     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
-
+     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    # path('ws/', include('home.routing')),
     ]
 
 urlpatterns += [
     # path('signup/', views.signup, name='signup'),
     # path('login/', views. login, name='login'),
     # path('logout/', views.logout, name='logout'),
+    path('admin/redis-status/', redis_status_view, name='redis_status'),
     path('admin/', admin.site.urls),
 
     path('', views.index, name='index'),
@@ -68,6 +68,7 @@ urlpatterns += [
     path('index/sales/list_verified_sales/', views.list_verified_sales, name='list_verified_sales'),
     path('index/sales/list_unverified_sales_api/', views.list_unverified_sales, name='list_unverified_sales_api'),
     path("index/dashboard/", views.dashboard, name="dashboard"),
+    path("index/dashboard_api/", views.dashboard_api, name="dashboard_api"),
     path('index/sales/<int:pk>/verify_sale/', views.verify_sale, name='verify_sale'),
 ]
 
@@ -126,3 +127,11 @@ rlpatterns = [
 
 from home.urls import url_patterns as home_urlpatterns
 urlpatterns += home_urlpatterns 
+from django.urls import path
+from authentication.views import GoogleLoginView
+from home.views import redis_status_view
+urlpatterns += [
+    # Match the endpoint you used in your React action
+    path('google_login_api/', GoogleLoginView.as_view(), name='google_login'),
+    path('redis-status/', redis_status_view, name='redis_status'),
+]

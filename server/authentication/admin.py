@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin 
 from .models import *
 
-
+admin.site.register(Subscription)
 
 class MyUserAdmin(UserAdmin):
 	list_display =	('id','username','email')

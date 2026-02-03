@@ -16,6 +16,7 @@ ALLOWED_SIGNUP_DOMAINS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -68,8 +69,15 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'server.wsgi.application'
-
-
+ASGI_APPLICATION = "server.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
@@ -77,6 +85,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db3.sqlite3',
+        "TEST": {
+            "NAME": BASE_DIR / "dbtest.sqlite3",
+        },
     }
 }
 DATABASES = {
@@ -86,7 +97,8 @@ DATABASES = {
         'USER': 'testuser',       
         'PASSWORD': 'supersecret',
         'HOST': '127.0.0.1',      
-        'PORT': '5432',           
+        'PORT': '5432',       
+            
     }
 }
 
@@ -140,7 +152,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',  # JWT Authentication
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 1000,
+    'PAGE_SIZE': 10000,
 
     }
 CORS_ALLOW_ALL_ORIGINS = True
@@ -156,6 +168,46 @@ APPEND_SLASH=False
 
 # settings.py
 
+# add these below your CACHES setting
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'TIMEOUT': 0,  # 15 minutes default
+        'KEY_PREFIX': 'msaidizi',
+        'VERSION': 1,
+        'OPTIONS': {
+            # --- CLIENT & POOLING ---
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'CONNECTION_POOL_KWARGS': {
+                'max_connections': 100,
+                'retry_on_timeout': True,
+            },
+            
+            # --- SERIALIZATION ---
+            # Options: Pickle (Default), JSON, MsgPack (Fastest)
+            # 'SERIALIZER': 'django_redis.serializers.msgpack.MsgPackSerializer',
+            
+            # --- COMPRESSION ---
+            # Reduces memory footprint; requires pip install lz4
+            'COMPRESSOR': 'django_redis.compressors.lz4.Lz4Compressor',
+            
+            # --- NETWORKING & TIMEOUTS ---
+            'SOCKET_CONNECT_TIMEOUT': 5,  # Seconds to establish connection
+            'SOCKET_TIMEOUT': 5,          # Seconds for read/write operations
+            
+            # --- PRODUCTION RESILIENCE ---
+            # If True, Django ignores Redis errors and hits the DB instead (safe for cache)
+            'IGNORE_EXCEPTIONS': True,
+            'LOG_IGNORED_EXCEPTIONS': True,
+        }
+    }
+}
+
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
@@ -164,12 +216,6 @@ CACHES = {
     }
 }
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'TIMEOUT': 60 * 15,  # Cache timeout in seconds (15 minutes in this case)
-    }
-}
 import os
 STATIC_URL = '/assets/'
 STATIC_ROOT = os.path.join(BASE_DIR, "asset")
@@ -255,15 +301,15 @@ ALLOWED_HOSTS = ['*']
 
 REST_FRAMEWORK = {
      'DEFAULT_AUTHENTICATION_CLASSES': [
-         'knox.auth.TokenAuthentication',
-         'rest_framework.authentication.SessionAuthentication',
-         'rest_framework.authentication.TokenAuthentication',
-         'rest_framework.authentication.BasicAuthentication',
+#         'knox.auth.TokenAuthentication',
+#         'rest_framework.authentication.SessionAuthentication',
+#         'rest_framework.authentication.TokenAuthentication',
+#         'rest_framework.authentication.BasicAuthentication',
          'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
      'DEFAULT_PERMISSION_CLASSES': [
          'rest_framework.permissions.AllowAny',
-        #  'rest_framework.permissions.IsAuthenticated',
+         'rest_framework.permissions.IsAuthenticated',
      ]
 } 
 
@@ -281,3 +327,52 @@ CORS_ALLOW_HEADERS = [
     "x-requested-with",
     "cache-control", # Often missing!
 ]
+
+from datetime import timedelta
+...
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=50),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=50),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "UPDATE_LAST_LOGIN": False,
+
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "VERIFYING_KEY": "",
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "JSON_ENCODER": None,
+    "JWK_URL": None,
+    "LEEWAY": 0,
+
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
+    "ON_LOGIN_SUCCESS": "rest_framework_simplejwt.serializers.default_on_login_success",
+    "ON_LOGIN_FAILED": "rest_framework_simplejwt.serializers.default_on_login_failed",
+
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
+
+    "JTI_CLAIM": "jti",
+
+    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+
+    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
+    "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
+    "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
+    "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
+    "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
+    "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
+
+    "CHECK_REVOKE_TOKEN": False,
+    "REVOKE_TOKEN_CLAIM": "hash_password",
+    "CHECK_USER_IS_ACTIVE": True,
+}

@@ -4,8 +4,10 @@ from rest_framework.response import Response
 from home.models import Sale
 from home.serializers import SaleSerializer
 from django.db import models
-
-# SALES APIS
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Sum
+from django.db.models import Count,Avg, Max, Min# SALES APIS
 
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
@@ -94,8 +96,6 @@ def get_product_sales_api(request, product_id):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def get_daily_sales_api(request):
-    from django.utils import timezone
-    from datetime import timedelta
 
     today = timezone.now().date()
     start_of_day = timezone.make_aware(timezone.datetime.combine(today, timezone.datetime.min.time()))
@@ -108,8 +108,6 @@ def get_daily_sales_api(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def get_monthly_sales_api(request):
-    from django.utils import timezone
-    from datetime import timedelta
 
     today = timezone.now().date()
     start_of_month = timezone.make_aware(timezone.datetime.combine(today.replace(day=1), timezone.datetime.min.time()))
@@ -125,8 +123,6 @@ def get_monthly_sales_api(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def get_yearly_sales_api(request):
-    from django.utils import timezone
-    from datetime import timedelta
 
     today = timezone.now().date()
     start_of_year = timezone.make_aware(timezone.datetime.combine(today.replace(month=1, day=1), timezone.datetime.min.time()))
@@ -139,7 +135,6 @@ def get_yearly_sales_api(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def get_sales_by_date_range_api(request, start_date, end_date):
-    from django.utils import timezone
 
     start_date = timezone.make_aware(timezone.datetime.strptime(start_date, '%Y-%m-%d'))
     end_date = timezone.make_aware(timezone.datetime.strptime(end_date, '%Y-%m-%d') + timezone.timedelta(days=1) - timezone.timedelta(seconds=1))
@@ -151,7 +146,6 @@ def get_sales_by_date_range_api(request, start_date, end_date):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def get_top_selling_products_api(request, top_n=5):
-    from django.db.models import Sum
 
     top_products = (Sale.objects.filter(aproved=True)
                     .values('product__id', 'product__name')
@@ -163,7 +157,6 @@ def get_top_selling_products_api(request, top_n=5):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def get_sales_statistics_api(request):
-    from django.db.models import Avg, Max, Min
 
     stats = Sale.objects.filter(aproved=True).aggregate(
         average_sale_amount=Avg('total_amount'),
@@ -206,7 +199,6 @@ def get_total_products_sold_api(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def get_average_sale_value_api(request):
-    from django.db.models import Avg
 
     average_sale_value = Sale.objects.filter(aproved=True).aggregate(average=models.Avg('total_amount'))['average'] or 0
     return Response({'average_sale_value': average_sale_value})
@@ -214,7 +206,6 @@ def get_average_sale_value_api(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def get_highest_sale_api(request):
-    from django.db.models import Max
 
     highest_sale = Sale.objects.filter(aproved=True).aggregate(highest=models.Max('total_amount'))['highest'] or 0
     return Response({'highest_sale': highest_sale})
@@ -222,7 +213,6 @@ def get_highest_sale_api(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def get_lowest_sale_api(request):
-    from django.db.models import Min
 
     lowest_sale = Sale.objects.filter(aproved=True).aggregate(lowest=models.Min('total_amount'))['lowest'] or 0
     return Response({'lowest_sale': lowest_sale})
@@ -230,10 +220,6 @@ def get_lowest_sale_api(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def get_sales_trends_api(request):
-    from django.db.models import Count
-    from django.utils import timezone
-    from datetime import timedelta
-
     today = timezone.now().date()
     start_date = today - timedelta(days=30)
 
@@ -248,7 +234,6 @@ def get_sales_trends_api(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def get_product_sales_summary_api(request, product_id):
-    from django.db.models import Sum
 
     total_sold = Sale.objects.filter(product__id=product_id, aproved=True).aggregate(total=models.Sum('quantity_sold'))['total'] or 0
     total_revenue = Sale.objects.filter(product__id=product_id, aproved=True).aggregate(total=models.Sum('total_amount'))['total'] or 0
@@ -283,7 +268,6 @@ def get_total_sales_amount_api(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def get_average_units_sold_per_sale_api(request):
-    from django.db.models import Avg
 
     average_units_sold = Sale.objects.filter(aproved=True).aggregate(average=models.Avg('quantity_sold'))['average'] or 0
     return Response({'average_units_sold_per_sale': average_units_sold})    
@@ -291,7 +275,6 @@ def get_average_units_sold_per_sale_api(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def get_sales_growth_rate_api(request, start_date, end_date):
-    from django.utils import timezone
 
     start_date = timezone.make_aware(timezone.datetime.strptime(start_date, '%Y-%m-%d'))
     end_date = timezone.make_aware(timezone.datetime.strptime(end_date, '%Y-%m-%d') + timezone.timedelta(days=1) - timezone.timedelta(seconds=1))
@@ -310,8 +293,6 @@ def get_sales_growth_rate_api(request, start_date, end_date):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def get_average_order_value_api(request):
-    from django.db.models import Avg
-
     average_order_value = Sale.objects.filter(aproved=True).aggregate(average=models.Avg('total_amount'))['average'] or 0
     return Response({'average_order_value': average_order_value})
 

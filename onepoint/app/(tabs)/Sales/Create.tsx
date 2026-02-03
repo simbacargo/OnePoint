@@ -44,7 +44,7 @@ const BetterProductSaleScreen = () => {
         try {
             const response = await fetch(PRODUCTS_API_URL);
             const data = await response.json();
-            setProducts(data.results || []);
+            setProducts(data || []);
         } catch (e) {
             Alert.alert("Sync Error", "Could not refresh product list.");
         }

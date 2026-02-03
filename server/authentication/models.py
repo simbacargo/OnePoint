@@ -98,17 +98,12 @@ class User(AbstractBaseUser,PermissionsMixin):
     current_ip = models.CharField(default='', max_length=100, null=True)
     last_known_device = models.CharField(default='', max_length=100, null=True)
     facebook_account = models.URLField(_("Facebook profile"), max_length=255, blank=True, null=True)
-    twitter_account = models.URLField(_("Twitter account"), max_length=255, blank=True, null=True)
-    github_account = models.URLField(_("GitHub profile"), max_length=255, blank=True, null=True)
-    linkedin_account = models.URLField(_("LinkedIn profile"), max_length=255, blank=True, null=True)
-    # user_permissions = models.ManyToManyField(Permission, related_name='user_permissions', blank=True)
     USERNAME_FIELD = 'username'
     objects = UserAccountManager()
 
     REQUIRED_FIELDS = []
     def get_absolute_url(self):
         return "/authenticaton/{slug}/".format(slug=self.id)
-        # return reverse("products:detail", kwargs={"slug": self.slug})
 
     class Meta:
         verbose_name = _('user')
@@ -118,14 +113,6 @@ class User(AbstractBaseUser,PermissionsMixin):
         return self.username
     def __str__(self):
         return str(self.username)
-    # @property
-    # def is_staff(self):
-    #     return self.is_staff
-
-
-    # @property
-    # def is_admin(self):
-    #     return self.is_admin
 
     def get_full_name(self):
         """
@@ -136,31 +123,11 @@ class User(AbstractBaseUser,PermissionsMixin):
 
 
     def get_username(self):
-        """
-        Returns the given_name plus the family_name, with a space in between.
-        """
-        # username = '%s %s' % (self.given_name, self.family_name)
         return self.username
 
-    def get_short_name(self):
-        "Returns the short name for the user."
-        return str(self.username)
+    def email_user(self, subject, message, from_email=None, **kwargs):
+        send_mail(subject, message, from_email, [self.email], **kwargs)
 
-    # def email_user(self, subject, message, from_email=None, **kwargs):
-    #     """
-    #     Sends an email to this User.
-    #     """
-    #     send_mail(subject, message, from_email, [self.email], **kwargs)
-
-    # def has_module_perms(self, app_label):
-    #     """
-    #     Returns True if the user has any permissions in the given app label.
-    #     Uses pretty much the same logic as has_perm, above.
-    #     """
-    #     # Active superusers have all permissions.
-    #     if self.is_active and self.is_superuser:
-    #         return True
-    #     return _user_has_module_perms(self, app_label)
     def has_perm(self, perm, obj=None):
         """
         Returns True if the user has the specified permission. This method
@@ -190,25 +157,47 @@ class User(AbstractBaseUser,PermissionsMixin):
         return _user_has_perm(self, perm, obj)
     
 
-    # def get_profile_picture(self, perm, obj=None):
-    #     return str(self.profile_picture)[srt(self.profile_picture).index(f'profile_picture/{self.pk}/'): ]
+    def get_profile_picture(self, perm, obj=None):
+        return str(self.profile_picture)[srt(self.profile_picture).index(f'profile_picture/{self.pk}/'): ]
 
 
+from django.utils import timezone
+from datetime import timedelta
+
+class Subscription(models.Model):
+    SUBSCRIPTION_TIERS = (
+        ('B', 'Basic'),
+        ('P', 'Pro'),
+        ('U', 'Premium'),
+    )
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='subscription')
+    tier = models.CharField(max_length=1, choices=SUBSCRIPTION_TIERS, default='B')
+    active = models.BooleanField(default=True)
+    start_date = models.DateTimeField(auto_now_add=True)
+    expiry_date = models.DateTimeField()
+    notified_expiry = models.BooleanField(default=False) # To prevent duplicate alerts
+
+    def save(self, *args, **kwargs):
+        # Automatically set expiry to 30 days if not set
+        if not self.expiry_date:
+            self.expiry_date = timezone.now() + timedelta(days=30)
+        super().save(*args, **kwargs)
+
+    @property
+    def days_left(self):
+        remainder = self.expiry_date - timezone.now()
+        return remainder.days
+
+    def __str__(self):
+        return f"{self.user.username} - {self.get_tier_display()}"
 
 
-# from allauth.socialaccount.signals import social_account_added
-# from django.dispatch import receiver
+def create_user_subscription(sender, instance, created, **kwargs):
+    if created:
+        Subscription.objects.create(user=instance)
 
-# @receiver(social_account_added)
-# def google_logged_in(sender, request, user, sociallogin, **kwargs):
-#     # Handle the additional user fields here
-#     extra_data = sociallogin.account.extra_data
-#     user.firstname = extra_data.get('given_name', '')
-#     user.lastname = extra_data.get('family_name', '')
-#     user.email = extra_data.get('email', '')
-#     user.save()
-
-
+post_save.connect(create_user_subscription, sender=User)
 
 # class Profile(models.Model):
 #     user = models.OneToOneField(User,on_delete=models.CASCADE,related_name='profile')

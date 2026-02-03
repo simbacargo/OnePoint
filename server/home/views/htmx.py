@@ -454,7 +454,20 @@ def dashboard(request):
 
 
 
+def dashboard_api(request):
+    total_products = Product.objects.count()
+    total_sales = Sale.objects.aggregate(total=Sum("total_amount"))["total"] or 0
+    total_units_sold = Sale.objects.aggregate(total=Sum("quantity_sold"))["total"] or 0
+    total_inventory_value = Product.objects.aggregate(total=Sum("quantity"))["total"] or 0
 
+    data = {
+        "total_products": total_products,
+        "total_sales": total_sales,
+        "total_units_sold": total_units_sold,
+        "total_inventory_value": total_inventory_value,
+    }
+
+    return JsonResponse(data)
 
 def get_product_price(request, product_id):
     try:

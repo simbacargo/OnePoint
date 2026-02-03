@@ -40,8 +40,6 @@ export async function clientLoader({}: Route.ClientLoaderArgs) {
     });
 
     if (!res.ok) {
-      // If the token is expired (401), you might want to handle refresh here later,
-      // but for now, let's just return empty to prevent the "Oops!" screen.
       console.warn("Product fetch failed with status:", res.status);
       return [];
     }
@@ -183,7 +181,7 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
               placeholder="Enter customer name..."
-              className="w-full px-4 py-2 border-b border-gray-200 outline-none focus:border-blue-500 transition-all text-sm"
+              className="w-full px-4 py-2 border-b border-gray-200 outline-none focus:border-blue-500 transition-all text-sm  text-gray-800 text-ls font-bold"
             />
           </div>
 
@@ -198,7 +196,7 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search name or part number..."
-                className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all  text-gray-800 text-xl font-bold"
+                className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all  text-gray-800 text-ls font-bold"
               />
             </div>
 
@@ -263,14 +261,14 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
                       <div className="flex items-center justify-center gap-3">
                         <button
                           onClick={() => updateQty(item.id, -1)}
-                          className="w-7 h-7 rounded-full border border-gray-200 hover:bg-gray-100"
+                          className="w-7 h-7 rounded-full border border-gray-200 hover:bg-gray-100 text-gray-800 text-ls font-bold"
                         >
                           <i className="bi bi-dash"></i>
                         </button>
-                        <span className="font-bold text-sm">{item.qty}</span>
+                        <span className="font-bold text-sm text-gray-800 text-ls font-bold">{item.qty}</span>
                         <button
                           onClick={() => updateQty(item.id, 1)}
-                          className="w-7 h-7 rounded-full border border-gray-200 hover:bg-gray-100"
+                          className="w-7 h-7 rounded-full border border-gray-200 hover:bg-gray-100 text-gray-800 text-ls font-bold"
                         >
                           <i className="bi bi-plus"></i>
                         </button>

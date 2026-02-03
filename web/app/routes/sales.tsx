@@ -58,7 +58,7 @@ async function authenticatedFetch(url: string, options: RequestInit = {}) {
 // This runs on the client before the component renders
 export async function clientLoader({}: Route.ClientLoaderArgs) {
   // Check Cache first
-  const cached = localStorage.getItem("SALES_CACHE_KEY");
+  const cached = localStorage.getItem("SALES_CACHE-KEY");
   if (cached) {
     const { data, timestamp } = JSON.parse(cached);
     if (Date.now() - timestamp < CACHE_EXPIRY) return data;

@@ -1,32 +1,29 @@
 # views.py
-from django.contrib.auth.models import User
-from rest_framework import status
-from rest_framework.decorators import api_view
+from authentication.models import User
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
-
-from django.contrib.auth.models import Group, User
 from rest_framework import permissions, viewsets
-
-from ...serializers import TransactionSerializer, UserSerializer,SaleSerializer, Sale,CustomerSerializer
-
-from django.contrib.auth.models import User
+from ...serializers import TransactionSerializer, UserSerializer,SaleSerializer, Sale,CustomerSerializer, ProductSerializer
 from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from rest_framework.authtoken.views import obtain_auth_token
-from authentication.models import User
-
-
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.exceptions import NotFound
 from rest_framework.views import APIView
-from rest_framework.response import Response
-from ...models import Product
-from ...serializers import ProductSerializer
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
+from rest_framework.decorators import action
+from ...models import Customer, Product
+from django.core.cache import cache
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
+from rest_framework import viewsets
+from django.shortcuts import render
+from django.db.models import Sum, F, Q
+from django.conf import settings
 
 @api_view(['POST'])
 def signup(request):
@@ -67,11 +64,9 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [IsAuthenticated]
 
 # views.py (add to the same file)
-from rest_framework.authtoken.models import Token
-from django.contrib.auth import authenticate
 
 @api_view(['POST'])
 def login(request):
@@ -87,24 +82,19 @@ def login(request):
             })
         return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
-from django.views.decorators.cache import cache_page
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework import viewsets
-from ...models import Customer, Product
-from django.core.cache import cache
-
 class ProductViewSet(viewsets.ModelViewSet):
     """
     A ViewSet for viewing and editing Product instances.
     Provides 'list', 'create', 'retrieve', 'update', 'partial_update', and 'destroy' actions.
     """
+    permission_classes = [AllowAny]
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
     def get_queryset(self):
         return super().get_queryset()
 
+    @method_decorator(cache_page(0))
     def list(self, request, *args, **kwargs):
         cache_key = 'product_list'
         cached_data = cache.get(cache_key)
@@ -114,12 +104,14 @@ class ProductViewSet(viewsets.ModelViewSet):
             return Response(cached_data)
         
         response = super().list(request, *args, **kwargs)
-        cache.set(cache_key, response.data, timeout=60 * 15)
+        # cache.set(cache_key, response.data, timeout=60 * 15)
         return response
 
-    @cache_page(60 * 15) 
+    # @cache_page(60 * 15) 
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
+    
+    
 
 
 
@@ -131,27 +123,32 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 
 class ProductListView(APIView):
-    @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
     def get(self, request, *args, **kwargs):
         products = Product.objects.all()
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
-
+from django.shortcuts import get_object_or_404
+from rest_framework import status
 class ProductDetailView(APIView):
-    @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
     def get(self, request, pk, *args, **kwargs):
         product = Product.objects.get(pk=pk)
         serializer = ProductSerializer(product)
         return Response(serializer.data)
 
+    def put(self, request, pk, *args, **kwargs):
+        product = get_object_or_404(Product, pk=pk)
+        # partial=True allows you to update just a few fields if you prefer
+        serializer = ProductSerializer(product, data=request.data)
+        
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
 
-from django.shortcuts import render
-from django.db.models import Sum, F, Q
-from django.core.cache import cache
-from django.conf import settings
 
 # Define a cache timeout (e.g., 5 minutes)
 SALES_CACHE_TIMEOUT = getattr(settings, 'SALES_CACHE_TIMEOUT', 300)
@@ -159,9 +156,6 @@ SALES_CACHE_TIMEOUT = getattr(settings, 'SALES_CACHE_TIMEOUT', 300)
 ## 1. Sales Summary View
 # Shows key metrics like total revenue and total units sold.
 def sales_summary_view(request):
-    """
-    Displays a high-level summary of all sales activity.
-    """
     cache_key = 'sales_summary'
     context = cache.get(cache_key)
     
@@ -186,7 +180,7 @@ def sales_summary_view(request):
         }
         
         # Cache the result
-        cache.set(cache_key, context, SALES_CACHE_TIMEOUT)
+        # cache.set(cache_key, context, SALES_CACHE_TIMEOUT)
 
     return render(request, 'sales/sales_summary.html', context)
 
@@ -235,16 +229,8 @@ def low_stock_view(request):
     }
     return render(request, 'sales/low_stock.html', context)
 
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from ...serializers import SaleSerializer
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.exceptions import NotFound
-
-
 class SaleListView(APIView):
-    permission_classes = [AllowAny]  # Optional: Only authenticated users can access the API
+    permission_classes = [IsAuthenticated]  # Optional: Only authenticated users can access the API
 
     # GET method - List all sales
     def get(self, request, *args, **kwargs):
@@ -253,9 +239,10 @@ class SaleListView(APIView):
         return Response(serializer.data)
 
     # POST method - Create a new sale
+    # @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
     def post(self, request, *args, **kwargs):
-        #serializer = TransactionSerializer(data=request.data)
-        serializer = SaleSerializer(data=request.data)
+        serializer = TransactionSerializer(data=request.data)
+        # serializer = SaleSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({
@@ -311,8 +298,7 @@ class SaleDetailView(APIView):
         
         sale.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-from rest_framework import viewsets
-
+    
 class SaleViewSet(viewsets.ModelViewSet):
     queryset = Sale.objects.select_related('product').order_by('-date_sold')
     serializer_class = SaleSerializer
