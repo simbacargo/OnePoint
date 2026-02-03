@@ -1,6 +1,6 @@
 import { useNavigate, Form } from "react-router"; // Use Form (capital F)
 
-const server_url = "http://127.0.0.1:8080/api/productdetails/571/";
+const server_url = "https://msaidizi.nsaro.com/api/productdetails/571/";
 
 export async function actioen({ request }) {
     const formData = await request.formData();

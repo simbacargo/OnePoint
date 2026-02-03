@@ -4,7 +4,7 @@ import { useAuth } from "~/Context/AppContext";
 import { useNavigate } from "react-router";
 
 // --- CONFIGURATION ---
-const PRODUCTS_API_URL = "http://127.0.0.1:8080/api/products/";
+const PRODUCTS_API_URL = "https://msaidizi.nsaro.com/api/products/";
 
 // --- DATA LOADING ---
 export async function clientLoader({}: Route.ClientLoaderArgs) {

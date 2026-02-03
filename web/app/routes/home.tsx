@@ -69,7 +69,7 @@ export function headers({}: Route.HeadersArgs) {
   return {};
 }
 
-const apiUrl = "http://127.0.0.1:8080/index/dashboard_api/";
+const apiUrl = "https://msaidizi.nsaro.com/index/dashboard_api/";
 
 export function loader({}: Route.LoaderArgs) {
   return fetch(apiUrl).then((res) => res.json());
