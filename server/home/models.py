@@ -72,6 +72,7 @@ class Sale(models.Model):
 def clear_product_cache(sender, instance, **kwargs):
     cache.delete('product_list')
     print("Product cache cleared.")
+
 @receiver(post_save, sender=Sale)
 @receiver(post_delete, sender=Sale)
 def clear_sales_cache(sender, instance, **kwargs):

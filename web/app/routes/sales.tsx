@@ -1,31 +1,27 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import type { Route } from "./+types/sales";
 import { useAuth } from "~/Context/AppContext";
-import { useNavigate } from "react-router";
+import { useNavigate, useLoaderData } from "react-router";
 
 // --- CONFIGURATION ---
 const BASE_URL = "https://msaidizi.nsaro.com";
 const SALES_API_URL = `${BASE_URL}/api/sales/`;
 const REFRESH_URL = `${BASE_URL}/token/refresh/`;
 const SALES_CACHE_KEY = "msaidizi_sales_cache";
-const CACHE_EXPIRY = 1000 * 60 * 30; // 30 minutes
 
 /**
- * UTILITY: A specialized fetcher that automatically handles 
- * expired tokens and retries the request.
+ * UTILITY: Handles authentication, token refresh, and retries.
  */
 async function authenticatedFetch(url: string, options: RequestInit = {}) {
   const getAccess = () => localStorage.getItem("access_token");
   const getRefresh = () => localStorage.getItem("refreshToken");
 
-  // 1. Prepare headers with current access token
   const headers = new Headers(options.headers);
   headers.set("Content-Type", "application/json");
   headers.set("Authorization", `Bearer ${getAccess() || ""}`);
 
   let response = await fetch(url, { ...options, headers });
 
-  // 2. If token is expired (401/403), try to refresh it
   if (response.status === 401 || response.status === 403) {
     const refresh = getRefresh();
     if (!refresh) throw new Error("No refresh token");
@@ -39,121 +35,120 @@ async function authenticatedFetch(url: string, options: RequestInit = {}) {
     if (refreshRes.ok) {
       const data = await refreshRes.json();
       localStorage.setItem("access_token", data.access);
-
-      // 3. Retry the original request with the NEW token
       headers.set("Authorization", `Bearer ${data.access}`);
       response = await fetch(url, { ...options, headers });
     } else {
-      // Refresh failed (token likely expired or invalid)
-      localStorage.clear(); // Clear all data
+      localStorage.clear();
       window.location.href = "/login";
       throw new Error("Session expired");
     }
   }
-
   return response;
 }
 
-// --- REMIX LOADER ---
-// This runs on the client before the component renders
-export async function clientLoader({}: Route.ClientLoaderArgs) {
-  // Check Cache first
-  const cached = localStorage.getItem("SALES_CACHE-KEY");
+// --- 1. LOADER: Instant data from LocalStorage ---
+export async function clientLoader() {
+  const cached = localStorage.getItem(SALES_CACHE_KEY);
   if (cached) {
-    const { data, timestamp } = JSON.parse(cached);
-    if (Date.now() - timestamp < CACHE_EXPIRY) return data;
+    try {
+      const { data } = JSON.parse(cached);
+      return data;
+    } catch (e) {
+      return [];
+    }
   }
-
-  // Fetch fresh if no cache
-  try {
-    const res = await authenticatedFetch(SALES_API_URL);
-    const data = await res.json();
-    
-    // Normalize data (handle Django's paginated results vs simple list)
-    const finalData = Array.isArray(data) ? data : data.results || [];
-    
-    localStorage.setItem(SALES_CACHE_KEY, JSON.stringify({ 
-      data: finalData, 
-      timestamp: Date.now() 
-    }));
-    return finalData;
-  } catch (error) {
-    return []; // Return empty array on error
-  }
+  return [];
 }
 
-// --- MAIN COMPONENT ---
-export default function Sales({ loaderData }: Route.ComponentProps) {
+export default function Sales() {
+  const loaderData = useLoaderData();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  
-  // Local State
+
+  // --- 2. STATE ---
   const [filter, setFilter] = useState("");
   const [isSyncing, setIsSyncing] = useState(false);
   const [localSales, setLocalSales] = useState<any[]>(
     Array.isArray(loaderData) ? loaderData : []
   );
 
-  // Redirect if not logged in
+  // --- 3. BACKGROUND SYNC LOGIC ---
+  const syncSalesWithServer = useCallback(async () => {
+    setIsSyncing(true);
+    try {
+      const res = await authenticatedFetch(SALES_API_URL);
+      if (res.ok) {
+        const data = await res.json();
+        const freshSales = Array.isArray(data) ? data : data.results || [];
+
+        // Update UI
+        setLocalSales(freshSales);
+
+        // Clear and Register fresh data in Cache
+        localStorage.removeItem(SALES_CACHE_KEY);
+        localStorage.setItem(
+          SALES_CACHE_KEY,
+          JSON.stringify({ data: freshSales, timestamp: Date.now() })
+        );
+      }
+    } catch (err) {
+      console.error("Background sync failed", err);
+    } finally {
+      setIsSyncing(false);
+    }
+  }, []);
+
+  // --- 4. EFFECTS ---
+
+  // Auth Guard
   useEffect(() => {
     if (!isAuthenticated) navigate("/login", { replace: true });
   }, [isAuthenticated, navigate]);
 
-  // Update local state if loaderData changes (e.g., page navigation)
+  // Handle Mount: Load cache + Background Sync
   useEffect(() => {
     if (loaderData) {
-        setLocalSales(Array.isArray(loaderData) ? loaderData : []);
+      setLocalSales(Array.isArray(loaderData) ? loaderData : []);
     }
-  }, [loaderData]);
+    syncSalesWithServer();
+  }, [loaderData, syncSalesWithServer]);
 
-  // --- ACTIONS ---
-
-  const handleSync = async () => {
-    setIsSyncing(true);
-    try {
-      const res = await authenticatedFetch(SALES_API_URL);
-      const data = await res.json();
-      const results = Array.isArray(data) ? data : data.results || [];
-      
-      setLocalSales(results);
-      localStorage.setItem(SALES_CACHE_KEY, JSON.stringify({ 
-        data: results, 
-        timestamp: Date.now() 
-      }));
-    } catch (err) {
-      console.error("Sync failed", err);
-    } finally {
-      setIsSyncing(false);
-    }
-  };
+  // --- 5. ACTIONS ---
 
   const handleVoidSale = async (saleId: number) => {
     if (!window.confirm("Are you sure you want to void this sale?")) return;
-    
+
+    // Optimistic Update: Remove from UI immediately
+    const previousSales = [...localSales];
+    const updated = localSales.filter((s) => s.id !== saleId);
+    setLocalSales(updated);
+
     try {
-      const res = await authenticatedFetch(`${SALES_API_URL}${saleId}/`, { 
-        method: "DELETE" 
+      const res = await authenticatedFetch(`${SALES_API_URL}${saleId}/`, {
+        method: "DELETE",
       });
-      
+
       if (res.ok) {
-        // Remove from UI and update Cache
-        const updated = localSales.filter((s) => s.id !== saleId);
-        setLocalSales(updated);
-        localStorage.setItem(SALES_CACHE_KEY, JSON.stringify({ 
-          data: updated, 
-          timestamp: Date.now() 
-        }));
+        // Update Cache with the new list
+        localStorage.setItem(
+          SALES_CACHE_KEY,
+          JSON.stringify({ data: updated, timestamp: Date.now() })
+        );
+      } else {
+        throw new Error("Void failed");
       }
     } catch (err) {
-      alert("Failed to void sale.");
+      alert("Failed to void sale. Reverting...");
+      setLocalSales(previousSales); // Revert UI if server fails
     }
   };
 
-  // --- DERIVED DATA ---
+  // --- 6. DERIVED DATA ---
   const filteredSales = useMemo(() => {
-    return localSales.filter((sale: any) =>
-      sale.product_name?.toLowerCase().includes(filter.toLowerCase()) ||
-      sale.id?.toString().includes(filter)
+    return localSales.filter(
+      (sale: any) =>
+        sale.product_name?.toLowerCase().includes(filter.toLowerCase()) ||
+        sale.id?.toString().includes(filter)
     );
   }, [filter, localSales]);
 
@@ -163,51 +158,49 @@ export default function Sales({ loaderData }: Route.ComponentProps) {
   }, [filteredSales]);
 
   return (
-    <div className="p-6 max-w-7xl mx-auto animate-in fade-in duration-500">
+    <div className="p-6 max-w-7xl mx-auto animate-in fade-in duration-500 min-h-screen bg-gray-50">
       
       {/* Header & Stats Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <div className="lg:col-span-1">
           <h1 className="text-3xl font-black text-gray-900 tracking-tight">Sales Records</h1>
-          <p className="text-sm text-gray-500 mt-1 font-medium">Tracking all outgoing transactions.</p>
-          <button 
-            onClick={handleSync}
-            disabled={isSyncing}
-            className="mt-4 text-xs font-bold text-blue-600 flex items-center gap-2 hover:underline disabled:opacity-50"
-          >
-            <i className={`bi bi-arrow-clockwise ${isSyncing ? 'animate-spin' : ''}`}></i>
-            {isSyncing ? 'Fetching...' : 'Refresh Records'}
-          </button>
+          <div className="flex items-center gap-2 mt-2">
+            <span className={`h-2 w-2 rounded-full ${isSyncing ? 'bg-blue-500 animate-pulse' : 'bg-green-500'}`}></span>
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+              {isSyncing ? "Syncing Sales..." : "Up to date"}
+            </span>
+          </div>
         </div>
 
-        <div className="bg-gray-900 rounded-[2rem] p-6 text-white shadow-xl flex items-center justify-between">
+        {/* Revenue Card */}
+        <div className="bg-gray-900 rounded-[2rem] p-6 text-white shadow-xl flex items-center justify-between border border-gray-800">
           <div>
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Revenue</p>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Revenue</p>
             <p className="text-2xl font-black">{stats.total.toLocaleString()} <span className="text-xs font-normal opacity-50">TZS</span></p>
           </div>
           <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-xl">
-            <i className="bi bi-cash-stack"></i>
+            <span className="text-2xl">💰</span>
           </div>
         </div>
 
-        <div className="bg-blue-600 rounded-[2rem] p-6 text-white shadow-xl flex items-center justify-between">
+        {/* Transaction Card */}
+        <div className="bg-indigo-600 rounded-[2rem] p-6 text-white shadow-xl flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-black text-blue-200 uppercase tracking-widest">Transaction Count</p>
+            <p className="text-[10px] font-black text-indigo-200 uppercase tracking-widest mb-1">Transaction Count</p>
             <p className="text-2xl font-black">{stats.count} <span className="text-xs font-normal opacity-50">Sales</span></p>
           </div>
           <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-xl">
-            <i className="bi bi-receipt"></i>
+            <span className="text-2xl">📋</span>
           </div>
         </div>
       </div>
 
       {/* Search Bar */}
-      <div className="mb-6 relative group">
-        <i className="bi bi-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors"></i>
+      <div className="mb-6 relative">
         <input
           type="text"
           placeholder="Filter by receipt ID or product name..."
-          className="w-full pl-14 pr-6 py-4 bg-white border border-gray-200 rounded-2xl shadow-sm outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all  text-gray-800 text-xl font-bold"
+          className="w-full pl-6 pr-6 py-4 bg-white border border-gray-200 rounded-2xl shadow-sm outline-none focus:ring-4 focus:ring-indigo-50 focus:border-indigo-500 transition-all text-gray-800 text-xl font-bold"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         />
@@ -228,13 +221,13 @@ export default function Sales({ loaderData }: Route.ComponentProps) {
             </thead>
             <tbody className="divide-y divide-gray-50">
               {filteredSales.map((sale: any) => (
-                <tr key={sale.id} className="hover:bg-blue-50/30 transition-colors">
+                <tr key={sale.id} className="hover:bg-indigo-50/30 transition-colors group">
                   <td className="px-8 py-6">
                     <span className="font-mono text-xs font-bold text-gray-400">#{sale.id}</span>
                   </td>
                   <td className="px-8 py-6">
                     <p className="font-black text-gray-900 text-sm">{sale.product_name}</p>
-                    <p className="text-[10px] text-blue-600 font-bold uppercase tracking-tighter">Completed Sale</p>
+                    <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-tighter">Verified Sale</p>
                   </td>
                   <td className="px-8 py-6">
                     <p className="text-sm font-bold text-gray-700">
@@ -254,15 +247,15 @@ export default function Sales({ loaderData }: Route.ComponentProps) {
                     <div className="flex justify-center gap-2">
                       <button 
                         onClick={() => window.print()} 
-                        className="p-2.5 bg-gray-50 text-gray-400 hover:bg-blue-600 hover:text-white rounded-xl transition-all shadow-sm"
+                        className="p-2.5 bg-gray-50 text-gray-400 hover:bg-indigo-600 hover:text-white rounded-xl transition-all shadow-sm"
                       >
-                        <i className="bi bi-printer"></i>
+                        🖨️
                       </button>
                       <button 
                         onClick={() => handleVoidSale(sale.id)}
                         className="p-2.5 bg-gray-50 text-gray-400 hover:bg-red-500 hover:text-white rounded-xl transition-all shadow-sm"
                       >
-                        <i className="bi bi-trash3"></i>
+                        🗑️
                       </button>
                     </div>
                   </td>

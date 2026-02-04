@@ -1,6 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Route } from "./+types/verify-sales";
-import { useNavigate } from "react-router";
+import { useNavigate, useLoaderData } from "react-router";
+
+// --- CONFIGURATION ---
+const SALES_API_URL = "https://msaidizi.nsaro.com/sales/list_unverified_sales_api/?format=json";
+const VERIFY_CACHE_KEY = "msaidizi_verify_cache";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -9,52 +13,87 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const SALES_API_URL = "https://msaidizi.nsaro.com/sales/list_unverified_sales_api/?format=json";
+// --- 1. LOADER: Instant cache delivery ---
+export async function clientLoader() {
+  const cached = localStorage.getItem(VERIFY_CACHE_KEY);
+  if (cached) {
+    try {
+      return JSON.parse(cached);
+    } catch (e) {
+      return [];
+    }
+  }
+  return [];
+}
 
-export async function clientLoader({}: Route.ClientLoaderArgs) {
-  const cacheBuster = new Date().getTime();
-  const res = await fetch(`${SALES_API_URL}&cache_buster=${cacheBuster}`,
-    {
-      headers: {
+export default function VerifySales() {
+  const loaderData = useLoaderData();
+  const navigate = useNavigate();
+
+  // --- 2. STATE ---
+  const [filter, setFilter] = useState("");
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState<number | null>(null);
+  const [localSales, setLocalSales] = useState<any[]>(
+    Array.isArray(loaderData) ? loaderData : []
+  );
+
+  // --- 3. BACKGROUND SYNC ---
+  const syncQueue = useCallback(async () => {
+    setIsSyncing(true);
+    const cacheBuster = new Date().getTime();
+    try {
+      const res = await fetch(`${SALES_API_URL}&cache_buster=${cacheBuster}`, {
+        headers: {
           "Content-Type": "application/json",
-          "Cache-Control": "no-cache",
-          Accept: "application/json",
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,
         },
-      method: "GET",
-      mode: "cors",
+      });
+
+      if (res.ok) {
+        const freshData = await res.json();
+        const sales = Array.isArray(freshData) ? freshData : freshData.results || [];
+        
+        setLocalSales(sales);
+        // Delete old cache and register new
+        localStorage.removeItem(VERIFY_CACHE_KEY);
+        localStorage.setItem(VERIFY_CACHE_KEY, JSON.stringify(sales));
+      }
+    } catch (err) {
+      console.error("Queue sync failed", err);
+    } finally {
+      setIsSyncing(false);
     }
-  );
-  if (!res.ok) throw new Error("Failed to fetch sales");
-  return await res.json();
-}
+  }, []);
 
-export function shouldRevalidate() {
-  return true;
-}
-
-export default function VerifySales({ loaderData }: Route.ComponentProps) {
-  const navigate = useNavigate();
-  const [filter, setFilter] = useState("");
-  const [isProcessing, setIsProcessing] = useState<number | null>(null); // Track which ID is loading
-  const [localSales, setLocalSales] = useState(loaderData || []);
-
-  // Keep local state in sync if loaderData changes externally
+  // --- 4. EFFECTS ---
   useEffect(() => {
-    setLocalSales(loaderData || []);
-  }, [loaderData]);
+    if (loaderData) {
+      setLocalSales(Array.isArray(loaderData) ? loaderData : []);
+    }
+    syncQueue();
+  }, [loaderData, syncQueue]);
 
+  // --- 5. ACTIONS ---
   const handleVerify = async (saleId: number) => {
-    setIsProcessing(saleId); // Show loading state on the button
+    setIsProcessing(saleId);
     try {
       const res = await fetch(`https://msaidizi.nsaro.com/index/sales/${saleId}/verify_sale/`, {
         method: "POST",
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        }
       });
 
       if (!res.ok) throw new Error("Verification failed");
 
-      // SUCCESS: Remove the verified sale from the local UI list immediately
-      setLocalSales((prev: any[]) => prev.filter((sale) => sale.id !== saleId));
+      // Success Logic:
+      // 1. Remove from Local State
+      const updated = localSales.filter((sale) => sale.id !== saleId);
+      setLocalSales(updated);
+      
+      // 2. Update Cache
+      localStorage.setItem(VERIFY_CACHE_KEY, JSON.stringify(updated));
       
     } catch (err: any) {
       alert(`Error: ${err.message}`);
@@ -69,25 +108,30 @@ export default function VerifySales({ loaderData }: Route.ComponentProps) {
   );
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-7xl mx-auto min-h-screen bg-gray-50">
+      
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
         <div>
           <h1 className="text-3xl font-black text-gray-900 tracking-tight">Verification Queue</h1>
-          <p className="text-sm text-gray-500 mt-1">Review pending sales to confirm inventory deduction.</p>
+          <div className="flex items-center gap-2 mt-2">
+            <span className={`h-2 w-2 rounded-full ${isSyncing ? 'bg-amber-500 animate-pulse' : 'bg-green-500'}`}></span>
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+              {isSyncing ? "Checking for new entries..." : "List Synchronized"}
+            </span>
+          </div>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="bg-amber-50 border border-amber-100 px-6 py-2 rounded-2xl shadow-sm">
-            <span className="block text-[10px] text-amber-600 font-black uppercase tracking-widest">To Review</span>
-            <span className="text-2xl font-black text-amber-700">{filteredSales.length}</span>
+          <div className="bg-white border border-gray-200 px-6 py-2 rounded-2xl shadow-sm">
+            <span className="block text-[10px] text-gray-400 font-black uppercase tracking-widest">Pending</span>
+            <span className="text-2xl font-black text-amber-600">{filteredSales.length}</span>
           </div>
           <div className="relative">
-            <i className="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
             <input
               type="text"
-              placeholder="Search sales..."
-              className="pl-12 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-amber-100 outline-none w-full md:w-80 bg-white transition-all shadow-sm  text-gray-800 text-xl font-bold"
+              placeholder="Filter queue..."
+              className="pl-6 pr-4 py-3.5 border border-gray-200 rounded-2xl focus:ring-4 focus:ring-amber-50 outline-none w-full md:w-80 bg-white transition-all text-gray-800 text-xl font-bold"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
             />
@@ -95,8 +139,8 @@ export default function VerifySales({ loaderData }: Route.ComponentProps) {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white border border-gray-100 rounded-[2rem] overflow-hidden shadow-sm">
+      {/* Table Section */}
+      <div className="bg-white border border-gray-100 rounded-[2.5rem] overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
@@ -110,12 +154,12 @@ export default function VerifySales({ loaderData }: Route.ComponentProps) {
             </thead>
             <tbody className="divide-y divide-gray-50">
               {filteredSales.map((sale: any) => (
-                <tr key={sale.id} className="hover:bg-amber-50/20 transition-all group">
+                <tr key={sale.id} className="hover:bg-amber-50/20 transition-all">
                   <td className="px-8 py-6">
                     <div className="text-sm text-gray-900 font-bold">
                       {new Date(sale.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
                     </div>
-                    <div className="text-[10px] text-gray-400 font-medium">
+                    <div className="text-[10px] text-gray-400 font-medium italic">
                       {new Date(sale.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </td>
@@ -126,7 +170,7 @@ export default function VerifySales({ loaderData }: Route.ComponentProps) {
                       </div>
                       <div>
                         <div className="text-sm font-black text-gray-800">{sale.product_name}</div>
-                        <div className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">POS Transaction</div>
+                        <div className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Needs Review</div>
                       </div>
                     </div>
                   </td>
@@ -136,8 +180,7 @@ export default function VerifySales({ loaderData }: Route.ComponentProps) {
                     </span>
                   </td>
                   <td className="px-8 py-6 text-center">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-amber-100 text-amber-700 uppercase tracking-tight">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-amber-100 text-amber-700 uppercase">
                       Pending
                     </span>
                   </td>
@@ -145,7 +188,7 @@ export default function VerifySales({ loaderData }: Route.ComponentProps) {
                     <div className="flex justify-end gap-3">
                       <button 
                         disabled={isProcessing === sale.id}
-                        className="px-4 py-2 bg-gray-50 text-gray-400 rounded-xl text-xs font-bold hover:bg-red-50 hover:text-red-600 transition-all"
+                        className="px-4 py-2 text-gray-400 rounded-xl text-xs font-bold hover:bg-red-50 hover:text-red-600 transition-all"
                       >
                         Reject
                       </button>
@@ -156,8 +199,7 @@ export default function VerifySales({ loaderData }: Route.ComponentProps) {
                       >
                         {isProcessing === sale.id ? (
                           <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                        ) : <i className="bi bi-patch-check"></i>}
-                        {isProcessing === sale.id ? 'Processing...' : 'Verify'}
+                        ) : "Verify Sale"}
                       </button>
                     </div>
                   </td>
@@ -167,13 +209,10 @@ export default function VerifySales({ loaderData }: Route.ComponentProps) {
           </table>
         </div>
         
-        {filteredSales.length === 0 && (
+        {filteredSales.length === 0 && !isSyncing && (
           <div className="py-24 text-center">
-            <div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i className="bi bi-shield-check text-4xl"></i>
-            </div>
-            <p className="text-gray-900 font-black text-lg">All caught up!</p>
-            <p className="text-gray-400 text-sm">No sales are currently awaiting verification.</p>
+            <p className="text-gray-900 font-black text-lg">Queue Empty</p>
+            <p className="text-gray-400 text-sm">Everything has been verified.</p>
           </div>
         )}
       </div>

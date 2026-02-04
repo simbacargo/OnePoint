@@ -71,6 +71,13 @@ export function headers({}: Route.HeadersArgs) {
 
 const apiUrl = "https://msaidizi.nsaro.com/index/dashboard_api/";
 
+function thousandSeparator(value: string | number) {
+  if (!value) return "0";
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  return num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+ 
+
 export function loader({}: Route.LoaderArgs) {
   return fetch(apiUrl).then((res) => res.json());
 }
@@ -133,7 +140,7 @@ console.clear();
             <p className="text-2xl font-black text-gray-900 mt-1">
               {data &&  data.total_sales
                 ? stat.label === "Total Revenue"
-                  ? data.total_sales
+                  ? thousandSeparator(data.total_sales) + " TZS"
                   : stat.label === "Total Products"
                   ? data.total_products
                   : stat.label === "Total Units Sold"
