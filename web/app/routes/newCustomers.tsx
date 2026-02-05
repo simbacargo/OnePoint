@@ -125,7 +125,7 @@ export default function RegisterCustomer() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="customer@example.com"
+                placeholder="customer@nsaro.com"
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
               />
             </div>

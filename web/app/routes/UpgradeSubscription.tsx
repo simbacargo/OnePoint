@@ -64,7 +64,7 @@ export default function UpgradeSubscription() {
 
   const order_id = `OFFERING-${Date.now()}`;
   const buyer_name = "Web User";
-  const buyer_email = "user@example.com";
+  const buyer_email = "user@nsaro.com";
 
   try {
     const formData = new FormData();
@@ -226,7 +226,7 @@ export default function UpgradeSubscription() {
                     placeholder="754 728 137"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="w-full pl-20 pr-6 py-5 bg-gray-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-3xl outline-none text-2xl font-black transition-all"
+                    className="w-full pl-20 pr-6 py-5 bg-gray-50 border-2 border-transparent focus:border-blue-600 focus:bg-white rounded-3xl outline-none text-2xl font-black bg-gray-700 text-gray-900 transition-all"
                   />
                 </div>
                 <button
