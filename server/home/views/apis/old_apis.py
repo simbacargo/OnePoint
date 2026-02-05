@@ -111,14 +111,24 @@ class ProductViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
     
+    permission_classes = [permissions.AllowAny]
+    def update(self, request, *args, **kwargs):
+        print("Received PATCH request with data:", request.data)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        Sale.objects.create(
+            product=instance,
+            quantity_sold=serializer.validated_data.get('quantity', instance.quantity) - instance.quantity,
+            price_per_unit=serializer.validated_data.get('buying_price', instance.buying_price),
+            total_amount=(serializer.validated_data.get('quantity', instance.quantity) - instance.quantity) * serializer.validated_data.get('buying_price', instance.buying_price),
+            aproved=False,
+        )   
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 
 
-
-
-
-    # Optional: You can add permission classes here to restrict access (e.g., IsAuthenticated)
-    # permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
 
@@ -127,6 +137,7 @@ class ProductListView(APIView):
         products = Product.objects.all()
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
+
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 class ProductDetailView(APIView):
@@ -234,6 +245,7 @@ class SaleListView(APIView):
 
     # GET method - List all sales
     def get(self, request, *args, **kwargs):
+        print("Received GET request for sales list")
         sales = Sale.objects.select_related('product').order_by('-date_sold')
         serializer = SaleSerializer(sales, many=True)
         return Response(serializer.data)
@@ -299,9 +311,25 @@ class SaleDetailView(APIView):
         sale.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+from django.views.decorators.cache import never_cache
+
 class SaleViewSet(viewsets.ModelViewSet):
     queryset = Sale.objects.select_related('product').order_by('-date_sold')
     serializer_class = SaleSerializer
+    # permission_classes = [AllowAny]
+
+    @method_decorator(never_cache)
+    def list(self, request, *args, **kwargs):
+        print("Received GET request for sales list")
+        return super().list(request, *args, **kwargs)
+
+    @method_decorator(never_cache)
+    def retrieve(self, request, *args, **kwargs):
+        print("Received GET request for sales list")
+        return super().retrieve(request, *args, **kwargs)
+    
+    
+
 
 
 
