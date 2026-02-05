@@ -65,16 +65,16 @@ export async function action({ request }: Route.ActionArgs) {
   console.log("====================================");
 
   let payload = {};
-  let endpoint = "https://msaidizi.nsaro.com/login_api/";
+  let endpoint = "http://127.0.0.1:8080/login_api/";
 
   if (intent === "google") {
-    endpoint = "https://msaidizi.nsaro.com/google_login_api/";
+    endpoint = "http://127.0.0.1:8080/google_login_api/";
     payload = { token: formData.get("credential") };
   } else if (intent === "facebook") {
-    endpoint = "https://msaidizi.nsaro.com/facebook_login_api/";
+    endpoint = "http://127.0.0.1:8080/facebook_login_api/";
     payload = { token: formData.get("credential") };
   } else if (intent === "apple") {
-    endpoint = "https://msaidizi.nsaro.com/apple_login_api/"; // Your Apple endpoint
+    endpoint = "http://127.0.0.1:8080/apple_login_api/"; // Your Apple endpoint
     payload = {
       token: formData.get("credential"),
       user: formData.get("user"), // Apple only sends user info (name/email) on the FIRST login
@@ -285,7 +285,7 @@ export default function Login() {
         (window as any).AppleID.auth.init({
           clientId: "com.msaidizi.client",
           scope: "name email",
-          redirectURI: "https://msaidizi.nsaro.com/login",
+          redirectURI: "http://127.0.0.1:8080/login",
           usePopup: true,
         });
         console.log("Apple SDK Initialized");
@@ -306,7 +306,7 @@ export default function Login() {
     setQrSessionId(Math.random().toString(36).substring(2, 15));
   }, []);
 
-  const qrValue = `https://msaidizi.nsaro.com/qr_login/?session=${qrSessionId}`;
+  const qrValue = `http://127.0.0.1:8080/qr_login/?session=${qrSessionId}`;
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
