@@ -3,7 +3,7 @@ import type { Route } from "./+types/verify-sales";
 import { useNavigate, useLoaderData } from "react-router";
 
 // --- CONFIGURATION ---
-const SALES_API_URL = "http://127.0.0.1:8080/sales/list_unverified_sales_api/?format=json";
+const SALES_API_URL = "https://msaidizi.nsaro.com/sales/list_unverified_sales_api/?format=json";
 const VERIFY_CACHE_KEY = "msaidizi_verify_cache";
 
 export function meta({}: Route.MetaArgs) {
@@ -78,7 +78,7 @@ export default function VerifySales() {
   const handleVerify = async (saleId: number) => {
     setIsProcessing(saleId);
     try {
-      const res = await fetch(`http://127.0.0.1:8080/index/sales/${saleId}/verify_sale/`, {
+      const res = await fetch(`https://msaidizi.nsaro.com/index/sales/${saleId}/verify_sale/`, {
         method: "POST",
         headers: {
             Authorization: `Bearer ${localStorage.getItem("access_token")}`,

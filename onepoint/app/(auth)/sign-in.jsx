@@ -98,7 +98,7 @@ export default function CombinedAuthComponent() {
 
     setLoading(true);
     try {
-      const response = await fetch('http://127.0.0.1:8080/login_api/', {
+      const response = await fetch('https://msaidizi.nsaro.com/login_api/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userCredentials),

@@ -37,7 +37,7 @@ export default function DeleteAccountScreen() {
     setLoading(true);
     try {
       // 1. Call your API to mark the account for deletion
-      const response = await fetch('http://127.0.0.1:8080/api/delete-account/', {
+      const response = await fetch('https://msaidizi.nsaro.com/api/delete-account/', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${await AsyncStorage.getItem('@authToken')}`,
