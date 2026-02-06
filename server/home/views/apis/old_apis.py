@@ -25,6 +25,8 @@ from django.shortcuts import render
 from django.db.models import Sum, F, Q
 from django.conf import settings
 
+isAuthenticated = AllowAny
+
 @api_view(['POST'])
 def signup(request):
     if request.method == 'POST':
@@ -316,7 +318,7 @@ from django.views.decorators.cache import never_cache
 class SaleViewSet(viewsets.ModelViewSet):
     queryset = Sale.objects.select_related('product').order_by('-date_sold')
     serializer_class = SaleSerializer
-    # permission_classes = [AllowAny]
+    permission_classes = [AllowAny]
 
     @method_decorator(never_cache)
     def list(self, request, *args, **kwargs):
