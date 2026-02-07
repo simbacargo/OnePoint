@@ -43,8 +43,8 @@ export async function clientAction({ request, params }: any) {
     price: formData.get("price"),
     part_number: formData.get("part_number"),
     // Numbers must be parsed from strings to integers
+    // quantity: parseInt(formData.get("quantity") || "0"),
     quantity: parseInt(formData.get("quantity") || "0"),
-    quantity_in_store: parseInt(formData.get("quantity_in_store") || "0"),
     buying_price: formData.get("buying_price"),
     sold_units: 0,
     amount_collected: "0.00",
@@ -157,20 +157,13 @@ export default function Product() {
             <label className="text-xs font-bold text-gray-500 uppercase ml-1">Part Number</label>
             <input type="text" name="part_number" className={inputStyle} defaultValue={product.part_number} />
           </div>
-
-          {/* STOCK SECTION /}
-          <div>
-            <label className="text-xs font-bold text-gray-500 uppercase ml-1">Total Quantity</label>
-            <input type="number" name="quantity" className={inputStyle} defaultValue={product.quantity} />
-          </div>
-{/*  */}
           <div className="md:col-span-2">
             <label className="text-xs font-bold text-blue-600 uppercase ml-1">Quantity in Store</label>
             <input 
               type="number" 
-              name="quantity_in_store" 
+              name="quantity" 
               className={`${inputStyle} border-blue-200`} 
-              defaultValue={product.quantity_in_store} 
+              defaultValue={product.quantity} 
             />
           </div>
 

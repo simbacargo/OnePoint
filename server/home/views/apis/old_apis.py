@@ -135,6 +135,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 
 class ProductListView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request, *args, **kwargs):
         products = Product.objects.all()
         serializer = ProductSerializer(products, many=True)
@@ -143,6 +144,7 @@ class ProductListView(APIView):
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 class ProductDetailView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request, pk, *args, **kwargs):
         product = Product.objects.get(pk=pk)
         serializer = ProductSerializer(product)
@@ -243,7 +245,7 @@ def low_stock_view(request):
     return render(request, 'sales/low_stock.html', context)
 
 class SaleListView(APIView):
-    permission_classes = [IsAuthenticated]  # Optional: Only authenticated users can access the API
+    permission_classes = [AllowAny]  # Optional: Only authenticated users can access the API
 
     # GET method - List all sales
     def get(self, request, *args, **kwargs):
@@ -266,7 +268,7 @@ class SaleListView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class SaleDetailView(APIView):
-    permission_classes = [IsAuthenticated]  # Optional: Only authenticated users can access the API
+    permission_classes = [AllowAny]  # Optional: Only authenticated users can access the API
 
     # GET method - Retrieve a single sale
     def get(self, request, pk, *args, **kwargs):

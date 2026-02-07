@@ -31,16 +31,17 @@ export default function RegisterProduct() {
     const description = formData.get("description") as string;
     const brand = formData.get("brand") as string;
     const price = formData.get("price") as string;
+    const buyingPrice = formData.get("buying_price") as string; // NEW
     const partNumber = formData.get("part_number") as string;
     const quantity = formData.get("quantity") as string;
     const vehiclesString = formData.get("vehicles") as string;
 
-    // Formatting data according to your requirement
     const productData = {
       name: name.trim(),
       description: description.trim() || "",
       brand: brand.trim() || "",
-      price: parseFloat(price).toFixed(2), // Ensuring string like "3000.00"
+      price: parseFloat(price).toFixed(2),
+      buying_price: parseFloat(buyingPrice || "0").toFixed(2), // NEW: Added to payload
       part_number: partNumber.trim() || "",
       quantity: parseInt(quantity, 10) || 0,
       quantity_in_store: 0,
@@ -48,7 +49,6 @@ export default function RegisterProduct() {
       sold_units: 0,
       amount_collected: "0.00",
       deleted: false,
-      // Parsing "1, 2" -> [1, 2]
       vehicles: vehiclesString
         ? vehiclesString
             .split(",")
@@ -56,6 +56,7 @@ export default function RegisterProduct() {
             .filter((id) => !isNaN(id))
         : [],
     };
+
     try {
       const response = await fetch("https://msaidizi.nsaro.com/api/products/", {
         method: "POST",
@@ -73,7 +74,6 @@ export default function RegisterProduct() {
       } else {
         const errorData = await response.json();
         console.error("Submission failed:", errorData);
-        // alert("Failed to register product. Please check your input.");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -109,7 +109,7 @@ export default function RegisterProduct() {
                 <input
                   name="name"
                   type="text"
-                  placeholder="e.g. TOTAL RUBIA"
+                  placeholder="e.g. WATER SEPARATOR"
                   className={inputClass}
                   required
                 />
@@ -120,7 +120,7 @@ export default function RegisterProduct() {
                 <input
                   name="brand"
                   type="text"
-                  placeholder="e.g. 1L or 4L"
+                  placeholder="e.g. Cummins"
                   className={inputClass}
                 />
               </div>
@@ -130,7 +130,7 @@ export default function RegisterProduct() {
                 <input
                   name="part_number"
                   type="text"
-                  placeholder="e.g. SAE 40"
+                  placeholder="e.g. FS1001"
                   className={inputClass}
                 />
               </div>
@@ -138,7 +138,20 @@ export default function RegisterProduct() {
 
             <hr className="border-gray-100" />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* UPDATED PRICING SECTION */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Buying Price (TZS)</label>
+                <input
+                  name="buying_price"
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  className={inputClass}
+                  required
+                />
+              </div>
+
               <div>
                 <label className={labelClass}>Selling Price (TZS)</label>
                 <input
@@ -150,7 +163,9 @@ export default function RegisterProduct() {
                   required
                 />
               </div>
+            </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Initial Quantity</label>
                 <input
@@ -209,12 +224,13 @@ export default function RegisterProduct() {
             <h3 className="text-blue-800 font-bold mb-2">Quick Tips</h3>
             <ul className="text-sm text-blue-700 space-y-3">
               <li>
-                • Enter <strong>Vehicle IDs</strong> separated by commas to link
-                this product to specific vehicles.
+                • <strong>Buying Price</strong>: The cost you paid for the item (internal).
               </li>
               <li>
-                • Ensure <strong>Price</strong> is the amount you want to sell
-                at.
+                • <strong>Selling Price</strong>: The final amount customers pay.
+              </li>
+              <li>
+                • <strong>Vehicle IDs</strong>: Link products to specific trucks or cars.
               </li>
             </ul>
           </div>
