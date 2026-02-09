@@ -6,7 +6,6 @@ from authentication.models import User
 
 class Vehicle(models.Model):
     name = models.CharField(max_length=100)
-
     def __str__(self):
         return self.name
 

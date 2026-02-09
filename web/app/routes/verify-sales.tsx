@@ -169,7 +169,7 @@ export default function VerifySales() {
                         #{sale.id}
                       </div>
                       <div>
-                        <div className="text-sm font-black text-gray-800">{sale.product_name}</div>
+                        <div className="text-sm font-black text-gray-800">{sale.product_name} - {sale.part_number}</div>
                         <div className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Needs Review</div>
                       </div>
                     </div>
