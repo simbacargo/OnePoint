@@ -100,7 +100,7 @@ from django.db.models import Q
 
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
-    permission_classes = [permissions.DjangoObjectPermissions]
+    permission_classes = [permissions.IsAuthenticated]
     
     def get_permissions(self):
         print("Determining permissions for action:", self.action)
@@ -123,9 +123,10 @@ class ProductViewSet(viewsets.ModelViewSet):
         products = Product.objects.filter(
             business__members=user, 
             deleted=False
-        ).distinct() if not user.username == 'nsaro' or user.username == 'testuser' else Product.objects.all()
+        ).distinct() if not (user.username == 'nsaro' or user.username == 'testuser') else Product.objects.all()
         
         print (products)
+        print (products.count())
         return products
 
     def perform_create(self, serializer):
@@ -390,9 +391,42 @@ class SaleDetailView(APIView):
 from django.views.decorators.cache import never_cache
 
 class SaleViewSet(viewsets.ModelViewSet):
-    queryset = Sale.objects.select_related('product').order_by('-date_sold')
     serializer_class = SaleSerializer
-    permission_classes = [AllowAny]
+
+    def get_permissions(self):
+        """
+        Dynamic permissions: Authenticated users can view sales, 
+        but only Staff/Admins can modify them.
+        """
+        print(f"Determining permissions for Sale action: {self.action}")
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [permissions.IsAuthenticated]
+        else:
+            permission_classes = [permissions.IsAdminUser]
+        return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        """
+        Filters sales so users only see records related to their business.
+        """
+        user = self.request.user
+        print(f"Fetching sales for user: {user.username}")
+
+        # Staff can see everything
+        if user.is_staff or user.username in ['nsaro', 'testuser']:
+            return Sale.objects.select_related('product').order_by('-date_sold')
+
+        # Filter sales by the business the user belongs to
+        # Assuming Sale -> Product -> Business relationship
+        return Sale.objects.filter(
+            product__business__members=user
+        ).select_related('product').distinct().order_by('-date_sold')
+
+    def perform_create(self, serializer):
+        """
+        Automatically link the sale to the user who processed it.
+        """
+        serializer.save(processed_by=self.request.user)
 
     @method_decorator(never_cache)
     def list(self, request, *args, **kwargs):
@@ -401,10 +435,20 @@ class SaleViewSet(viewsets.ModelViewSet):
 
     @method_decorator(never_cache)
     def retrieve(self, request, *args, **kwargs):
-        print("Received GET request for sales list")
+        print(f"Received GET request for sale ID: {kwargs.get('pk')}")
         return super().retrieve(request, *args, **kwargs)
-    
-    
+
+    def update(self, request, *args, **kwargs):
+        """
+        Custom update logic for sales if needed (e.g., adjusting stock).
+        """
+        instance = self.get_object()
+        partial = kwargs.pop('partial', False)
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        
+        self.perform_update(serializer)
+        return Response(serializer.data)    
 
 
 

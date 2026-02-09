@@ -7,8 +7,8 @@ from django.contrib.auth.views import LogoutView, LoginView
 router = routers.DefaultRouter()
 #router.register(r'users', views.UserViewSet)
 router.register(r'products', views.ProductViewSet,basename='product') 
-router.register(r'customers', views.CustomerViewSet)
-router.register(r'sales', views.SaleViewSet) 
+router.register(r'customers', views.CustomerViewSet) 
+router.register(r'sales', views.SaleViewSet,basename='sale') 
 from home.views import redis_status_view
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
