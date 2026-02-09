@@ -32,11 +32,12 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class SaleSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
+    part_number = serializers.CharField(source='product.part_number', read_only=True)
 
     class Meta:
         model = Sale
         fields = '__all__'  # Include all the fields from the Sale model
-        extra_fields = ['product_name']
+        extra_fields = ['product_name', 'part_number']
 
 
 class SaleItemSerializer(serializers.ModelSerializer):

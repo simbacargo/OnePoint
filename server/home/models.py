@@ -10,7 +10,12 @@ class Vehicle(models.Model):
     def __str__(self):
         return self.name
 
-
+from django.db.models import F
+class Company(models.Model):
+    name = models.CharField(max_length=100)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    
 class Product(models.Model):
     name = models.CharField(max_length=100, null=True)
     description = models.TextField(blank=True, null=True)
@@ -25,7 +30,7 @@ class Product(models.Model):
     amount_collected = models.DecimalField(max_digits=12, decimal_places=2, default=0, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     deleted = models.BooleanField(default=False, null=True)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="products")
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="products", null=False, blank=False, default=1)
     
     def get_vehicle_names(self):
         return ", ".join([vehicle.name for vehicle in self.vehicles.all()])
@@ -41,12 +46,23 @@ class Product(models.Model):
     def __str__(self):
         return f"{self.name}"
 
+    
     def update_stock(self, sold_units, amount_collected):
-        self.sold_units += sold_units
-        self.quantity = max(0, self.quantity - sold_units)
-        self.amount_collected += amount_collected
+        self.sold_units = F('sold_units') + sold_units
+        self.quantity = F('quantity') - sold_units
+        self.amount_collected = F('amount_collected') + amount_collected
         self.save()
-
+        self.refresh_from_db() # Reload to get the new calculated values
+        
+        
+        
+    @property
+    def total_cost_of_sold_items(self):
+        return self.sold_units * self.buying_price
+    
+    @property
+    def profit(self):
+        return self.amount_collected - self.total_cost_of_sold_items
 
 class Sale(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="sales")

@@ -84,17 +84,32 @@ def login(request):
             })
         return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
+from rest_framework import permissions
+
+class IsOwnerOrEmployee(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        # Employees can do anything
+        if request.user.is_staff:
+            return True
+        # Regular users can only see/edit their own products
+        return obj.user == request.user
+    
 class ProductViewSet(viewsets.ModelViewSet):
     """
     A ViewSet for viewing and editing Product instances.
     Provides 'list', 'create', 'retrieve', 'update', 'partial_update', and 'destroy' actions.
     """
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrEmployee]
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
     def get_queryset(self):
-        return super().get_queryset()
+        user = self.request.user
+        if not user.is_authenticated:
+            return Product.objects.none()
+        
+        if user.is_staff:
+            return Product.objects.all()
 
     @method_decorator(cache_page(0))
     def list(self, request, *args, **kwargs):
