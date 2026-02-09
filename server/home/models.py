@@ -30,7 +30,7 @@ class Product(models.Model):
     amount_collected = models.DecimalField(max_digits=12, decimal_places=2, default=0, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     deleted = models.BooleanField(default=False, null=True)
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="products", null=False, blank=False, default=1)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name="products", null=True)
     
     def get_vehicle_names(self):
         return ", ".join([vehicle.name for vehicle in self.vehicles.all()])
