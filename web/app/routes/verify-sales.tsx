@@ -157,10 +157,10 @@ export default function VerifySales() {
                 <tr key={sale.id} className="hover:bg-amber-50/20 transition-all">
                   <td className="px-8 py-6">
                     <div className="text-sm text-gray-900 font-bold">
-                      {new Date(sale.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                      {new Date(sale.date_sold).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
                     </div>
                     <div className="text-[10px] text-gray-400 font-medium italic">
-                      {new Date(sale.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(sale.date_sold).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </td>
                   <td className="px-8 py-6">
