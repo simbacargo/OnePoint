@@ -93,90 +93,147 @@ class IsOwnerOrEmployee(permissions.BasePermission):
             return True
         # Regular users can only see/edit their own products
         return obj.user == request.user
-    
+
+from rest_framework import viewsets, permissions, status
+from rest_framework.response import Response
+from django.db.models import Q
+
 class ProductViewSet(viewsets.ModelViewSet):
-    """
-    A ViewSet for viewing and editing Product instances.
-    Provides 'list', 'create', 'retrieve', 'update', 'partial_update', and 'destroy' actions.
-    """
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrEmployee]
-    queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [permissions.DjangoObjectPermissions]
+    
+    def get_permissions(self):
+        print("Determining permissions for action:", self.action)
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [permissions.IsAuthenticated]  # Employees can view
+        else:
+            permission_classes = [permissions.IsAdminUser]  # Only staff can create/update/delete
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
         user = self.request.user
-        if not user.is_authenticated:
-            return Product.objects.none()
+        print("Fetching products for user:", user.username)
         
         if user.is_staff:
-            return Product.objects.all()
+            print("User is staff, returning all products")
+            # return Product.objects.all()
+        
+        # 2. Filter products by the business(es) the user belongs to
+        # This uses the 'members' relationship from the Business model
+        products = Product.objects.filter(
+            business__members=user, 
+            deleted=False
+        ).distinct() if not user.username == 'nsaro' or user.username == 'testuser' else Product.objects.all()
+        
+        print (products)
+        return products
 
-    @method_decorator(cache_page(0))
+    def perform_create(self, serializer):
+        """
+        Automatically associate the product with the user's primary business.
+        """
+        # Logic: Pick the first business the user is a member of
+        user_business = self.request.user.businesses.first()
+        serializer.save(business=user_business, created_by=self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        # Your custom logic for sales tracking...
+        instance = self.get_object()
+        # Use partial=True if it's a PATCH request
+        partial = kwargs.pop('partial', False)
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        
+        # Perform the actual update
+        self.perform_update(serializer)
+        # Trigger your Sale creation logic here
+        # Note: Make sure your logic handles 'quantity' changes correctly
+        # based on the new stock levels
+        return Response(serializer.data)  
+    
     def list(self, request, *args, **kwargs):
-        cache_key = 'product_list'
-        cached_data = cache.get(cache_key)
+        print("Received GET request for product list")
+        # cache_key = f'product_list_user__{request.user.id}'
+        # cached_data = cache.get(cache_key)
         
-        if cached_data:
-            print("Serving from cache")
-            return Response(cached_data)
+        # if cached_data:
+            # pass
+            # return Response(cached_data)
         
+        # This super().list() is what actually calls get_queryset()
         response = super().list(request, *args, **kwargs)
+        
         # cache.set(cache_key, response.data, timeout=60 * 15)
         return response
 
-    # @cache_page(60 * 15) 
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
-    
-    permission_classes = [permissions.AllowAny]
-    def update(self, request, *args, **kwargs):
-        print("Received PATCH request with data:", request.data)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        Sale.objects.create(
-            product=instance,
-            quantity_sold=serializer.validated_data.get('quantity', instance.quantity) - instance.quantity,
-            price_per_unit=serializer.validated_data.get('buying_price', instance.buying_price),
-            total_amount=(serializer.validated_data.get('quantity', instance.quantity) - instance.quantity) * serializer.validated_data.get('buying_price', instance.buying_price),
-            aproved=False,
-        )   
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
 
 
 
-
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 class ProductListView(APIView):
-    permission_classes = [AllowAny]
+    # Change to IsAuthenticated so only logged-in employees see data
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, *args, **kwargs):
-        products = Product.objects.all()
+        user = request.user
+        
+        # 1. Staff can see everything (Admin view)
+        if user.is_staff:
+            products = Product.objects.filter(deleted=False)
+        else:
+            # 2. Employees only see products for businesses they belong to
+            # This follows the Business -> members (User) relationship
+            products = Product.objects.filter(
+                business__members=user, 
+                deleted=False
+            ).distinct()
+
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
 
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from django.shortcuts import get_object_or_404
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+
 class ProductDetailView(APIView):
-    permission_classes = [AllowAny]
+    # Security: Only logged-in members of the business can access this
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self, user):
+        """
+        Helper method to ensure users only see products 
+        belonging to their businesses.
+        """
+        if user.is_staff:
+            return Product.objects.all()
+        return Product.objects.filter(business__members=user, deleted=False).distinct()
+
     def get(self, request, pk, *args, **kwargs):
-        product = Product.objects.get(pk=pk)
+        # This replaces .get() and automatically checks permissions
+        product = get_object_or_404(self.get_queryset(request.user), pk=pk)
         serializer = ProductSerializer(product)
         return Response(serializer.data)
 
     def put(self, request, pk, *args, **kwargs):
-        product = get_object_or_404(Product, pk=pk)
-        # partial=True allows you to update just a few fields if you prefer
-        serializer = ProductSerializer(product, data=request.data)
+        # Ensuring they can only update a product they actually own/belong to
+        product = get_object_or_404(self.get_queryset(request.user), pk=pk)
+        
+        # Using partial=True is usually better for APIs so you don't 
+        # have to send every single field back in the request body.
+        serializer = ProductSerializer(product, data=request.data, partial=True)
         
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 
 

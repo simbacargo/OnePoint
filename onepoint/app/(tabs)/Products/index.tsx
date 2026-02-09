@@ -69,7 +69,7 @@ const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNz
     try {
       // Updated URL to match your provided endpoint
       console.clear();
-      const request = await fetch("https://msaidizi.nsaro.com/api/products/", {
+      const request = await fetch("http://127.0.0.1:8080/api/products/", {
   method: "GET",
   headers: {
     "Content-Type": "application/json",

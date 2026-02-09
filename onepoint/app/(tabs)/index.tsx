@@ -26,7 +26,7 @@ const COLORS = {
 
 // --- API and DUMMY DATA SETUP ---
 
-const RECENT_SALES_URL = 'https://msaidizi.nsaro.com/api/sales/';
+const RECENT_SALES_URL = 'http://127.0.0.1:8080/api/sales/';
 
 const DUMMY_SALES_DATA = {
     totalRevenue: 12450.75,

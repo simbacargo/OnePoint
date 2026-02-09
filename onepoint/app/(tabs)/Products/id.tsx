@@ -17,7 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const ProductDetailScreen = () => {
     // You might use the id from useLocalSearchParams() to construct the URL dynamically
     const { id } = useLocalSearchParams();
-    const url = `https://msaidizi.nsaro.com/api/productdetails/${id}/`;
+    const url = `http://127.0.0.1:8080/api/productdetails/${id}/`;
     
     // 1. Add state for the product data, loading, and error
     const [product, setProduct] = useState(null); // Initialize as null to handle loading

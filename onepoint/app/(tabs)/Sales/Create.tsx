@@ -17,8 +17,8 @@ import {
     View
 } from 'react-native';
 
-const SALE_API_URL = 'https://msaidizi.nsaro.com/sales/';
-const PRODUCTS_API_URL = 'https://msaidizi.nsaro.com/api/products/'; 
+const SALE_API_URL = 'http://127.0.0.1:8080/sales/';
+const PRODUCTS_API_URL = 'http://127.0.0.1:8080/api/products/'; 
 
 
 function thousandSeparator(value: string | number) {

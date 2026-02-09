@@ -169,10 +169,10 @@ APPEND_SLASH=False
 # settings.py
 
 # add these below your CACHES setting
-SESSION_ENGINE = "django.contrib.sessions.backends.cache"
-SESSION_CACHE_ALIAS = "default"
+#SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+#SESSION_CACHE_ALIAS = "default"
 
-CACHES = {
+CACHESx = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
         'LOCATION': 'redis://127.0.0.1:6379/1',
@@ -208,10 +208,10 @@ CACHES = {
 }
 
 
-CACHES = {
+CACHESx = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': BASE_DIR / 'django_cacmhe',  # Directory where cache files will be stored
+        'LOCATION': 'django_cacmhe',  # Directory where cache files will be stored
         'TIMEOUT': 0,  # Cache timeout in seconds (15 minutes in this case)
     }
 }
@@ -229,7 +229,7 @@ STATICFILES_DIRS = [
 LOGIN_URL ="/login"
 LOGIN_REDIRECT_URL ="/"
 LOGOUT_REDIRECT_URL ="/"
-CSRF_TRUSTED_ORIGINS = ['https://msaidizi.nsaro.com']
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8080']
 
 
 AUTH_USER_MODEL = 'authentication.User'

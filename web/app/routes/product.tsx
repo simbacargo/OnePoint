@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 
 // Helper to build the URL dynamically
 const get_server_url = (id: string | undefined) =>
-  `https://msaidizi.nsaro.com/api/productdetails/${id}/`;
+  `http://127.0.0.1:8080/api/productdetails/${id}/`;
 
 /**
  * 1. LOADER

@@ -6,7 +6,7 @@ from authentication import views as bootcamp_auth_views
 from django.contrib.auth.views import LogoutView, LoginView
 router = routers.DefaultRouter()
 #router.register(r'users', views.UserViewSet)
-router.register(r'products', views.ProductViewSet) 
+router.register(r'products', views.ProductViewSet,basename='product') 
 router.register(r'customers', views.CustomerViewSet)
 router.register(r'sales', views.SaleViewSet) 
 from home.views import redis_status_view
