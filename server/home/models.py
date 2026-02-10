@@ -30,6 +30,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     deleted = models.BooleanField(default=False, null=True)
     business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name="products", null=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="created_products")
     
     def get_vehicle_names(self):
         return ", ".join([vehicle.name for vehicle in self.vehicles.all()])

@@ -9,10 +9,8 @@ from ...serializers import TransactionSerializer, UserSerializer,SaleSerializer,
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.hashers import make_password
 from rest_framework.authtoken.views import obtain_auth_token
-from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.exceptions import NotFound
-from rest_framework.views import APIView
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
 from rest_framework.decorators import action
@@ -24,8 +22,13 @@ from rest_framework import viewsets
 from django.shortcuts import render
 from django.db.models import Sum, F, Q
 from django.conf import settings
+from django.shortcuts import get_object_or_404
+from rest_framework.views import APIView
+from django.views.decorators.cache import never_cache
+from rest_framework import viewsets, permissions, status
 
-isAuthenticated = AllowAny
+
+# isAuthenticated = AllowAny
 
 @api_view(['POST'])
 def signup(request):
@@ -84,7 +87,6 @@ def login(request):
             })
         return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
-from rest_framework import permissions
 
 class IsOwnerOrEmployee(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -93,10 +95,6 @@ class IsOwnerOrEmployee(permissions.BasePermission):
             return True
         # Regular users can only see/edit their own products
         return obj.user == request.user
-
-from rest_framework import viewsets, permissions, status
-from rest_framework.response import Response
-from django.db.models import Q
 
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
@@ -154,11 +152,11 @@ class ProductViewSet(viewsets.ModelViewSet):
     
     def list(self, request, *args, **kwargs):
         print("Received GET request for product list")
-        # cache_key = f'product_list_user__{request.user.id}'
-        # cached_data = cache.get(cache_key)
+        cache_key = f'product_list_user__{request.user.id}'
+        cached_data = cache.get(cache_key)
         
-        # if cached_data:
-            # pass
+        if cached_data:
+            print("Returning cached data for user:", request.user.id)
             # return Response(cached_data)
         
         # This super().list() is what actually calls get_queryset()
@@ -170,9 +168,6 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 
 
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
 class ProductListView(APIView):
     # Change to IsAuthenticated so only logged-in employees see data
@@ -195,13 +190,6 @@ class ProductListView(APIView):
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
 
-from django.shortcuts import get_object_or_404
-from rest_framework import status
-from django.shortcuts import get_object_or_404
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
 
 class ProductDetailView(APIView):
     # Security: Only logged-in members of the business can access this
@@ -388,8 +376,6 @@ class SaleDetailView(APIView):
         sale.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-from django.views.decorators.cache import never_cache
-
 class SaleViewSet(viewsets.ModelViewSet):
     serializer_class = SaleSerializer
 
