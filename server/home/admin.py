@@ -6,9 +6,9 @@ admin.site.register(Sale)
 admin.site.register(Customer)
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'brand', 'price', 'part_number', 'quantity', 'deleted')
-    search_fields = ('name', 'brand', 'part_number')
-    list_filter = ('brand', 'deleted')
+    list_display = ('name', 'created_by', 'price', 'part_number', 'quantity', 'deleted')
+    search_fields = ('name', 'created_by', 'part_number')
+    list_filter = ('created_by', 'deleted')
     ordering = ('name',)
     
 admin.site.register(Product, ProductAdmin)
