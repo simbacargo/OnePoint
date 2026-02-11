@@ -398,6 +398,7 @@ class SaleViewSet(viewsets.ModelViewSet):
 
         # Staff can see everything
         if user.is_staff or user.username in ['nsaro', 'testuser']:
+            print("User is staff or special user, returning all sales")
             return Sale.objects.select_related('product').order_by('-date_sold')
 
         # Filter sales by the business the user belongs to
