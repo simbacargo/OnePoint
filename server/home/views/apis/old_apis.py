@@ -114,6 +114,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         
         if user.is_staff:
             print("User is staff, returning all products")
+            print(user.username)  # Debug: Print the username to confirm it's correct
             # return Product.objects.all()
         
         # 2. Filter products by the business(es) the user belongs to
