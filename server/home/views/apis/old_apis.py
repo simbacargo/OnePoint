@@ -175,9 +175,8 @@ class ProductListView(APIView):
 
     def get(self, request, *args, **kwargs):
         user = request.user
-        
-        # 1. Staff can see everything (Admin view)
-        if user.is_staff:
+
+        if False:
             products = Product.objects.filter(deleted=False)
         else:
             # 2. Employees only see products for businesses they belong to
