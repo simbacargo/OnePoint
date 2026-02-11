@@ -112,17 +112,16 @@ class ProductViewSet(viewsets.ModelViewSet):
         user = self.request.user
         print("Fetching products for user:", user.username)
         
-        if user.is_staff:
+        if user.username == 'nsaro' or user.username == 'testuser':
             print("User is staff, returning all products")
-            print(user.username)  # Debug: Print the username to confirm it's correct
-            # return Product.objects.all()
+            return Product.objects.all()
         
         products = Product.objects.filter(
             # business__members=user, 
             created_by=user, 
             deleted=False
-        ) if not (user.username == 'nsaro' or user.username == 'testuser') else Product.objects.all()
-        print(user)  # Debug: Print the actual SQL query being executed
+        )
+        print(products)  # Debug: Print the actual SQL query being executed
         return products
 
     def perform_create(self, serializer):
