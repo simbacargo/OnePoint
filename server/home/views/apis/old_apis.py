@@ -121,7 +121,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             created_by=user, 
             deleted=False
         )
-        print(products.values("created_by", "created_by_id"))  # Debug: Print the actual SQL query being executed
+        print(products.count())  # Debug: Print the actual SQL query being executed
         return products
 
     def perform_create(self, serializer):
