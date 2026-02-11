@@ -4,7 +4,7 @@ import { useAuth } from "~/Context/AppContext";
 import { useNavigate, useLoaderData } from "react-router";
 
 // --- CONFIGURATION ---
-const BASE_URL = "http://127.0.0.1:8080";
+const BASE_URL = "https://msaidizi.nsaro.com";
 const SALES_API_URL = `${BASE_URL}/api/sales/`;
 const REFRESH_URL = `${BASE_URL}/token/refresh/`;
 const SALES_CACHE_KEY = "msaidizi_sales_cache";

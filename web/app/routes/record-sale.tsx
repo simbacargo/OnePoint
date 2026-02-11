@@ -3,14 +3,14 @@ import type { Route } from "./+types/record-sale";
 import { useAuth } from "~/Context/AppContext";
 import { useNavigate } from "react-router";
 
-const PRODUCTS_API_URL = "http://127.0.0.1:8080/api/products/";
-const CREATE_SALE_URL = "http://127.0.0.1:8080/sales/";
+const PRODUCTS_API_URL = "https://msaidizi.nsaro.com/api/products/";
+const CREATE_SALE_URL = "https://msaidizi.nsaro.com/sales/";
 
 export async function refreshAccessToken() {
   const refreshToken = localStorage.getItem("refresh_token");
   if (!refreshToken) throw new Error("No refresh token available");
 
-  const response = await fetch("http://127.0.0.1:8080/api/token/refresh/", {
+  const response = await fetch("https://msaidizi.nsaro.com/api/token/refresh/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ refresh: refreshToken }),

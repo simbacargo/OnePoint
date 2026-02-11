@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 
 // Using your real production domain
-const API_URL = 'http://127.0.0.1:8080/api/products/';
+const API_URL = 'https://msaidizi.nsaro.com/api/products/';
 
 const ProductRegistrationScreen = () => {
     const [name, setName] = useState('');

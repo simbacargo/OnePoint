@@ -4,7 +4,7 @@ import { useAuth } from "~/Context/AppContext";
 import { useNavigate, useLoaderData } from "react-router";
 
 // --- CONFIGURATION ---
-const CUSTOMERS_API_URL = "http://127.0.0.1:8080/api/customers/";
+const CUSTOMERS_API_URL = "https://msaidizi.nsaro.com/api/customers/";
 const CUSTOMER_CACHE_KEY = "msaidizi_customer_cache";
 
 // --- 1. LOADER: Instant cache delivery ---
