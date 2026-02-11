@@ -121,11 +121,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             created_by=user, 
             deleted=False
         )
-<<<<<<<<< Temporary merge branch 1
-        print(products.values("created_by.username"))  # Debug: Print the actual SQL query being executed
-=========
         print(products.values("created_by", "created_by_id"))  # Debug: Print the actual SQL query being executed
->>>>>>>>> Temporary merge branch 2
         return products
 
     def perform_create(self, serializer):
