@@ -117,14 +117,12 @@ class ProductViewSet(viewsets.ModelViewSet):
             print(user.username)  # Debug: Print the username to confirm it's correct
             # return Product.objects.all()
         
-        # 2. Filter products by the business(es) the user belongs to
-        # This uses the 'members' relationship from the Business model
         products = Product.objects.filter(
             # business__members=user, 
             created_by=user, 
             deleted=False
         ) if not (user.username == 'nsaro' or user.username == 'testuser') else Product.objects.all()
-        print(products)  # Debug: Print the actual SQL query being executed
+        print(user)  # Debug: Print the actual SQL query being executed
         return products
 
     def perform_create(self, serializer):
@@ -402,8 +400,6 @@ class SaleViewSet(viewsets.ModelViewSet):
             print("User is staff or special user, returning all sales")
             return Sale.objects.select_related('product').order_by('-date_sold')
 
-        # Filter sales by the business the user belongs to
-        # Assuming Sale -> Product -> Business relationship
         sales = Sale.objects.filter(
             product__created_by=user
         ).select_related('product').distinct().order_by('-date_sold'
