@@ -12,7 +12,8 @@ from django.db.models import Count,Avg, Max, Min# SALES APIS
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def list_unverified_sales_api(request):
-    sales = Sale.objects.select_related('product').filter(aproved=False).order_by('-date_sold')
+    sales = Sale.objects.select_related('product').filter(aproved=False,product__created_by=request.user).order_by('-date_sold')
+    print(sales)
     serializer = SaleSerializer(sales, many=True)
     return Response(serializer.data)
 
@@ -43,7 +44,7 @@ def reject_sale_api(request, pk):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def list_approved_sales_api(request):
-    sales = Sale.objects.select_related('product').filter(aproved=True).order_by('-date_sold')
+    sales = Sale.objects.select_related('product').filter(aproved=True,product__created_by=request.user).order_by('-date_sold')
     serializer = SaleSerializer(sales, many=True)
     return Response(serializer.data)
 
@@ -57,7 +58,7 @@ def list_rejected_sales_api(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def list_all_sales_api(request):
-    sales = Sale.objects.select_related('product').all().order_by('-date_sold')
+    sales = Sale.objects.select_related('product').filter(product__created_by=request.user).order_by('-date_sold')
     serializer = SaleSerializer(sales, many=True)
     return Response(serializer.data)
 
@@ -74,9 +75,9 @@ def get_sale_details_api(request, pk):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def get_sales_summary_api(request):
-    total_sales = Sale.objects.filter(aproved=True).count()
-    total_revenue = Sale.objects.filter(aproved=True).aggregate(total=models.Sum('total_amount'))['total'] or 0
-    total_products_sold = Sale.objects.filter(aproved=True).aggregate(total=models.Sum('quantity_sold'))['total'] or 0
+    total_sales = Sale.objects.filter(aproved=True,product__created_by=request.user).count()
+    total_revenue = Sale.objects.filter(aproved=True,product__created_by=request.user).aggregate(total=models.Sum('total_amount'))['total'] or 0
+    total_products_sold = Sale.objects.filter(aproved=True,product__created_by=request.user).aggregate(total=models.Sum('quantity_sold'))['total'] or 0
 
     summary = {
         'total_sales': total_sales,
@@ -88,7 +89,7 @@ def get_sales_summary_api(request):
 @cache_control(no_cache=True, must_revalidate=True, no_store=True)
 @api_view(['GET'])
 def get_product_sales_api(request, product_id):
-    sales = Sale.objects.select_related('product').filter(product__id=product_id, aproved=True).order_by('-date_sold')
+    sales = Sale.objects.select_related('product').filter(product__id=product_id, aproved=True,product__created_by=request.user).order_by('-date_sold')
     serializer = SaleSerializer(sales, many=True)
     return Response(serializer.data)
 

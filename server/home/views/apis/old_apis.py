@@ -327,7 +327,7 @@ class SaleListView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class SaleDetailView(APIView):
-    permission_classes = [AllowAny]  # Optional: Only authenticated users can access the API
+    permission_classes = [IsAuthenticated]
 
     # GET method - Retrieve a single sale
     def get(self, request, pk, *args, **kwargs):
@@ -402,10 +402,15 @@ class SaleViewSet(viewsets.ModelViewSet):
 
         # Filter sales by the business the user belongs to
         # Assuming Sale -> Product -> Business relationship
-        return Sale.objects.filter(
+        sales = Sale.objects.filter(
             product__created_by=user
-        ).select_related('product').distinct().order_by('-date_sold') if not (user.username == 'nsaro' or user.username == 'testuser') else Sale.objects.select_related('product').order_by('-date_sold')
+        ).select_related('product').distinct().order_by('-date_sold'
+        ) if not (user.username == 'nsaro' or user.username == 'testuser'
+                  ) else Sale.objects.select_related('product').order_by('-date_sold')
+        
+        print(sales.query)  # Debug: Print the actual SQL query being executed
 
+        return sales
     def perform_create(self, serializer):
         """
         Automatically link the sale to the user who processed it.
