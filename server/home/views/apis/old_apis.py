@@ -123,6 +123,7 @@ class ProductViewSet(viewsets.ModelViewSet):
             created_by=user, 
             deleted=False
         ) if not (user.username == 'nsaro' or user.username == 'testuser') else Product.objects.all()
+        print(products)  # Debug: Print the actual SQL query being executed
         return products
 
     def perform_create(self, serializer):
