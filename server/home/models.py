@@ -73,6 +73,7 @@ class Sale(models.Model):
     aproved = models.BooleanField(default=False,)
     deleted = models.BooleanField(default=False,)
     rejected = models.BooleanField(default=False,)
+    # created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="created_sales")
 
     def __str__(self):
         return f"Sale of {self.product.name} - {self.quantity_sold} units"

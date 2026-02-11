@@ -226,7 +226,8 @@ export default function Login() {
       console.log("====================================");
       // 2. Persistent Storage (CRITICAL: Must be stringified)
       localStorage.setItem("msaidizi_user", JSON.stringify(userToSave));
-      localStorage.setItem("access_token", actionData.accessToken);
+	  const userdata = actionData.accessToken ? actionData.accessToken : actionData.token;
+      localStorage.setItem("access_token", `${userdata}`);
       localStorage.setItem("refreshToken", actionData.refreshToken);
       login(userToSave);
 
