@@ -13,6 +13,7 @@ class Vehicle(models.Model):
 from django.db.models import F
 class Business(models.Model):
     name = models.CharField(max_length=100)
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="owned_businesses")
     members = models.ManyToManyField(User, related_name="businesses")
     
     
