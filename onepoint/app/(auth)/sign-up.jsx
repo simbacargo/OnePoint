@@ -46,7 +46,7 @@ export default function SignUpComponent() {
     setErrorMessage("");
 
     try {
-      const response = await fetch("https://msaidizi.nsaro.com/signup/", {
+      const response = await fetch("http://127.0.0.1:8080/signup/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

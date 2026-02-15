@@ -1,3 +1,4 @@
+import os
 from django.db import models
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
@@ -64,6 +65,24 @@ class Product(models.Model):
     def profit(self):
         return self.amount_collected - self.total_cost_of_sold_items
 
+
+
+
+class Customer(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField(unique=False,blank=True)
+    phone = models.CharField(max_length=15, blank=True)
+    # sale = models.ManyToManyField(Sale, related_name="customers")
+    remaining_balance = models.IntegerField(default=0)
+    
+    def pay_balance(self, amount):
+        self.remaining_balance = max(0, self.remaining_balance - amount)
+        self.save()
+
+    
+    def __str__(self):
+        return self.name
+
 class Sale(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="sales")
     quantity_sold = models.PositiveIntegerField()
@@ -73,7 +92,13 @@ class Sale(models.Model):
     aproved = models.BooleanField(default=False,)
     deleted = models.BooleanField(default=False,)
     rejected = models.BooleanField(default=False,)
-    # created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="created_sales")
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="created_sales")
+    customer = models.ForeignKey(
+        Customer, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        related_name="sales"
+    )
 
     def __str__(self):
         return f"Sale of {self.product.name} - {self.quantity_sold} units"
@@ -84,6 +109,7 @@ class Sale(models.Model):
         super().save(*args, **kwargs)
         # Update product after saving sale
         self.product.update_stock(self.quantity_sold, self.total_amount)
+        
 
 
 @receiver(post_save, sender=Product)
@@ -98,18 +124,3 @@ def clear_sales_cache(sender, instance, **kwargs):
     cache.delete('sales_summary')
     print("Product cache cleared.")
 
-
-class Customer(models.Model):
-    name = models.CharField(max_length=100)
-    email = models.EmailField(unique=False,blank=True)
-    phone = models.CharField(max_length=15, blank=True)
-    sale = models.ForeignKey(Sale, on_delete=models.CASCADE, null=1,blank=1, related_name="customers")
-    remaining_balance = models.IntegerField(default=0)
-    
-    def pay_balance(self, amount):
-        self.remaining_balance = max(0, self.remaining_balance - amount)
-        self.save()
-
-    
-    def __str__(self):
-        return self.name

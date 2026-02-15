@@ -39,7 +39,10 @@ def upload_image_path(instance, filename):
 class UserAccountManager(BaseUserManager):
     use_in_migrations = True
     def get_queryset(self):
-        return super(UserAccountManager,self).get_queryset().filter(is_active=True)
+        #return super(UserAccountManager,self).get_queryset().filter(is_active=True)
+        return super(UserAccountManager,self).get_queryset()
+
+    
     def _create_user(self, username,password,is_staff,is_superuser,**extra_fields):
 
         # if not email:

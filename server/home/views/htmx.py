@@ -482,7 +482,7 @@ def get_product_price(request, product_id):
 class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
-        fields = ['name', 'email', 'phone', 'sale', 'remaining_balance']
+        fields = ['name', 'email', 'phone', 'remaining_balance']
 
 
 # Customer Create View (Create)

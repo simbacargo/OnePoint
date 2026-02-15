@@ -43,7 +43,7 @@ export default function Aside() {
                   className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300 group ${
                     isActive 
                       ? 'bg-gray-900 text-white shadow-xl shadow-gray-200' 
-                      : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 '
                   }`}
                 >
                   <i className={`bi ${item.icon} text-lg ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-blue-600'}`}></i>
@@ -64,7 +64,7 @@ export default function Aside() {
           className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all ${
             location.pathname === '/profile' 
               ? 'bg-blue-50 text-blue-600' 
-              : 'text-gray-500 hover:bg-gray-50'
+              : 'text-gray-600 hover:bg-gray-50 '
           }`}
         >
           <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">

@@ -63,3 +63,16 @@ url_patterns = [
     path('sales/get_sales_growth_rate_api/', get_sales_growth_rate_api, name='get_sales_growth_rate_api'),
     path('sales/get_average_order_value_api/', get_average_order_value_api, name='get_average_order_value_api'),
 ]   
+
+
+from django.urls import path
+from .views.apis import product_apis as views
+
+url_patterns += [
+    path('products_api/', views.product_list_view, name='product-list'),
+    path('products_api/create/', views.product_create_view, name='product-create'),
+    path('products_api/<int:pk>/', views.product_retrieve_view, name='product-detail'),
+    path('products_api/<int:pk>/update/', views.product_update_view, name='product-update'),
+    path('products_api/<int:pk>/delete/', views.product_delete_view, name='product-delete'),
+    path('products_api/<int:pk>/sale/', views.product_sale_view, name='product-sale'),
+]

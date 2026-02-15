@@ -15,4 +15,5 @@ export default [
 	route("upgrade-subscription", "routes/UpgradeSubscription.tsx"),
 	route("payment-history", "routes/PaymentHistory.tsx"),
 	route('products/:productId/edit', 'routes/product.tsx'),
+	route('customers/:customerId', 'routes/CustomerDetail.tsx'),
 ] satisfies RouteConfig;

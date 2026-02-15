@@ -1,254 +1,200 @@
-import React, { use, useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import type { Route } from "./+types/dashboard";
-import { redirect, useNavigate } from "react-router";
+import { useNavigate, useLoaderData } from "react-router";
 import { useAuth } from "~/Context/AppContext";
 
-// Mock Data for the UI
-const STATS = [
-  {
-    label: "Total Revenue",
-    value: "4,250,000 TZS",
-    change: "+12.5%",
-    icon: "bi-currency-exchange",
-    color: "text-blue-600",
-    bg: "bg-blue-50",
-  },
-  {
-    label: "Total Products",
-    value: "48",
-    change: "+5.2%",
-    icon: "bi-cart-check",
-    color: "text-emerald-600",
-    bg: "bg-emerald-50",
-  },
-  {
-    label: "Low Stock Items",
-    value: "12",
-    change: "Critical",
-    icon: "bi-exclamation-triangle",
-    color: "text-amber-600",
-    bg: "bg-amber-50",
-  },
-  {
-    label: "Total Inventory Value",
-    value: "156",
-    change: "+18%",
-    icon: "bi-people",
-    color: "text-purple-600",
-    bg: "bg-purple-50",
-  },
-];
-
-const RECENT_SALES = [
-  {
-    id: "#1024",
-    product: "TOTAL RUBIA SAE 40",
-    amount: "111,000",
-    status: "Verified",
-  },
-  {
-    id: "#1023",
-    product: "TOYOTA 5W30 (BATI)",
-    amount: "160,000",
-    status: "Pending",
-  },
-  {
-    id: "#1022",
-    product: "Brake Pads - Hilux",
-    amount: "45,000",
-    status: "Verified",
-  },
-  { id: "#1021", product: "Coolant 1L", amount: "15,000", status: "Verified" },
-];
+// --- CONFIGURATION ---
+const API_BASE = "http://127.0.0.1:8080";
+const DASHBOARD_API_URL = `${API_BASE}/index/dashboard_api/`;
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "Msaidizi | Dashboard" }];
 }
 
-export function headers({}: Route.HeadersArgs) {
-  return {};
+// --- LOADER ---
+export async function loader({}: Route.LoaderArgs) {
+  const res = await fetch(DASHBOARD_API_URL);
+  if (!res.ok) throw new Error("Failed to fetch dashboard data");
+  return res.json();
 }
 
-const apiUrl = "https://msaidizi.nsaro.com/index/dashboard_api/";
+// --- UTILS ---
+const formatCurrency = (val: string | number) => {
+  const num = typeof val === "string" ? parseFloat(val) : val;
+  return new Intl.NumberFormat("en-TZ").format(num || 0);
+};
 
-function thousandSeparator(value: string | number) {
-  if (!value) return "0";
-  const num = typeof value === 'string' ? parseFloat(value) : value;
-  return num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
- 
-
-export function loader({}: Route.LoaderArgs) {
-  return fetch(apiUrl).then((res) => res.json());
-}
-
-interface ServerData { 
+interface ServerData {
   total_products: number;
   total_sales: string;
   total_units_sold: number;
   total_inventory_value: number;
+  low_stock_count?: number; // Added if available from API
 }
 
-
-
-export default function Dashboard({loaderData}: Route.ComponentArgs<typeof loader>) {
-  const { isAuthenticated } = useAuth(); // Replace with real authentication logic
+export default function Dashboard() {
+  const loaderData = useLoaderData() as ServerData;
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  console.log("isAuthenticated:", isAuthenticated);
+
+  // Auth Guard
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate("/login", { replace: true });
-    }
+    if (!isAuthenticated) navigate("/login", { replace: true });
   }, [isAuthenticated, navigate]);
-console.clear();
-  const data: ServerData = loaderData;
-  console.log("Dashboard loader data:", data);
+
+  // Derived Stats Mapping
+  const stats = useMemo(() => [
+    {
+      label: "Total Revenue",
+      value: `${formatCurrency(loaderData.total_sales)} TZS`,
+      trend: "+12.5%",
+      icon: "💰",
+      color: "blue",
+    },
+    {
+      label: "Total Products",
+      value: loaderData.total_products.toString(),
+      trend: "In Stock",
+      icon: "📦",
+      color: "emerald",
+    },
+    {
+      label: "Low Stock Items",
+      value: "12", // Fallback or dynamic
+      trend: "Critical",
+      icon: "⚠️",
+      color: "amber",
+    },
+    {
+      label: "Total Inventory Value",
+      value: `${formatCurrency(loaderData.total_inventory_value)} TZS`,
+      trend: "Assets",
+      icon: "🏦",
+      color: "purple",
+    },
+  ], [loaderData]);
+
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-gray-50 min-h-screen animate-in fade-in duration-500">
+      
       {/* Header */}
-      <header className="mb-8">
-        <h1 className="text-2xl font-black text-gray-900 tracking-tight">
-          System Overview
-        </h1>
-        <p className="text-gray-500 font-medium text-sm">
-          Welcome back! Here is what's happening today.
-        </p>
+      <header className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-gray-900 tracking-tight">System Overview</h1>
+          <p className="text-gray-500 font-medium text-sm mt-1">
+            Welcome back! Here is your business at a glance.
+          </p>
+        </div>
+        <div className="flex gap-2">
+           {/* <button onClick={() => window.print()} className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-xl text-xs font-bold hover:bg-gray-50 transition-all shadow-sm">
+             Export PDF
+           </button> */}
+           <button onClick={() => navigate('/record-sale')} className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">
+             New Sale
+           </button>
+        </div>
       </header>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {STATS.map((stat, i) => (
-          <div
-            key={i}
-            className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm"
-          >
-            <div className="flex justify-between items-start mb-4">
-              <div
-                className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center text-2xl`}
-              >
-                <i className={`bi ${stat.icon}`}></i>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        {stats.map((stat, i) => (
+          <div key={i} className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-shadow group">
+            <div className="flex justify-between items-start mb-6">
+              <div className="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                {stat.icon}
               </div>
-              <span
-                className={`text-xs font-bold px-2 py-1 rounded-lg ${stat.change.includes("+") ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
-              >
-                {stat.change}
+              <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest ${
+                stat.color === 'amber' ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'
+              }`}>
+                {stat.trend}
               </span>
             </div>
-            <h3 className="text-gray-500 text-sm font-bold uppercase tracking-wider">
+            <h3 className="text-gray-400 text-[10px] font-black uppercase tracking-widest mb-1">
               {stat.label}
             </h3>
-            <p className="text-2xl font-black text-gray-900 mt-1">
-              {data &&  data.total_sales
-                ? stat.label === "Total Revenue"
-                  ? thousandSeparator(data.total_sales) + " TZS"
-                  : stat.label === "Total Products"
-                  ? data.total_products
-                  : stat.label === "Total Units Sold"
-                  ? data.total_units_sold
-                  : stat.label === "Total Inventory Value"
-                  ? data.total_inventory_value
-                  : stat.total_inventory_value
-                : stat.value}
+            <p className="text-xl font-black text-gray-900 truncate">
+              {stat.value}
             </p>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Recent Activity Table */}
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-gray-50 flex justify-between items-center">
-            <h3 className="font-bold text-gray-800">Latest Transactions</h3>
-            <button className="text-blue-600 text-sm font-bold hover:underline">
-              View All
+        {/* Latest Transactions */}
+        <div className="lg:col-span-2 bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
+          <div className="p-8 border-b border-gray-50 flex justify-between items-center">
+            <h3 className="font-black text-gray-900 tracking-tight">Recent Sales</h3>
+            <button onClick={() => navigate('/sales')} className="text-blue-600 text-[10px] font-black uppercase tracking-widest hover:underline">
+              View All Ledger
             </button>
           </div>
-          <table className="w-full text-left">
-            <thead className="bg-gray-50/50">
-              <tr>
-                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">
-                  Order
-                </th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">
-                  Product
-                </th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">
-                  Amount
-                </th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {RECENT_SALES.map((sale) => (
-                <tr
-                  key={sale.id}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  <td className="px-6 py-4 text-sm font-mono text-gray-500">
-                    {sale.id}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-bold text-gray-800">
-                    {sale.product}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium">
-                    {sale.amount} TZS
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-2 py-1 rounded-md text-[10px] font-black uppercase ${
-                        sale.status === "Verified"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-amber-100 text-amber-700"
-                      }`}
-                    >
-                      {sale.status}
-                    </span>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="bg-gray-50/50">
+                  <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">ID</th>
+                  <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Product</th>
+                  <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Amount</th>
+                  <th className="px-8 py-4 text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {/* Sample rows for UI polish - replace with real recent sales data if available */}
+                {[
+                  { id: "#1024", product: "TOTAL RUBIA SAE 40", amount: "111,000", status: "Verified" },
+                  { id: "#1023", product: "TOYOTA 5W30 (BATI)", amount: "160,000", status: "Pending" }
+                ].map((sale) => (
+                  <tr key={sale.id} className="hover:bg-gray-50/50 transition-colors group">
+                    <td className="px-8 py-5 text-xs font-mono font-bold text-gray-400">{sale.id}</td>
+                    <td className="px-8 py-5 text-sm font-black text-gray-800">{sale.product}</td>
+                    <td className="px-8 py-5 text-sm font-bold text-right text-gray-900">{sale.amount} <span className="text-[10px] text-gray-400">TZS</span></td>
+                    <td className="px-8 py-5 text-center">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${
+                        sale.status === "Verified" ? "bg-green-100 text-green-700" : "bg-amber-100 text-amber-700"
+                      }`}>
+                        {sale.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        {/* Inventory Warning & Quick Actions */}
+        {/* Sidebar Alerts */}
         <div className="space-y-6">
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-            <h3 className="font-bold text-gray-800 mb-4">Stock Alerts</h3>
+          <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+               <h3 className="font-black text-gray-900 tracking-tight">Stock Alerts</h3>
+               <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+            </div>
             <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="w-2 h-10 bg-red-500 rounded-full"></div>
+              <div className="flex items-center gap-4 p-4 bg-red-50 rounded-2xl border border-red-100">
+                <div className="text-2xl">⛽</div>
                 <div>
-                  <p className="text-sm font-bold text-gray-900">
-                    Total Rubia 4L
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Only 2 units remaining
-                  </p>
+                  <p className="text-sm font-black text-red-900">Total Rubia 4L</p>
+                  <p className="text-[10px] text-red-600 font-bold uppercase tracking-widest">2 Units Left</p>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="w-2 h-10 bg-amber-400 rounded-full"></div>
+              <div className="flex items-center gap-4 p-4 bg-amber-50 rounded-2xl border border-amber-100">
+                <div className="text-2xl">🧴</div>
                 <div>
-                  <p className="text-sm font-bold text-gray-900">
-                    Shell Helix 1L
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Only 8 units remaining
-                  </p>
+                  <p className="text-sm font-black text-amber-900">Shell Helix 1L</p>
+                  <p className="text-[10px] text-amber-600 font-bold uppercase tracking-widest">8 Units Left</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-blue-600 p-6 rounded-2xl shadow-lg shadow-blue-200 text-white">
-            <h3 className="font-bold mb-2">Need Help?</h3>
-            <p className="text-blue-100 text-sm mb-4">
-              Check out our latest training manual for inventory management.
+          <div className="bg-gray-900 p-8 rounded-[2.5rem] shadow-2xl shadow-gray-200 text-white relative overflow-hidden group">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+            <h3 className="font-black text-xl mb-2 relative z-10">Inventory Health</h3>
+            <p className="text-gray-400 text-xs mb-6 relative z-10 leading-relaxed">
+              Your inventory value has increased by 18% this month.
             </p>
-            <button className="w-full py-2 bg-white text-blue-600 rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors">
-              Read Documentation
+            <button className="w-full py-4 bg-white text-gray-900 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-50 transition-colors relative z-10">
+              Run Analysis
             </button>
           </div>
         </div>

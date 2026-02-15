@@ -121,14 +121,10 @@ class ProductViewSet(viewsets.ModelViewSet):
             created_by=user, 
             deleted=False
         )
-        print(products.count())  # Debug: Print the actual SQL query being executed
+        print(products.count())
         return products
 
     def perform_create(self, serializer):
-        """
-        Automatically associate the product with the user's primary business.
-        """
-        # Logic: Pick the first business the user is a member of
         user_business = self.request.user.businesses.first()
         serializer.save(business=user_business, created_by=self.request.user)
 
@@ -192,21 +188,19 @@ class ProductDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self, user):
-        """
-        Helper method to ensure users only see products 
-        belonging to their businesses.
-        """
         if user.is_staff:
             return Product.objects.all()
         return Product.objects.filter(business__members=user, deleted=False).distinct()
 
     def get(self, request, pk, *args, **kwargs):
+        print(f"Received GET request for product ID: {pk} by user: {request.user.username}")
         # This replaces .get() and automatically checks permissions
         product = get_object_or_404(self.get_queryset(request.user), pk=pk)
         serializer = ProductSerializer(product)
         return Response(serializer.data)
 
     def put(self, request, pk, *args, **kwargs):
+        print(f"Received PUT request for product ID: {pk} by user: {request.user.username}")
         # Ensuring they can only update a product they actually own/belong to
         product = get_object_or_404(self.get_queryset(request.user), pk=pk)
         
@@ -315,11 +309,10 @@ class SaleListView(APIView):
     # @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
     def post(self, request, *args, **kwargs):
         serializer = TransactionSerializer(data=request.data)
-        # serializer = SaleSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({
-                "message": "Transaction recorded successfully",
+                "message": "Transaction recorded and customer balance updated!",
                 "data": serializer.data
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -397,17 +390,17 @@ class SaleViewSet(viewsets.ModelViewSet):
         # Staff can see everything
         if user.username in ['nsaro', 'testuser']:
             print("User is staff or special user, returning all sales")
-            return Sale.objects.select_related('product').order_by('-date_sold')
+            return Sale.objects.filter(aproved=True).select_related('product').order_by('-date_sold')
 
         sales = Sale.objects.filter(
             product__created_by=user
         ).select_related('product').distinct().order_by('-date_sold'
-        ) if not (user.username == 'nsaro' or user.username == 'testuser'
+        ).filter(aproved=True) if not (user.username == 'nsaro' or user.username == 'testuser'
                   ) else Sale.objects.select_related('product').order_by('-date_sold')
-        
-        print(sales.query)  # Debug: Print the actual SQL query being executed
-
+        # print(sales.query)  # Debug: Print the actual SQL query being executed
+        print(f"Found {sales.count()} sales for user: {user.username}")
         return sales
+
     def perform_create(self, serializer):
         """
         Automatically link the sale to the user who processed it.

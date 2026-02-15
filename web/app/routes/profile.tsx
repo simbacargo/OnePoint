@@ -17,7 +17,7 @@ export default function Settings() {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     fullName: user || "",
-    email: (user || "user") + "@nsaro.com",
+    email: (user || "user@nsaro.com"),
     timezone: "UTC+3 (EAT)",
     currency: "TZS",
   });

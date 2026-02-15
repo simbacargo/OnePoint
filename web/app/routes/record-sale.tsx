@@ -3,14 +3,16 @@ import type { Route } from "./+types/record-sale";
 import { useAuth } from "~/Context/AppContext";
 import { useNavigate } from "react-router";
 
-const PRODUCTS_API_URL = "https://msaidizi.nsaro.com/api/products/";
-const CREATE_SALE_URL = "https://msaidizi.nsaro.com/sales/";
+const PRODUCTS_API_URL = "http://127.0.0.1:8080/api/products/";
+const CUSTOMERS_API_URL = "http://127.0.0.1:8080/api/customers/";
+const CREATE_SALE_URL = "http://127.0.0.1:8080/sales/";
 
+// --- TOKEN REFRESH LOGIC ---
 export async function refreshAccessToken() {
   const refreshToken = localStorage.getItem("refresh_token");
   if (!refreshToken) throw new Error("No refresh token available");
 
-  const response = await fetch("https://msaidizi.nsaro.com/api/token/refresh/", {
+  const response = await fetch("http://127.0.0.1:8080/api/token/refresh/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ refresh: refreshToken }),
@@ -23,55 +25,74 @@ export async function refreshAccessToken() {
   return data.access;
 }
 
+// --- UPDATED LOADER: Fetching both Products and Customers ---
 export async function clientLoader({}: Route.ClientLoaderArgs) {
   try {
     const token = localStorage.getItem("access_token");
-    
-    // If no token exists, don't even try to fetch; return empty to avoid the crash
-    if (!token) return [];
+    if (!token) return { products: [], customers: [] };
 
-    const res = await fetch(PRODUCTS_API_URL, {
-      headers: {
-        "Content-Type": "application/json",
-        "Cache-Control": "no-cache",
-        Accept: "application/json",
-        Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-      },
-    });
+    const headers = {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+    };
 
-    if (!res.ok) {
-      console.warn("Product fetch failed with status:", res.status);
-      return [];
-    }
+    const [prodRes, custRes] = await Promise.all([
+      fetch(PRODUCTS_API_URL, { headers }),
+      fetch(CUSTOMERS_API_URL, { headers })
+    ]);
 
-    const data = await res.json();
-    return data.results || data || []; // Handle cases where data might not be in .results
+    const prodData = await prodRes.json();
+    const custData = await custRes.json();
+
+    return {
+      products: prodData.results || prodData || [],
+      customers: custData.results || custData || []
+    };
   } catch (error) {
     console.error("Network error in clientLoader:", error);
-    return []; // Return empty array so the component still renders
+    return { products: [], customers: [] };
   }
 }
 
 export default function RecordSale({ loaderData }: Route.ComponentProps) {
-  const { isAuthenticated, accessToken } = useAuth(); // Replace with real authentication logic
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // Redirect if not logged in
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login?next=/record-sale", { replace: true });
     }
   }, [isAuthenticated, navigate]);
-  const allProducts = loaderData || [];
-  const [searchTerm, setSearchTerm] = useState("");
+
+  // --- EXTRACT DATA FROM LOADER ---
+  const allProducts = loaderData?.products || [];
+  const allCustomers = loaderData?.customers || [];
+
+  // --- STATE ---
+  const [searchTerm, setSearchTerm] = useState(""); // Product search
+  const [customerSearch, setCustomerSearch] = useState(""); // Customer search
+  const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   const [cart, setCart] = useState<any[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverResponse, setServerResponse] = useState<{
     type: "success" | "error";
     message: string;
   } | null>(null);
 
-  // NEW: State for API interaction
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [customerName, setCustomerName] = useState("");
+  // --- CLIENT-SIDE FILTERING: CUSTOMERS ---
+  const filteredCustomers = useMemo(() => {
+    if (customerSearch.length < 1 || (selectedCustomer && selectedCustomer.name === customerSearch)) {
+      return [];
+    }
+    const term = customerSearch.toLowerCase();
+    return allCustomers.filter((c: any) => 
+      c.name.toLowerCase().includes(term) || 
+      (c.phone && c.phone.includes(term))
+    );
+  }, [customerSearch, allCustomers, selectedCustomer]);
 
+  // --- CLIENT-SIDE FILTERING: PRODUCTS ---
   const filteredResults = useMemo(() => {
     if (searchTerm.length < 1) return [];
     const term = searchTerm.trim().toLowerCase();
@@ -82,6 +103,7 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
     );
   }, [searchTerm, allProducts]);
 
+  // --- CART FUNCTIONS ---
   const addToCart = (product: any) => {
     const existing = cart.find((item) => item.id === product.id);
     if (existing) {
@@ -113,7 +135,7 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
     0
   );
 
-  // --- NEW: API Submission Logic ---
+  // --- SUBMISSION LOGIC ---
   const handlePostSale = async () => {
     if (cart.length === 0) return;
 
@@ -121,7 +143,8 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
     setServerResponse(null);
 
     const saleObject = {
-      customer_name: customerName || "Walking Customer",
+      customer_id: selectedCustomer?.id || null, // Send ID if selected
+      customer_name: customerSearch || "Walking Customer",
       items: cart.map((item) => ({
         product: item.id,
         quantity_sold: item.qty,
@@ -136,32 +159,21 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Cache-Control": "no-cache",
-          Accept: "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+          "Authorization": `Bearer ${localStorage.getItem("access_token")}`,
         },
         body: JSON.stringify(saleObject),
       });
 
       const data = await response.json(); 
 
-      if (!response.ok) {
-        throw new Error(data?.message || "Server failed to record sale");
-      }
+      if (!response.ok) throw new Error(data?.message || "Failed to record sale");
 
-      setServerResponse({
-        type: "success",
-        message: data?.message || "Sale recorded successfully",
-      });
-
+      setServerResponse({ type: "success", message: "Sale recorded successfully" });
       setCart([]);
-      setCustomerName("");
+      setCustomerSearch("");
+      setSelectedCustomer(null);
     } catch (error: any) {
-      setServerResponse({
-        type: "error",
-        message: error.message || "Could not save sale",
-      });
-      console.error(error);
+      setServerResponse({ type: "error", message: error.message });
     } finally {
       setIsSubmitting(false);
     }
@@ -171,20 +183,46 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
     <div className="p-6 max-w-7xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          {/* Customer Input Section */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+          
+          {/* CUSTOMER INPUT SECTION */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm relative">
             <label className="block text-[10px] font-bold text-gray-400 uppercase mb-2">
-              Customer Details (Optional)
+              Customer Details {selectedCustomer && <span className="text-blue-600 ml-2">✓ Selected</span>}
             </label>
             <input
               type="text"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="Enter customer name..."
-              className="w-full px-4 py-2 border-b border-gray-200 outline-none focus:border-blue-500 transition-all text-sm  text-gray-800 text-ls font-bold"
+              value={customerSearch}
+              onChange={(e) => {
+                setCustomerSearch(e.target.value);
+                if (selectedCustomer) setSelectedCustomer(null);
+              }}
+              placeholder="Search or enter customer name..."
+              className="w-full px-4 py-2 border-b border-gray-200 outline-none focus:border-blue-500 transition-all text-sm text-gray-800 font-bold"
             />
+            
+            {/* Customer Dropdown */}
+            {filteredCustomers.length > 0 && (
+              <div className="absolute z-[60] left-6 right-6 mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-48 overflow-y-auto border-t-4 border-t-blue-500">
+                {filteredCustomers.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => {
+                      setSelectedCustomer(c);
+                      setCustomerSearch(c.name);
+                    }}
+                    className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-50 flex justify-between items-center"
+                  >
+                    <div>
+                      <div className="font-bold text-gray-900">{c.name}</div>
+                      <div className="text-xs text-gray-400">{c.phone || "No phone"}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
+          {/* PRODUCT SEARCH SECTION */}
           <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm relative">
             <label className="block text-sm font-bold text-gray-700 mb-2 underline decoration-blue-500 underline-offset-4">
               Find Product
@@ -196,7 +234,7 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search name or part number..."
-                className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all  text-gray-800 text-ls font-bold"
+                className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-800 font-bold"
               />
             </div>
 
@@ -220,11 +258,6 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
                       <div className="text-sm font-bold text-gray-900">
                         {Number(p.price).toLocaleString()} TZS
                       </div>
-                      <div
-                        className={`text-[10px] font-bold ${p.quantity > 0 ? "text-green-600" : "text-red-500"}`}
-                      >
-                        Stock: {p.quantity}
-                      </div>
                     </div>
                   </button>
                 ))}
@@ -232,7 +265,7 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
             )}
           </div>
 
-          {/* Cart Table */}
+          {/* CART TABLE */}
           <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
             <table className="w-full text-left">
               <thead className="bg-gray-50 border-b border-gray-100 font-bold text-xs text-gray-500 uppercase">
@@ -241,37 +274,21 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
                   <th className="px-6 py-4 text-center">Quantity</th>
                   <th className="px-6 py-4 text-right">Price</th>
                   <th className="px-6 py-4 text-right px-10">Subtotal</th>
+                  <th className="px-4 py-4"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {cart.map((item) => (
-                  <tr
-                    key={item.id}
-                    className="hover:bg-gray-50/50 transition-colors"
-                  >
+                  <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="px-6 py-4">
-                      <div className="font-semibold text-gray-900 text-sm">
-                        {item.name}
-                      </div>
-                      <div className="text-[10px] text-gray-400 font-mono">
-                        {item.part_number}
-                      </div>
+                      <div className="font-semibold text-gray-900 text-sm">{item.name}</div>
+                      <div className="text-[10px] text-gray-400 font-mono">{item.part_number}</div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-3">
-                        <button
-                          onClick={() => updateQty(item.id, -1)}
-                          className="w-7 h-7 rounded-full border border-gray-200 hover:bg-gray-100 text-gray-800 text-ls font-bold"
-                        >
-                          <i className="bi bi-dash"></i>
-                        </button>
-                        <span className="font-bold text-sm text-gray-800 text-ls font-bold">{item.qty}</span>
-                        <button
-                          onClick={() => updateQty(item.id, 1)}
-                          className="w-7 h-7 rounded-full border border-gray-200 hover:bg-gray-100 text-gray-800 text-ls font-bold"
-                        >
-                          <i className="bi bi-plus"></i>
-                        </button>
+                        <button onClick={() => updateQty(item.id, -1)} className="w-7 h-7 rounded-full border border-gray-200 font-bold">-</button>
+                        <span className="font-bold text-sm">{item.qty}</span>
+                        <button onClick={() => updateQty(item.id, 1)} className="w-7 h-7 rounded-full border border-gray-200 font-bold">+</button>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right text-xs text-gray-500">
@@ -280,6 +297,11 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
                     <td className="px-6 py-4 text-right font-bold text-gray-900 pr-10">
                       {(item.price * item.qty).toLocaleString()}
                     </td>
+                    <td className="px-4 py-4">
+                      <button onClick={() => removeFromCart(item.id)} className="text-red-400 hover:text-red-600">
+                         <i className="bi bi-trash"></i>
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -287,7 +309,7 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
           </div>
         </div>
 
-        {/* Summary Side */}
+        {/* SUMMARY SIDE */}
         <div className="lg:col-span-1">
           <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 sticky top-6">
             <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
@@ -296,16 +318,12 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
 
             <div className="space-y-4 mb-8">
               <div className="flex justify-between items-baseline border-b border-dashed pb-4">
-                <span className="text-lg font-bold text-gray-900">
-                  Grand Total
-                </span>
+                <span className="text-lg font-bold text-gray-900">Grand Total</span>
                 <div className="text-right">
                   <span className="text-3xl font-black text-blue-600 leading-none">
                     {total.toLocaleString()}
                   </span>
-                  <span className="text-xs font-bold text-blue-400 block mt-1">
-                    TZS
-                  </span>
+                  <span className="text-xs font-bold text-blue-400 block mt-1">TZS</span>
                 </div>
               </div>
             </div>
@@ -313,27 +331,14 @@ export default function RecordSale({ loaderData }: Route.ComponentProps) {
             <button
               onClick={handlePostSale}
               disabled={cart.length === 0 || isSubmitting}
-              className="w-full py-4 bg-gray-900 hover:bg-black disabled:bg-gray-100 disabled:text-gray-400 text-white rounded-xl font-bold text-lg transition-all shadow-lg flex items-center justify-center gap-3"
+              className="w-full py-4 bg-gray-900 hover:bg-black disabled:bg-gray-100 disabled:text-gray-400 text-white rounded-xl font-bold text-lg transition-all shadow-lg"
             >
-              {isSubmitting ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  SAVING...
-                </>
-              ) : (
-                <>
-                  <i className="bi bi-cloud-check"></i>
-                  Post Transaction
-                </>
-              )}
+              {isSubmitting ? "SAVING..." : "Post Transaction"}
             </button>
           </div>
           {serverResponse && (
-            <div
-              className={`mb-4 rounded-xl p-4 text-sm font-semibold ${
-                serverResponse.type === "success"
-                  ? "bg-green-50 text-green-700 border border-green-200"
-                  : "bg-red-50 text-red-700 border border-red-200"
+            <div className={`mt-4 rounded-xl p-4 text-sm font-semibold ${
+                serverResponse.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
               }`}
             >
               {serverResponse.message}

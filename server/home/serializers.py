@@ -41,11 +41,15 @@ class SaleSerializer(serializers.ModelSerializer):
 
 
 class SaleItemSerializer(serializers.ModelSerializer):
-    # This maps to the "items" array in your JSON
+    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
+
     class Meta:
         model = Sale
         fields = ['product', 'quantity_sold', 'price_per_unit']
 
+    # We need to make sure price_per_unit is treated as a decimal correctly
+    price_per_unit = serializers.DecimalField(max_digits=12, decimal_places=2)
+    
 class TransactionSerializer(serializers.Serializer):
     customer_name = serializers.CharField(max_length=100)
     total_amount = serializers.DecimalField(max_digits=12, decimal_places=2)
@@ -81,7 +85,68 @@ class TransactionSerializer(serializers.Serializer):
             "transaction_date": transaction_date,
             "items": created_sales
         }
+
     
+from rest_framework import serializers
+from django.db import transaction
+class SaleItemSerializer(serializers.ModelSerializer):
+    quantity_sold = serializers.IntegerField()
+    price_per_unit = serializers.DecimalField(max_digits=12, decimal_places=2)
+    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())
+
+    class Meta:
+        model = Sale
+        fields = ['product', 'quantity_sold', 'price_per_unit']
+    
+import os   
+class TransactionSerializer(serializers.Serializer):
+    customer_name = serializers.CharField(max_length=100)
+    total_amount = serializers.DecimalField(max_digits=12, decimal_places=2)
+    transaction_date = serializers.DateTimeField()
+    items = SaleItemSerializer(many=True)
+    
+    
+    def create(self, validated_data):
+        items_data = validated_data.pop('items')
+        customer_name = validated_data.pop('customer_name')
+        total_amount = validated_data.get('total_amount')
+        
+        with transaction.atomic():
+            # 1. Handle Customer logic
+            customer = None
+            if customer_name.lower() != "walking customer":
+                customer, created = Customer.objects.get_or_create(name=customer_name)
+                
+                # Update balance (convert decimal to int safely)
+                customer.remaining_balance += int(float(total_amount))
+                customer.save()
+
+            # 2. Create the Sale records
+            created_sales = []
+            for item in items_data:
+                # FIX: 'item['product']' is ALREADY a Product instance 
+                # because of PrimaryKeyRelatedField. No need to fetch it again!
+                product_instance = item['product'] 
+                
+                sale = Sale.objects.create(
+                    customer=customer,
+                    product=product_instance,
+                    quantity_sold=item['quantity_sold'],
+                    price_per_unit=item['price_per_unit']
+                )
+                created_sales.append(sale)
+                
+                # 3. Deduct stock from the product instance we already have
+                product_instance.quantity -= item['quantity_sold']
+                product_instance.save()
+        
+        return {
+            "customer_name": customer_name,
+            "total_amount": total_amount,
+            "transaction_date": validated_data.get('transaction_date'),
+            "items": created_sales
+        }
+        
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer

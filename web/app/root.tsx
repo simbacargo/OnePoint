@@ -34,6 +34,24 @@ export const links: Route.LinksFunction = () => [
 
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  //  useEffect(() => {
+  //   const handleKeyDown = (event: KeyboardEvent) => {
+  //     if (event.ctrlKey || event.key === "F12") {
+  //       event.preventDefault();
+  //     }
+  //   };
+  //   const handleContextMenu = (event: MouseEvent) => {
+  //     event.preventDefault();
+  //   };
+
+  //   document.addEventListener("keydown", handleKeyDown);
+  //   document.addEventListener("contextmenu", handleContextMenu);
+
+  //   return () => {
+  //     document.removeEventListener("keydown", handleKeyDown);
+  //     document.removeEventListener("contextmenu", handleContextMenu);
+  //   };
+  // }, []);
   return (
     <html lang="en">
       <head>
@@ -43,7 +61,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <main className="mx-auto flex gap-i40 w-full bg-gray-100">
+        <main className="mx-auto flex gap-i40 w-full bg-gray-100 text-gray-700">
           <Aside />
           <div className="flex-1 bg-white m-1 rounded-md p-2">{children}</div>
         </main>
