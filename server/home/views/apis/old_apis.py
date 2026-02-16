@@ -296,8 +296,8 @@ def low_stock_view(request):
     return render(request, 'sales/low_stock.html', context)
 
 class SaleListView(APIView):
-    permission_classes = [AllowAny]  # Optional: Only authenticated users can access the API
-
+    permission_classes = [IsAuthenticated]
+    
     # GET method - List all sales
     def get(self, request, *args, **kwargs):
         print("Received GET request for sales list")
@@ -308,7 +308,10 @@ class SaleListView(APIView):
     # POST method - Create a new sale
     # @method_decorator(cache_page(60 * 15))  # Cache for 15 minutes
     def post(self, request, *args, **kwargs):
-        serializer = TransactionSerializer(data=request.data)
+        serializer = TransactionSerializer(
+            data=request.data, 
+            context={'request': request}
+        )
         if serializer.is_valid():
             serializer.save()
             return Response({

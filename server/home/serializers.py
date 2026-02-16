@@ -98,7 +98,6 @@ class SaleItemSerializer(serializers.ModelSerializer):
         model = Sale
         fields = ['product', 'quantity_sold', 'price_per_unit']
     
-import os   
 class TransactionSerializer(serializers.Serializer):
     customer_name = serializers.CharField(max_length=100)
     total_amount = serializers.DecimalField(max_digits=12, decimal_places=2)
@@ -107,45 +106,50 @@ class TransactionSerializer(serializers.Serializer):
     
     
     def create(self, validated_data):
+        # Get request from context passed by the View
+        request = self.context.get('request')
+        user = request.user if request and request.user.is_authenticated else None
+        
+        print("--- DEBUG ---")
+        print(f"User making the sale: {user}") 
+        print("--- --- ---")
+
         items_data = validated_data.pop('items')
         customer_name = validated_data.pop('customer_name')
         total_amount = validated_data.get('total_amount')
         
         with transaction.atomic():
-            # 1. Handle Customer logic
             customer = None
             if customer_name.lower() != "walking customer":
                 customer, created = Customer.objects.get_or_create(name=customer_name)
-                
-                # Update balance (convert decimal to int safely)
-                customer.remaining_balance += int(float(total_amount))
+                # Use Decimal math directly since total_amount is a DecimalField
+                customer.remaining_balance += total_amount
                 customer.save()
 
-            # 2. Create the Sale records
             created_sales = []
             for item in items_data:
-                # FIX: 'item['product']' is ALREADY a Product instance 
-                # because of PrimaryKeyRelatedField. No need to fetch it again!
-                product_instance = item['product'] 
-                
+                # We assign 'user' to the 'created_by' field defined in your Model
                 sale = Sale.objects.create(
+                    created_by=user, 
                     customer=customer,
-                    product=product_instance,
+                    product=item['product'],
                     quantity_sold=item['quantity_sold'],
                     price_per_unit=item['price_per_unit']
+                    # total_amount is calculated in Sale.save() automatically
                 )
                 created_sales.append(sale)
                 
-                # 3. Deduct stock from the product instance we already have
-                product_instance.quantity -= item['quantity_sold']
-                product_instance.save()
-        
+                # Note: Your Sale.save() already calls self.product.update_stock.
+                # If update_stock handles quantity deduction, you don't need 
+                # to manually subtract it here.
+                
         return {
             "customer_name": customer_name,
             "total_amount": total_amount,
             "transaction_date": validated_data.get('transaction_date'),
             "items": created_sales
         }
+        
         
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:

@@ -1,5 +1,6 @@
 import { Text, View } from "@/components/Themed";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -63,18 +64,16 @@ function Products() {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY5NDIyNDI2LCJpYXQiOjE3Njk0MjIxMjYsImp0aSI6IjhiMDBmZjYzMTFiZjQ3M2FiYzBkODdiMTZhZTJhZGVmIiwidXNlcl9pZCI6Ijc5NTkzNjk1LTcxMTEtNDdhMi1hYjM0LWNkNjA1Njc5OGYwOCJ9.Ag4K0IhVI0NBlBQ84_o_WMJ36lLdSOaFlbjeDhoWvvI"
   const fetchProducts = async () => {
+  const token = await AsyncStorage.getItem("@authToken")
     setIsLoading(true);
     try {
-      // Updated URL to match your provided endpoint
-      console.clear();
       const request = await fetch("http://127.0.0.1:8080/api/products/", {
   method: "GET",
   headers: {
     "Content-Type": "application/json",
     "Accept": "application/json",
-//    "Authorization": `Token ${token}`,
+   "Authorization": `Bearer ${token}`,
   },
 });
 const response: ProductsResponse = await request.json();
@@ -99,7 +98,7 @@ console.log(response);
 
   useEffect(() => {
     if (allProducts) {
-      const filteredResults = allProducts.filter((product) => {
+      const filteredResults = allProducts?.filter((product) => {
         const nameMatch = product.name
           .toLowerCase()
           .includes(searchQuery.toLowerCase());

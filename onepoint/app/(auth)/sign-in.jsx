@@ -139,6 +139,21 @@ export default function CombinedAuthComponent() {
     }
   };
 
+    useEffect(() => {
+      const loadSession = async () => {
+        const storedUser = await AsyncStorage.getItem('@user');
+        const storedToken = await AsyncStorage.getItem('@authToken');
+
+        if (storedUser && storedToken) {
+          setUserInfo(JSON.parse(storedUser));
+          set_is_logged_in(true);
+          router.replace('/'); // Move to home screen
+        }
+      };
+
+      loadSession();
+    }, []);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scroll}>

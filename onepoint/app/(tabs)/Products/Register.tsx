@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
     ActivityIndicator,
     Alert,
@@ -11,13 +12,14 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View
+    View,
+    Animated // For the pretty toast animation
 } from 'react-native';
 
-// Using your real production domain
 const API_URL = 'http://127.0.0.1:8080/api/products/';
 
 const ProductRegistrationScreen = () => {
+    // All your original state fields
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
@@ -27,52 +29,79 @@ const ProductRegistrationScreen = () => {
     const [vehicles, setVehicles] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // --- Toast Logic ---
+    const [toastMessage, setToastMessage] = useState('');
+    const [showToast, setShowToast] = useState(false);
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+
+    const triggerToast = (msg) => {
+        setToastMessage(msg);
+        setShowToast(true);
+
+        // Fade In
+        Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+        }).start();
+
+        // After 2 seconds, Fade Out
+        setTimeout(() => {
+            Animated.timing(fadeAnim, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+            }).start(() => setShowToast(false));
+        }, 2000);
+    };
+
     const handleRegisterProduct = async () => {
         // Validation
         if (!name || !price || !quantity) {
-            Alert.alert('Required Fields', 'Please fill in Product Name, Price, and Quantity.');
+            triggerToast('Required: Name, Price, and Quantity');
             return;
         }
 
         setIsSubmitting(true);
 
-        // Prepare data to match your API JSON structure
         const productData = {
             name: name.trim(),
             description: description.trim() || "",
             brand: brand.trim() || "",
-            price: parseFloat(price).toFixed(0), // API expects string like "3000.00"
+            price: parseFloat(price).toFixed(0),
             part_number: partNumber.trim() || "",
             quantity: parseInt(quantity, 10),
-            // Default fields as seen in your GET response
             quantity_in_store: 0,
             amount: "0.00",
             sold_units: 0,
             amount_collected: "0.00",
             deleted: false,
-            // Parsing vehicle IDs from "1, 2" string into [1, 2] array
             vehicles: vehicles ? vehicles.split(',').map(id => parseInt(id.trim(), 10)).filter(id => !isNaN(id)) : []
         };
 
         try {
+            const token = await AsyncStorage.getItem('@authToken');
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify(productData),
             });
 
             if (response.ok || response.status === 201) {
                 Alert.alert('Success', 'Product added to inventory!', [
-                    { text: 'OK', onPress: () => router.back() } // Go back to product list
+                    { text: 'OK', onPress: () => router.replace('/products') }
                 ]);
             } else {
                 const errorData = await response.json();
-                Alert.alert('Error', JSON.stringify(errorData));
+                // Show the server error in the toast
+                triggerToast(errorData.message || 'Server error occurred');
             }
         } catch (error) {
-            Alert.alert('Network Error', 'Check your internet connection and try again.');
+            triggerToast('Network Error: Check your connection');
         } finally {
             setIsSubmitting(false);
         }
@@ -83,8 +112,14 @@ const ProductRegistrationScreen = () => {
             style={{ flex: 1, backgroundColor: '#f8f9fa' }}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-            {/* <SafeAreaView style={{ flex: 0, backgroundColor: '#fff' }} /> */}
-            
+            {/* --- Pretty Toast UI --- */}
+            {showToast && (
+                <Animated.View style={[styles.toastContainer, { opacity: fadeAnim }]}>
+                    <Ionicons name="alert-circle" size={20} color="#fff" style={{ marginRight: 8 }} />
+                    <Text style={styles.toastText}>{toastMessage}</Text>
+                </Animated.View>
+            )}
+
             <View style={styles.topHeader}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
                     <Ionicons name="chevron-back" size={28} color="#333" />
@@ -187,6 +222,32 @@ const ProductRegistrationScreen = () => {
 };
 
 const styles = StyleSheet.create({
+    // --- Added Toast Styles ---
+    toastContainer: {
+        position: 'absolute',
+        top: 50,
+        left: 20,
+        right: 20,
+        backgroundColor: '#E53935', // Nice "Pretty" Red
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 25,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000,
+        elevation: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4.65,
+    },
+    toastText: {
+        color: 'white',
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    // --- Original Styles ---
     topHeader: {
         flexDirection: 'row',
         alignItems: 'center',

@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -27,8 +28,16 @@ const ProductDetailScreen = () => {
     // 2. useEffect hook to fetch data
     useEffect(() => {
         const fetchProductDetails = async () => {
+  const token = await AsyncStorage.getItem("@authToken")
             try {
-                const response = await fetch(url);
+                const response = await fetch(url, {
+  method: "GET",
+  headers: {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+   "Authorization": `Bearer ${token}`,
+  },
+});
                 if (!response.ok) {
                     // Throw an error if the response status is not 2xx
                     throw new Error(`HTTP error! status: ${response.status}`);
